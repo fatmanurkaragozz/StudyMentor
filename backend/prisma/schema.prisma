@@ -1,0 +1,173 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum EducationLevel {
+  MIDDLE_SCHOOL // LGS
+  HIGH_SCHOOL   // YKS
+  UNIVERSITY    // Vize/Final
+}
+
+enum TopicStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum RecommendationType {
+  STUDY_PRIORITY
+  REVISION
+  GENERAL
+}
+
+model User {
+  id             String         @id @default(uuid())
+  email          String         @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  role           Role           @default(STUDENT)
+  educationLevel EducationLevel
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  // İlişkiler
+  customSubjects       Subject[]
+  studySessions        StudySession[]
+  exams                Exam[]
+  habits               Habit[]
+  journals             Journal[]
+  aiRecommendations    AIRecommendation[]
+  resourceSuggestions ResourceSuggestion[]
+}
+
+model Subject {
+  id             String          @id @default(uuid())
+  name           String
+  educationLevel EducationLevel? // Null ise kullanıcıya özel veya genel derstir
+  userId         String?         // Kullanıcıya özel tanımlandıysa
+  user           User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime        @default(now())
+
+  // İlişkiler
+  topics        Topic[]
+  studySessions StudySession[]
+  exams         ExamSubject[]
+
+  @@unique([name, userId])
+}
+
+model Topic {
+  id          String      @id @default(uuid())
+  name        String
+  subjectId   String
+  subject     Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  status      TopicStatus @default(NOT_STARTED)
+  lastStudied DateTime?
+  nextReview  DateTime?   // Spaced repetition algoritması tarafından belirlenecek tarih
+  createdAt   DateTime    @default(now())
+
+  // İlişkiler
+  studySessions StudySession[]
+}
+
+model StudySession {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId       String
+  subject         Subject  @relation(fields: [subjectId], references: [id])
+  topicId         String
+  topic           Topic    @relation(fields: [topicId], references: [id])
+  durationMinutes Int
+  difficulty      Int      // 1-5 arası zorluk
+  productivity    Int      // 1-5 arası verimlilik
+  notes           String?
+  createdAt       DateTime @default(now())
+}
+
+model Exam {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String   // Örn: "YKS Deneme-1", "Matematik Vize"
+  date        DateTime
+  targetScore Float?
+  resultScore Float?
+  createdAt   DateTime @default(now())
+
+  // İlişkiler
+  subjects    ExamSubject[]
+}
+
+model ExamSubject {
+  id        String  @id @default(uuid())
+  examId    String
+  exam      Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  score     Float?  // Bu dersten yapılan net veya alınan puan
+}
+
+model Habit {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String   // Örn: "Kitap okuma", "Spor", "İngilizce çalışma"
+  createdAt DateTime @default(now())
+
+  // İlişkiler
+  logs      HabitLog[]
+}
+
+model HabitLog {
+  id          String   @id @default(uuid())
+  habitId     String
+  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  date        DateTime // Gün bazında tarih (YYYY-MM-DD)
+  isCompleted Boolean  @default(false)
+
+  @@unique([habitId, date])
+}
+
+model Journal {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content        String
+  mood           String   // Emoji veya mood metni
+  sentimentScore Float?   // AI tarafından hesaplanacak duygu analizi skoru (-1 ile +1 arası)
+  createdAt      DateTime @default(now())
+}
+
+model AIRecommendation {
+  id        String             @id @default(uuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  type      RecommendationType
+  isRead    Boolean            @default(false)
+  createdAt DateTime           @default(now())
+}
+
+model ResourceSuggestion {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String   // Örn: "BTK Akademi - Algoritma Eğitimi"
+  link        String
+  subjectName String
+  createdAt   DateTime @default(now())
+}
