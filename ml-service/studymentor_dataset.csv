@@ -1,0 +1,1001 @@
+session_id,user_mode,subject_or_project,duration_minutes,difficulty_rating,productivity_rating,days_since_last_study,habit_streak_days,next_review_days
+sess_0001,STUDENT,Biyoloji,120,3,2,13,9,4
+sess_0002,LIFELONG_LEARNER,React & TypeScript,60,4,3,24,33,6
+sess_0003,LIFELONG_LEARNER,Finansal Okuryazarlık,45,2,5,9,35,9
+sess_0004,STUDENT,Kimya (Organik),60,1,1,22,24,6
+sess_0005,STUDENT,Türkçe,45,2,2,10,5,5
+sess_0006,STUDENT,Matematik (Türev),60,3,5,15,23,7
+sess_0007,STUDENT,Türkçe,45,5,5,5,17,4
+sess_0008,LIFELONG_LEARNER,React & TypeScript,90,5,1,22,22,4
+sess_0009,LIFELONG_LEARNER,Finansal Okuryazarlık,45,4,5,16,5,6
+sess_0010,LIFELONG_LEARNER,React & TypeScript,45,5,5,13,28,5
+sess_0011,STUDENT,Matematik (Türev),25,1,5,22,24,19
+sess_0012,LIFELONG_LEARNER,React & TypeScript,45,5,2,25,16,5
+sess_0013,LIFELONG_LEARNER,Python & FastAPI,25,4,1,20,23,4
+sess_0014,STUDENT,Biyoloji,120,3,5,18,10,8
+sess_0015,STUDENT,Kimya (Organik),25,3,5,11,25,7
+sess_0016,STUDENT,Fizik (Mekanik),90,5,2,27,33,5
+sess_0017,STUDENT,Matematik (Türev),25,2,1,9,27,3
+sess_0018,STUDENT,Türkçe,120,3,3,16,2,6
+sess_0019,STUDENT,Fizik (Mekanik),90,5,2,2,10,2
+sess_0020,STUDENT,Fizik (Mekanik),60,4,1,26,37,5
+sess_0021,LIFELONG_LEARNER,Finansal Okuryazarlık,60,5,5,25,13,7
+sess_0022,STUDENT,Matematik (Türev),25,3,1,2,25,1
+sess_0023,STUDENT,Fizik (Mekanik),25,4,1,12,20,3
+sess_0024,STUDENT,Türkçe,120,5,1,8,38,2
+sess_0025,STUDENT,Fizik (Mekanik),120,1,3,9,29,11
+sess_0026,LIFELONG_LEARNER,İngilizce Pratik,45,4,1,12,7,3
+sess_0027,STUDENT,Türkçe,120,1,3,26,19,13
+sess_0028,STUDENT,Matematik (Türev),45,2,5,9,31,9
+sess_0029,STUDENT,Kimya (Organik),90,4,3,10,21,4
+sess_0030,STUDENT,Fizik (Mekanik),25,1,5,25,6,19
+sess_0031,LIFELONG_LEARNER,İngilizce Pratik,90,3,5,2,8,6
+sess_0032,STUDENT,Türkçe,120,3,3,16,44,6
+sess_0033,STUDENT,Fizik (Mekanik),90,2,2,20,0,6
+sess_0034,LIFELONG_LEARNER,İngilizce Pratik,90,4,4,7,28,4
+sess_0035,LIFELONG_LEARNER,React & TypeScript,90,4,1,28,7,5
+sess_0036,LIFELONG_LEARNER,Finansal Okuryazarlık,120,4,4,2,3,3
+sess_0037,STUDENT,Kimya (Organik),90,2,1,1,34,2
+sess_0038,STUDENT,Fizik (Mekanik),45,4,1,19,2,4
+sess_0039,LIFELONG_LEARNER,İngilizce Pratik,120,3,5,28,44,9
+sess_0040,STUDENT,Fizik (Mekanik),90,1,1,4,39,4
+sess_0041,STUDENT,Matematik (Türev),120,3,1,24,6,5
+sess_0042,STUDENT,Kimya (Organik),60,3,3,22,26,6
+sess_0043,STUDENT,Biyoloji,45,1,4,27,0,17
+sess_0044,LIFELONG_LEARNER,Finansal Okuryazarlık,90,3,3,2,26,3
+sess_0045,STUDENT,Türkçe,60,2,1,25,15,5
+sess_0046,LIFELONG_LEARNER,React & TypeScript,60,1,5,14,37,18
+sess_0047,STUDENT,Kimya (Organik),120,3,3,2,6,3
+sess_0048,STUDENT,Türkçe,60,5,3,29,43,6
+sess_0049,STUDENT,Kimya (Organik),45,3,2,15,22,4
+sess_0050,STUDENT,Fizik (Mekanik),45,2,1,12,40,3
+sess_0051,LIFELONG_LEARNER,İngilizce Pratik,25,4,5,5,10,5
+sess_0052,LIFELONG_LEARNER,İngilizce Pratik,45,3,3,28,41,7
+sess_0053,LIFELONG_LEARNER,Finansal Okuryazarlık,60,4,3,20,32,5
+sess_0054,LIFELONG_LEARNER,İngilizce Pratik,45,5,5,29,35,7
+sess_0055,STUDENT,Matematik (Türev),120,3,1,7,36,2
+sess_0056,LIFELONG_LEARNER,Finansal Okuryazarlık,25,1,2,24,40,10
+sess_0057,STUDENT,Türkçe,60,4,3,21,16,5
+sess_0058,STUDENT,Matematik (Türev),25,5,2,10,34,3
+sess_0059,STUDENT,Türkçe,60,1,4,14,4,15
+sess_0060,STUDENT,Fizik (Mekanik),120,1,1,14,31,5
+sess_0061,STUDENT,Matematik (Türev),25,1,4,5,2,13
+sess_0062,STUDENT,Türkçe,90,1,4,18,34,15
+sess_0063,LIFELONG_LEARNER,React & TypeScript,60,3,4,24,13,8
+sess_0064,STUDENT,Biyoloji,90,3,1,14,30,3
+sess_0065,STUDENT,Fizik (Mekanik),25,3,1,2,30,1
+sess_0066,STUDENT,Kimya (Organik),90,5,5,26,16,7
+sess_0067,STUDENT,Fizik (Mekanik),90,5,2,12,23,3
+sess_0068,LIFELONG_LEARNER,React & TypeScript,25,5,2,22,22,5
+sess_0069,STUDENT,Kimya (Organik),120,2,5,24,17,11
+sess_0070,LIFELONG_LEARNER,İngilizce Pratik,90,5,5,6,13,4
+sess_0071,LIFELONG_LEARNER,Python & FastAPI,90,3,4,4,14,5
+sess_0072,STUDENT,Türkçe,120,3,5,13,14,7
+sess_0073,STUDENT,Fizik (Mekanik),90,2,3,4,5,5
+sess_0074,LIFELONG_LEARNER,Finansal Okuryazarlık,90,2,2,22,26,6
+sess_0075,LIFELONG_LEARNER,Finansal Okuryazarlık,90,5,5,14,14,5
+sess_0076,LIFELONG_LEARNER,İngilizce Pratik,45,4,3,16,35,5
+sess_0077,LIFELONG_LEARNER,İngilizce Pratik,120,2,3,29,7,9
+sess_0078,STUDENT,Biyoloji,90,1,3,4,14,10
+sess_0079,STUDENT,Türkçe,120,3,3,24,2,7
+sess_0080,STUDENT,Matematik (Türev),60,1,4,25,12,16
+sess_0081,LIFELONG_LEARNER,Python & FastAPI,60,3,3,1,40,3
+sess_0082,LIFELONG_LEARNER,React & TypeScript,90,3,4,13,33,6
+sess_0083,STUDENT,Türkçe,120,2,4,4,23,7
+sess_0084,STUDENT,Biyoloji,120,2,3,20,39,8
+sess_0085,STUDENT,Matematik (Türev),120,1,2,18,31,9
+sess_0086,STUDENT,Biyoloji,45,3,3,6,31,4
+sess_0087,LIFELONG_LEARNER,İngilizce Pratik,60,1,3,3,29,10
+sess_0088,LIFELONG_LEARNER,Python & FastAPI,120,4,3,23,12,6
+sess_0089,LIFELONG_LEARNER,React & TypeScript,120,1,2,13,0,8
+sess_0090,STUDENT,Matematik (Türev),45,5,1,27,33,5
+sess_0091,STUDENT,Biyoloji,45,1,1,16,14,6
+sess_0092,LIFELONG_LEARNER,Python & FastAPI,120,5,4,27,43,7
+sess_0093,LIFELONG_LEARNER,Python & FastAPI,25,5,4,5,13,3
+sess_0094,STUDENT,Matematik (Türev),120,5,2,4,28,2
+sess_0095,LIFELONG_LEARNER,İngilizce Pratik,120,4,5,21,33,7
+sess_0096,STUDENT,Türkçe,45,1,1,8,17,4
+sess_0097,STUDENT,Fizik (Mekanik),45,1,4,19,6,15
+sess_0098,STUDENT,Biyoloji,120,4,1,14,28,3
+sess_0099,STUDENT,Fizik (Mekanik),120,3,2,7,30,3
+sess_0100,STUDENT,Türkçe,120,2,2,14,24,5
+sess_0101,STUDENT,Matematik (Türev),45,1,5,6,37,17
+sess_0102,LIFELONG_LEARNER,Finansal Okuryazarlık,120,2,5,12,13,10
+sess_0103,STUDENT,Matematik (Türev),120,4,2,16,7,4
+sess_0104,STUDENT,Türkçe,90,3,4,17,26,7
+sess_0105,LIFELONG_LEARNER,React & TypeScript,25,3,1,13,1,3
+sess_0106,STUDENT,Matematik (Türev),60,3,3,23,16,7
+sess_0107,STUDENT,Matematik (Türev),25,4,5,14,36,6
+sess_0108,LIFELONG_LEARNER,Python & FastAPI,90,5,3,29,13,6
+sess_0109,STUDENT,Biyoloji,60,5,4,7,24,4
+sess_0110,STUDENT,Biyoloji,120,2,5,14,29,10
+sess_0111,STUDENT,Kimya (Organik),90,5,3,15,28,4
+sess_0112,STUDENT,Fizik (Mekanik),120,5,4,12,19,4
+sess_0113,LIFELONG_LEARNER,Python & FastAPI,45,3,1,17,20,4
+sess_0114,LIFELONG_LEARNER,Python & FastAPI,90,3,4,9,21,6
+sess_0115,LIFELONG_LEARNER,Python & FastAPI,45,2,5,22,34,11
+sess_0116,LIFELONG_LEARNER,İngilizce Pratik,90,1,2,15,36,8
+sess_0117,LIFELONG_LEARNER,Finansal Okuryazarlık,90,2,1,12,15,3
+sess_0118,STUDENT,Kimya (Organik),45,2,3,2,42,5
+sess_0119,LIFELONG_LEARNER,React & TypeScript,60,4,5,5,16,5
+sess_0120,STUDENT,Türkçe,25,4,2,13,15,4
+sess_0121,LIFELONG_LEARNER,React & TypeScript,120,2,4,27,1,10
+sess_0122,LIFELONG_LEARNER,Python & FastAPI,90,2,2,20,3,6
+sess_0123,STUDENT,Biyoloji,120,2,5,23,20,11
+sess_0124,STUDENT,Biyoloji,45,5,5,8,38,4
+sess_0125,STUDENT,Kimya (Organik),120,4,2,27,33,6
+sess_0126,STUDENT,Biyoloji,45,2,4,14,29,8
+sess_0127,LIFELONG_LEARNER,Python & FastAPI,120,3,2,15,5,4
+sess_0128,LIFELONG_LEARNER,İngilizce Pratik,25,3,5,11,16,7
+sess_0129,STUDENT,Türkçe,25,5,5,1,38,3
+sess_0130,STUDENT,Kimya (Organik),25,5,3,21,24,5
+sess_0131,STUDENT,Türkçe,25,1,3,3,4,10
+sess_0132,STUDENT,Fizik (Mekanik),25,1,1,17,4,6
+sess_0133,STUDENT,Kimya (Organik),25,1,5,28,19,20
+sess_0134,STUDENT,Fizik (Mekanik),45,5,3,19,15,5
+sess_0135,LIFELONG_LEARNER,Python & FastAPI,90,5,2,14,40,3
+sess_0136,STUDENT,Fizik (Mekanik),120,5,4,22,36,6
+sess_0137,STUDENT,Matematik (Türev),25,3,2,23,39,6
+sess_0138,LIFELONG_LEARNER,Python & FastAPI,45,5,4,8,8,4
+sess_0139,STUDENT,Fizik (Mekanik),45,3,3,13,4,5
+sess_0140,LIFELONG_LEARNER,İngilizce Pratik,45,1,1,27,41,7
+sess_0141,LIFELONG_LEARNER,Finansal Okuryazarlık,90,1,2,20,1,9
+sess_0142,STUDENT,Türkçe,120,1,2,3,8,7
+sess_0143,STUDENT,Türkçe,90,2,2,5,42,4
+sess_0144,STUDENT,Matematik (Türev),60,2,4,9,35,8
+sess_0145,STUDENT,Matematik (Türev),45,4,3,29,21,7
+sess_0146,STUDENT,Kimya (Organik),60,4,2,6,21,2
+sess_0147,LIFELONG_LEARNER,Finansal Okuryazarlık,25,4,2,25,21,5
+sess_0148,STUDENT,Fizik (Mekanik),25,2,1,22,33,5
+sess_0149,STUDENT,Matematik (Türev),90,2,1,2,28,2
+sess_0150,STUDENT,Türkçe,120,4,3,13,37,4
+sess_0151,LIFELONG_LEARNER,İngilizce Pratik,60,4,3,5,32,3
+sess_0152,STUDENT,Fizik (Mekanik),120,5,5,28,17,7
+sess_0153,STUDENT,Kimya (Organik),90,4,1,27,6,5
+sess_0154,STUDENT,Fizik (Mekanik),25,5,5,25,0,7
+sess_0155,LIFELONG_LEARNER,React & TypeScript,120,3,4,8,32,5
+sess_0156,STUDENT,Matematik (Türev),120,2,5,23,0,11
+sess_0157,LIFELONG_LEARNER,Finansal Okuryazarlık,25,4,2,1,23,2
+sess_0158,LIFELONG_LEARNER,İngilizce Pratik,60,2,5,20,3,11
+sess_0159,STUDENT,Kimya (Organik),25,2,3,12,3,6
+sess_0160,LIFELONG_LEARNER,React & TypeScript,120,2,4,23,17,10
+sess_0161,STUDENT,Türkçe,60,3,2,11,26,4
+sess_0162,LIFELONG_LEARNER,Finansal Okuryazarlık,60,1,5,7,42,17
+sess_0163,LIFELONG_LEARNER,Python & FastAPI,25,4,4,15,31,5
+sess_0164,STUDENT,Matematik (Türev),120,1,4,22,32,16
+sess_0165,STUDENT,Matematik (Türev),90,1,2,24,27,10
+sess_0166,LIFELONG_LEARNER,Finansal Okuryazarlık,120,1,5,11,41,17
+sess_0167,STUDENT,Türkçe,45,2,4,29,40,11
+sess_0168,STUDENT,Fizik (Mekanik),90,5,4,22,35,6
+sess_0169,STUDENT,Kimya (Organik),60,2,1,26,5,5
+sess_0170,STUDENT,Matematik (Türev),90,2,4,16,15,9
+sess_0171,LIFELONG_LEARNER,Finansal Okuryazarlık,60,1,1,3,33,4
+sess_0172,STUDENT,Kimya (Organik),60,2,5,20,22,11
+sess_0173,STUDENT,Kimya (Organik),90,1,5,14,41,18
+sess_0174,STUDENT,Biyoloji,60,5,5,3,23,4
+sess_0175,LIFELONG_LEARNER,Python & FastAPI,60,4,3,1,12,2
+sess_0176,STUDENT,Matematik (Türev),45,1,5,26,17,20
+sess_0177,LIFELONG_LEARNER,İngilizce Pratik,120,5,4,21,12,6
+sess_0178,STUDENT,Matematik (Türev),120,4,2,15,36,4
+sess_0179,LIFELONG_LEARNER,React & TypeScript,45,3,1,1,42,1
+sess_0180,STUDENT,Biyoloji,90,1,3,17,38,12
+sess_0181,STUDENT,Fizik (Mekanik),25,1,5,2,41,16
+sess_0182,STUDENT,Matematik (Türev),25,3,5,29,16,10
+sess_0183,LIFELONG_LEARNER,İngilizce Pratik,25,3,2,20,14,5
+sess_0184,LIFELONG_LEARNER,Finansal Okuryazarlık,45,1,2,6,17,7
+sess_0185,STUDENT,Matematik (Türev),45,3,3,8,22,4
+sess_0186,LIFELONG_LEARNER,Python & FastAPI,60,2,1,29,29,6
+sess_0187,LIFELONG_LEARNER,İngilizce Pratik,25,4,5,16,33,6
+sess_0188,STUDENT,Kimya (Organik),90,4,3,19,3,5
+sess_0189,STUDENT,Fizik (Mekanik),90,4,4,1,2,3
+sess_0190,STUDENT,Biyoloji,25,2,4,3,6,7
+sess_0191,STUDENT,Kimya (Organik),25,3,3,28,17,7
+sess_0192,LIFELONG_LEARNER,Python & FastAPI,25,5,5,3,41,4
+sess_0193,LIFELONG_LEARNER,Finansal Okuryazarlık,45,3,3,5,6,4
+sess_0194,LIFELONG_LEARNER,React & TypeScript,45,1,5,27,39,20
+sess_0195,STUDENT,Fizik (Mekanik),45,4,2,12,5,3
+sess_0196,STUDENT,Türkçe,120,3,3,12,21,5
+sess_0197,LIFELONG_LEARNER,Finansal Okuryazarlık,90,5,5,20,0,6
+sess_0198,LIFELONG_LEARNER,Finansal Okuryazarlık,90,1,3,13,3,11
+sess_0199,LIFELONG_LEARNER,Python & FastAPI,60,2,3,20,42,8
+sess_0200,LIFELONG_LEARNER,Finansal Okuryazarlık,45,2,5,9,28,9
+sess_0201,LIFELONG_LEARNER,Python & FastAPI,120,5,5,7,20,4
+sess_0202,STUDENT,Türkçe,120,1,1,4,25,4
+sess_0203,STUDENT,Matematik (Türev),90,4,3,19,13,5
+sess_0204,LIFELONG_LEARNER,React & TypeScript,45,3,4,22,8,7
+sess_0205,LIFELONG_LEARNER,Finansal Okuryazarlık,60,1,3,19,11,12
+sess_0206,STUDENT,Türkçe,45,2,3,6,41,6
+sess_0207,STUDENT,Türkçe,25,5,5,27,5,7
+sess_0208,LIFELONG_LEARNER,İngilizce Pratik,45,5,3,13,19,4
+sess_0209,STUDENT,Fizik (Mekanik),25,3,3,11,23,5
+sess_0210,STUDENT,Kimya (Organik),25,5,4,13,26,4
+sess_0211,STUDENT,Fizik (Mekanik),60,5,5,13,37,5
+sess_0212,LIFELONG_LEARNER,Finansal Okuryazarlık,90,1,3,28,7,14
+sess_0213,LIFELONG_LEARNER,İngilizce Pratik,45,4,2,25,0,5
+sess_0214,STUDENT,Türkçe,25,3,1,22,23,4
+sess_0215,LIFELONG_LEARNER,Python & FastAPI,45,1,4,28,6,17
+sess_0216,STUDENT,Matematik (Türev),90,4,3,20,18,5
+sess_0217,STUDENT,Kimya (Organik),90,1,2,15,21,8
+sess_0218,LIFELONG_LEARNER,Finansal Okuryazarlık,120,1,3,21,34,13
+sess_0219,LIFELONG_LEARNER,Finansal Okuryazarlık,90,5,3,13,29,4
+sess_0220,LIFELONG_LEARNER,Finansal Okuryazarlık,60,4,5,22,28,7
+sess_0221,LIFELONG_LEARNER,Python & FastAPI,25,3,5,11,21,7
+sess_0222,STUDENT,Kimya (Organik),120,3,5,19,10,8
+sess_0223,STUDENT,Kimya (Organik),60,4,2,8,19,3
+sess_0224,STUDENT,Matematik (Türev),45,5,3,20,28,5
+sess_0225,STUDENT,Türkçe,25,2,1,8,40,3
+sess_0226,STUDENT,Kimya (Organik),90,1,4,10,41,14
+sess_0227,LIFELONG_LEARNER,Python & FastAPI,25,5,5,26,33,7
+sess_0228,STUDENT,Matematik (Türev),45,4,5,16,0,6
+sess_0229,LIFELONG_LEARNER,Python & FastAPI,120,1,3,19,30,12
+sess_0230,LIFELONG_LEARNER,React & TypeScript,120,3,3,26,29,7
+sess_0231,LIFELONG_LEARNER,Finansal Okuryazarlık,120,2,2,23,17,7
+sess_0232,STUDENT,Kimya (Organik),90,3,2,11,16,4
+sess_0233,STUDENT,Biyoloji,60,4,5,13,37,6
+sess_0234,STUDENT,Türkçe,60,1,3,28,13,14
+sess_0235,STUDENT,Kimya (Organik),25,4,1,9,22,2
+sess_0236,LIFELONG_LEARNER,Python & FastAPI,90,1,4,20,24,16
+sess_0237,STUDENT,Fizik (Mekanik),120,5,3,24,14,5
+sess_0238,STUDENT,Matematik (Türev),120,2,3,19,21,8
+sess_0239,LIFELONG_LEARNER,İngilizce Pratik,45,5,2,16,2,4
+sess_0240,STUDENT,Fizik (Mekanik),45,5,4,7,18,4
+sess_0241,LIFELONG_LEARNER,React & TypeScript,120,4,5,19,43,7
+sess_0242,LIFELONG_LEARNER,Finansal Okuryazarlık,120,2,3,12,33,6
+sess_0243,LIFELONG_LEARNER,İngilizce Pratik,90,1,5,15,34,18
+sess_0244,STUDENT,Türkçe,60,1,3,23,0,13
+sess_0245,STUDENT,Fizik (Mekanik),45,3,5,14,20,7
+sess_0246,LIFELONG_LEARNER,Finansal Okuryazarlık,60,1,4,11,28,14
+sess_0247,STUDENT,Fizik (Mekanik),90,4,2,26,5,5
+sess_0248,LIFELONG_LEARNER,React & TypeScript,120,5,4,10,36,4
+sess_0249,LIFELONG_LEARNER,Python & FastAPI,60,5,1,27,0,5
+sess_0250,LIFELONG_LEARNER,Python & FastAPI,120,5,2,11,0,3
+sess_0251,STUDENT,Biyoloji,120,2,4,6,26,7
+sess_0252,STUDENT,Fizik (Mekanik),25,1,1,2,20,3
+sess_0253,LIFELONG_LEARNER,Finansal Okuryazarlık,60,4,3,11,15,4
+sess_0254,STUDENT,Türkçe,60,2,3,19,43,8
+sess_0255,STUDENT,Kimya (Organik),120,3,5,6,39,6
+sess_0256,STUDENT,Matematik (Türev),90,4,2,14,25,4
+sess_0257,LIFELONG_LEARNER,Python & FastAPI,25,4,3,20,15,5
+sess_0258,LIFELONG_LEARNER,Python & FastAPI,120,4,2,6,27,2
+sess_0259,STUDENT,Fizik (Mekanik),45,5,3,17,0,4
+sess_0260,STUDENT,Biyoloji,45,4,5,10,35,5
+sess_0261,LIFELONG_LEARNER,Finansal Okuryazarlık,25,1,4,28,9,17
+sess_0262,LIFELONG_LEARNER,Finansal Okuryazarlık,90,4,5,1,42,4
+sess_0263,STUDENT,Türkçe,120,5,1,3,16,1
+sess_0264,STUDENT,Kimya (Organik),60,4,3,8,22,4
+sess_0265,LIFELONG_LEARNER,Finansal Okuryazarlık,25,3,1,8,6,2
+sess_0266,LIFELONG_LEARNER,React & TypeScript,90,3,1,27,43,5
+sess_0267,LIFELONG_LEARNER,İngilizce Pratik,60,5,2,20,6,4
+sess_0268,LIFELONG_LEARNER,React & TypeScript,45,1,3,22,43,13
+sess_0269,STUDENT,Fizik (Mekanik),45,1,1,15,14,5
+sess_0270,STUDENT,Matematik (Türev),60,2,4,24,33,10
+sess_0271,LIFELONG_LEARNER,Finansal Okuryazarlık,25,5,1,7,44,2
+sess_0272,LIFELONG_LEARNER,React & TypeScript,45,4,4,11,3,5
+sess_0273,LIFELONG_LEARNER,İngilizce Pratik,120,5,2,7,13,2
+sess_0274,LIFELONG_LEARNER,Finansal Okuryazarlık,60,2,1,29,13,6
+sess_0275,STUDENT,Biyoloji,60,5,5,4,15,4
+sess_0276,STUDENT,Türkçe,45,5,2,25,6,5
+sess_0277,LIFELONG_LEARNER,Python & FastAPI,25,2,4,12,31,8
+sess_0278,LIFELONG_LEARNER,React & TypeScript,120,1,2,26,18,10
+sess_0279,LIFELONG_LEARNER,Finansal Okuryazarlık,25,4,1,6,1,2
+sess_0280,LIFELONG_LEARNER,Finansal Okuryazarlık,90,2,3,14,9,7
+sess_0281,LIFELONG_LEARNER,Finansal Okuryazarlık,90,3,3,12,16,5
+sess_0282,STUDENT,Biyoloji,45,1,4,11,36,14
+sess_0283,STUDENT,Fizik (Mekanik),45,3,4,19,11,7
+sess_0284,STUDENT,Biyoloji,45,1,3,21,5,13
+sess_0285,STUDENT,Kimya (Organik),90,4,4,5,21,4
+sess_0286,STUDENT,Matematik (Türev),25,4,2,14,31,4
+sess_0287,STUDENT,Biyoloji,25,5,5,21,40,6
+sess_0288,STUDENT,Matematik (Türev),45,3,5,24,19,9
+sess_0289,STUDENT,Fizik (Mekanik),120,1,2,16,0,9
+sess_0290,STUDENT,Matematik (Türev),25,4,5,25,5,8
+sess_0291,STUDENT,Fizik (Mekanik),90,2,1,13,18,4
+sess_0292,STUDENT,Kimya (Organik),60,4,2,25,17,5
+sess_0293,LIFELONG_LEARNER,React & TypeScript,60,2,4,29,5,11
+sess_0294,STUDENT,Fizik (Mekanik),60,1,2,22,44,10
+sess_0295,STUDENT,Türkçe,120,4,3,22,32,6
+sess_0296,STUDENT,Biyoloji,45,4,4,25,22,7
+sess_0297,LIFELONG_LEARNER,Finansal Okuryazarlık,90,1,3,20,22,12
+sess_0298,STUDENT,Kimya (Organik),120,4,4,22,25,6
+sess_0299,LIFELONG_LEARNER,İngilizce Pratik,90,2,5,4,12,8
+sess_0300,STUDENT,Biyoloji,90,4,2,11,6,3
+sess_0301,STUDENT,Türkçe,45,3,1,17,14,4
+sess_0302,STUDENT,Biyoloji,60,5,4,7,43,4
+sess_0303,STUDENT,Türkçe,45,2,4,14,26,8
+sess_0304,LIFELONG_LEARNER,İngilizce Pratik,120,3,3,26,25,7
+sess_0305,LIFELONG_LEARNER,Python & FastAPI,120,1,5,11,32,17
+sess_0306,LIFELONG_LEARNER,React & TypeScript,120,2,3,28,14,9
+sess_0307,STUDENT,Kimya (Organik),45,5,3,22,35,5
+sess_0308,STUDENT,Kimya (Organik),90,5,5,9,44,4
+sess_0309,LIFELONG_LEARNER,React & TypeScript,90,1,1,23,26,7
+sess_0310,STUDENT,Fizik (Mekanik),25,1,3,13,4,11
+sess_0311,STUDENT,Fizik (Mekanik),120,2,3,23,1,8
+sess_0312,STUDENT,Fizik (Mekanik),90,4,4,18,32,6
+sess_0313,STUDENT,Türkçe,25,1,5,28,15,20
+sess_0314,LIFELONG_LEARNER,Finansal Okuryazarlık,90,4,2,11,22,3
+sess_0315,LIFELONG_LEARNER,Python & FastAPI,120,3,1,15,37,3
+sess_0316,LIFELONG_LEARNER,İngilizce Pratik,60,5,1,25,15,4
+sess_0317,STUDENT,Türkçe,120,4,5,26,13,8
+sess_0318,STUDENT,Matematik (Türev),45,5,4,25,28,6
+sess_0319,STUDENT,Türkçe,90,4,4,22,25,6
+sess_0320,STUDENT,Türkçe,90,3,5,29,34,10
+sess_0321,STUDENT,Kimya (Organik),45,1,4,19,14,15
+sess_0322,LIFELONG_LEARNER,Finansal Okuryazarlık,45,3,1,1,2,1
+sess_0323,LIFELONG_LEARNER,Finansal Okuryazarlık,60,1,1,4,22,4
+sess_0324,STUDENT,Fizik (Mekanik),90,1,2,14,28,8
+sess_0325,LIFELONG_LEARNER,İngilizce Pratik,90,5,5,14,33,5
+sess_0326,LIFELONG_LEARNER,React & TypeScript,60,3,3,3,32,4
+sess_0327,STUDENT,Biyoloji,25,4,3,28,40,7
+sess_0328,LIFELONG_LEARNER,React & TypeScript,60,3,2,17,40,5
+sess_0329,STUDENT,Kimya (Organik),120,5,2,3,22,2
+sess_0330,STUDENT,Kimya (Organik),90,1,4,16,6,15
+sess_0331,STUDENT,Kimya (Organik),45,5,2,14,2,3
+sess_0332,LIFELONG_LEARNER,Python & FastAPI,120,2,2,20,31,6
+sess_0333,STUDENT,Biyoloji,90,2,3,29,30,9
+sess_0334,STUDENT,Biyoloji,60,4,4,13,17,5
+sess_0335,STUDENT,Türkçe,120,5,2,15,42,4
+sess_0336,STUDENT,Türkçe,90,4,2,14,6,4
+sess_0337,LIFELONG_LEARNER,İngilizce Pratik,25,4,4,24,40,7
+sess_0338,LIFELONG_LEARNER,Finansal Okuryazarlık,25,2,5,25,0,12
+sess_0339,STUDENT,Türkçe,45,4,4,19,13,6
+sess_0340,STUDENT,Kimya (Organik),90,2,3,6,31,6
+sess_0341,STUDENT,Biyoloji,25,1,5,10,5,17
+sess_0342,STUDENT,Kimya (Organik),60,5,1,27,38,5
+sess_0343,STUDENT,Matematik (Türev),90,4,4,15,9,5
+sess_0344,STUDENT,Türkçe,60,2,3,21,6,8
+sess_0345,STUDENT,Kimya (Organik),60,3,5,22,25,9
+sess_0346,LIFELONG_LEARNER,İngilizce Pratik,25,4,4,20,33,6
+sess_0347,LIFELONG_LEARNER,Python & FastAPI,90,1,2,26,29,10
+sess_0348,STUDENT,Fizik (Mekanik),120,1,4,6,35,13
+sess_0349,STUDENT,Biyoloji,25,3,1,23,20,4
+sess_0350,LIFELONG_LEARNER,React & TypeScript,25,2,4,25,16,10
+sess_0351,STUDENT,Fizik (Mekanik),90,4,5,10,32,5
+sess_0352,LIFELONG_LEARNER,Python & FastAPI,90,2,5,7,9,9
+sess_0353,LIFELONG_LEARNER,İngilizce Pratik,60,1,4,22,41,16
+sess_0354,STUDENT,Matematik (Türev),90,2,5,17,11,10
+sess_0355,STUDENT,Matematik (Türev),60,1,2,18,15,9
+sess_0356,LIFELONG_LEARNER,Finansal Okuryazarlık,25,2,4,17,40,9
+sess_0357,STUDENT,Biyoloji,45,3,2,9,31,3
+sess_0358,STUDENT,Fizik (Mekanik),120,5,2,10,14,3
+sess_0359,LIFELONG_LEARNER,İngilizce Pratik,25,3,3,10,26,5
+sess_0360,STUDENT,Biyoloji,90,3,4,25,27,8
+sess_0361,STUDENT,Kimya (Organik),120,5,5,7,16,4
+sess_0362,LIFELONG_LEARNER,Finansal Okuryazarlık,45,5,2,16,1,4
+sess_0363,STUDENT,Biyoloji,45,4,3,29,35,7
+sess_0364,STUDENT,Matematik (Türev),60,4,4,18,6,6
+sess_0365,LIFELONG_LEARNER,Python & FastAPI,120,3,4,6,12,5
+sess_0366,STUDENT,Türkçe,60,3,1,27,14,5
+sess_0367,LIFELONG_LEARNER,Python & FastAPI,25,1,1,20,24,6
+sess_0368,LIFELONG_LEARNER,Finansal Okuryazarlık,120,1,2,1,22,6
+sess_0369,STUDENT,Kimya (Organik),25,4,1,1,21,1
+sess_0370,STUDENT,Fizik (Mekanik),60,4,2,12,25,3
+sess_0371,STUDENT,Biyoloji,120,1,5,21,32,19
+sess_0372,STUDENT,Kimya (Organik),60,1,2,28,10,10
+sess_0373,STUDENT,Türkçe,120,2,1,2,9,2
+sess_0374,LIFELONG_LEARNER,Finansal Okuryazarlık,60,2,5,4,24,8
+sess_0375,STUDENT,Biyoloji,45,1,1,17,36,6
+sess_0376,STUDENT,Türkçe,60,2,2,4,42,4
+sess_0377,LIFELONG_LEARNER,Finansal Okuryazarlık,45,5,3,11,37,4
+sess_0378,STUDENT,Biyoloji,60,4,4,22,40,6
+sess_0379,LIFELONG_LEARNER,React & TypeScript,120,4,1,26,44,5
+sess_0380,STUDENT,Kimya (Organik),120,1,2,4,23,7
+sess_0381,STUDENT,Biyoloji,120,3,5,1,39,5
+sess_0382,LIFELONG_LEARNER,React & TypeScript,90,1,1,7,32,4
+sess_0383,LIFELONG_LEARNER,İngilizce Pratik,25,2,1,18,16,4
+sess_0384,LIFELONG_LEARNER,Python & FastAPI,120,3,4,9,23,6
+sess_0385,LIFELONG_LEARNER,React & TypeScript,45,2,2,29,36,7
+sess_0386,LIFELONG_LEARNER,React & TypeScript,120,5,3,3,1,2
+sess_0387,STUDENT,Matematik (Türev),90,2,5,8,31,9
+sess_0388,STUDENT,Biyoloji,45,5,2,29,23,6
+sess_0389,LIFELONG_LEARNER,Finansal Okuryazarlık,90,5,5,24,8,7
+sess_0390,LIFELONG_LEARNER,Finansal Okuryazarlık,45,2,1,19,3,4
+sess_0391,LIFELONG_LEARNER,Python & FastAPI,60,2,4,4,16,7
+sess_0392,STUDENT,Matematik (Türev),25,5,4,18,16,5
+sess_0393,STUDENT,Biyoloji,25,3,3,20,29,6
+sess_0394,LIFELONG_LEARNER,İngilizce Pratik,90,5,4,27,39,7
+sess_0395,STUDENT,Türkçe,25,4,1,11,10,2
+sess_0396,LIFELONG_LEARNER,Python & FastAPI,90,5,3,27,20,6
+sess_0397,LIFELONG_LEARNER,React & TypeScript,90,3,2,14,20,4
+sess_0398,STUDENT,Kimya (Organik),90,4,4,25,17,7
+sess_0399,LIFELONG_LEARNER,Finansal Okuryazarlık,25,1,3,18,28,12
+sess_0400,LIFELONG_LEARNER,Python & FastAPI,90,1,1,28,23,7
+sess_0401,STUDENT,Matematik (Türev),25,3,5,28,9,9
+sess_0402,LIFELONG_LEARNER,Finansal Okuryazarlık,90,5,5,29,44,7
+sess_0403,STUDENT,Türkçe,120,2,1,16,16,4
+sess_0404,LIFELONG_LEARNER,React & TypeScript,90,3,1,3,17,1
+sess_0405,STUDENT,Fizik (Mekanik),45,4,5,15,41,6
+sess_0406,LIFELONG_LEARNER,React & TypeScript,90,4,3,27,19,6
+sess_0407,STUDENT,Kimya (Organik),60,1,5,27,36,20
+sess_0408,STUDENT,Türkçe,90,4,1,4,44,1
+sess_0409,LIFELONG_LEARNER,Python & FastAPI,45,3,4,5,17,5
+sess_0410,STUDENT,Matematik (Türev),45,4,2,17,16,4
+sess_0411,STUDENT,Biyoloji,25,3,4,7,8,5
+sess_0412,LIFELONG_LEARNER,React & TypeScript,120,2,4,16,13,9
+sess_0413,LIFELONG_LEARNER,Python & FastAPI,90,1,1,14,28,5
+sess_0414,STUDENT,Kimya (Organik),25,4,5,26,30,8
+sess_0415,LIFELONG_LEARNER,React & TypeScript,120,3,3,16,3,6
+sess_0416,STUDENT,Kimya (Organik),90,5,4,7,17,4
+sess_0417,STUDENT,Matematik (Türev),60,1,5,9,19,17
+sess_0418,STUDENT,Matematik (Türev),90,2,3,4,42,5
+sess_0419,LIFELONG_LEARNER,Finansal Okuryazarlık,45,3,4,22,43,7
+sess_0420,LIFELONG_LEARNER,Python & FastAPI,45,2,3,11,8,6
+sess_0421,LIFELONG_LEARNER,React & TypeScript,60,2,5,2,12,8
+sess_0422,LIFELONG_LEARNER,Finansal Okuryazarlık,25,4,2,12,14,3
+sess_0423,STUDENT,Biyoloji,120,4,5,12,26,6
+sess_0424,STUDENT,Biyoloji,90,3,1,4,14,2
+sess_0425,STUDENT,Matematik (Türev),45,5,3,18,27,5
+sess_0426,STUDENT,Fizik (Mekanik),25,3,2,26,36,6
+sess_0427,STUDENT,Fizik (Mekanik),60,5,3,21,18,5
+sess_0428,LIFELONG_LEARNER,Finansal Okuryazarlık,45,2,3,7,25,6
+sess_0429,STUDENT,Matematik (Türev),60,1,4,29,25,17
+sess_0430,STUDENT,Fizik (Mekanik),90,3,1,1,24,1
+sess_0431,STUDENT,Matematik (Türev),120,3,3,26,25,7
+sess_0432,LIFELONG_LEARNER,Python & FastAPI,45,5,5,26,25,7
+sess_0433,LIFELONG_LEARNER,Python & FastAPI,45,2,5,23,27,11
+sess_0434,STUDENT,Türkçe,90,2,4,26,17,10
+sess_0435,STUDENT,Matematik (Türev),25,5,1,13,31,3
+sess_0436,LIFELONG_LEARNER,Python & FastAPI,120,2,1,6,2,2
+sess_0437,STUDENT,Biyoloji,45,4,5,6,1,5
+sess_0438,LIFELONG_LEARNER,React & TypeScript,120,1,2,12,32,8
+sess_0439,LIFELONG_LEARNER,React & TypeScript,45,3,4,8,41,5
+sess_0440,STUDENT,Fizik (Mekanik),120,1,4,24,18,16
+sess_0441,STUDENT,Fizik (Mekanik),60,3,5,22,16,9
+sess_0442,LIFELONG_LEARNER,React & TypeScript,45,4,5,19,43,7
+sess_0443,STUDENT,Fizik (Mekanik),120,2,2,5,32,4
+sess_0444,STUDENT,Fizik (Mekanik),25,5,2,18,11,4
+sess_0445,LIFELONG_LEARNER,İngilizce Pratik,60,4,1,5,2,2
+sess_0446,LIFELONG_LEARNER,React & TypeScript,60,1,4,25,42,16
+sess_0447,LIFELONG_LEARNER,React & TypeScript,25,5,4,10,25,4
+sess_0448,LIFELONG_LEARNER,İngilizce Pratik,120,2,5,1,34,8
+sess_0449,STUDENT,Biyoloji,90,4,1,10,7,2
+sess_0450,STUDENT,Matematik (Türev),25,5,4,5,35,3
+sess_0451,LIFELONG_LEARNER,Finansal Okuryazarlık,120,4,1,12,6,3
+sess_0452,STUDENT,Kimya (Organik),25,4,1,22,35,4
+sess_0453,STUDENT,Türkçe,25,2,5,27,15,12
+sess_0454,LIFELONG_LEARNER,İngilizce Pratik,45,3,1,7,23,2
+sess_0455,STUDENT,Kimya (Organik),120,5,2,9,0,3
+sess_0456,STUDENT,Matematik (Türev),90,2,2,22,24,6
+sess_0457,STUDENT,Matematik (Türev),45,4,3,21,9,5
+sess_0458,STUDENT,Matematik (Türev),25,2,5,12,15,10
+sess_0459,STUDENT,Fizik (Mekanik),25,3,3,23,15,7
+sess_0460,STUDENT,Biyoloji,25,5,2,29,7,6
+sess_0461,STUDENT,Fizik (Mekanik),120,3,3,1,28,3
+sess_0462,LIFELONG_LEARNER,Finansal Okuryazarlık,120,1,5,11,38,17
+sess_0463,LIFELONG_LEARNER,React & TypeScript,45,5,5,21,27,6
+sess_0464,STUDENT,Biyoloji,90,3,1,15,5,3
+sess_0465,LIFELONG_LEARNER,React & TypeScript,45,4,4,2,15,3
+sess_0466,STUDENT,Kimya (Organik),60,5,1,20,19,4
+sess_0467,STUDENT,Kimya (Organik),25,5,5,7,15,4
+sess_0468,LIFELONG_LEARNER,Finansal Okuryazarlık,25,2,2,21,6,6
+sess_0469,STUDENT,Biyoloji,25,4,2,12,40,3
+sess_0470,LIFELONG_LEARNER,React & TypeScript,45,1,1,22,13,6
+sess_0471,STUDENT,Fizik (Mekanik),45,3,5,18,42,8
+sess_0472,LIFELONG_LEARNER,React & TypeScript,25,2,2,3,25,4
+sess_0473,STUDENT,Fizik (Mekanik),45,3,5,7,25,6
+sess_0474,LIFELONG_LEARNER,İngilizce Pratik,120,1,2,11,13,8
+sess_0475,STUDENT,Kimya (Organik),120,1,5,18,6,18
+sess_0476,LIFELONG_LEARNER,İngilizce Pratik,45,5,3,12,32,4
+sess_0477,STUDENT,Matematik (Türev),25,1,5,6,25,17
+sess_0478,STUDENT,Biyoloji,45,3,5,5,44,6
+sess_0479,LIFELONG_LEARNER,React & TypeScript,45,4,1,26,19,5
+sess_0480,STUDENT,Kimya (Organik),45,4,3,1,2,2
+sess_0481,LIFELONG_LEARNER,React & TypeScript,60,5,4,12,3,4
+sess_0482,LIFELONG_LEARNER,React & TypeScript,120,3,1,27,25,5
+sess_0483,STUDENT,Biyoloji,90,3,4,26,10,8
+sess_0484,LIFELONG_LEARNER,İngilizce Pratik,90,1,2,11,1,8
+sess_0485,STUDENT,Biyoloji,60,3,4,4,13,5
+sess_0486,LIFELONG_LEARNER,Python & FastAPI,45,2,5,27,43,12
+sess_0487,STUDENT,Matematik (Türev),60,1,4,18,29,15
+sess_0488,STUDENT,Türkçe,60,2,1,4,11,2
+sess_0489,LIFELONG_LEARNER,İngilizce Pratik,25,5,1,17,25,3
+sess_0490,LIFELONG_LEARNER,React & TypeScript,120,4,4,2,43,3
+sess_0491,STUDENT,Kimya (Organik),90,5,1,29,32,5
+sess_0492,LIFELONG_LEARNER,İngilizce Pratik,45,4,1,24,12,4
+sess_0493,STUDENT,Biyoloji,90,5,4,22,13,6
+sess_0494,STUDENT,Türkçe,90,3,3,2,23,3
+sess_0495,STUDENT,Türkçe,120,2,3,12,33,6
+sess_0496,STUDENT,Türkçe,90,4,2,6,43,2
+sess_0497,STUDENT,Kimya (Organik),90,1,1,10,25,5
+sess_0498,STUDENT,Biyoloji,60,2,4,25,20,10
+sess_0499,LIFELONG_LEARNER,React & TypeScript,120,1,1,23,27,7
+sess_0500,LIFELONG_LEARNER,React & TypeScript,25,2,5,25,35,12
+sess_0501,LIFELONG_LEARNER,React & TypeScript,45,2,1,21,39,5
+sess_0502,STUDENT,Kimya (Organik),90,5,1,23,1,4
+sess_0503,STUDENT,Türkçe,45,4,3,27,41,6
+sess_0504,LIFELONG_LEARNER,Finansal Okuryazarlık,25,4,4,16,8,6
+sess_0505,LIFELONG_LEARNER,Finansal Okuryazarlık,45,2,1,14,22,4
+sess_0506,STUDENT,Matematik (Türev),25,3,3,7,14,4
+sess_0507,LIFELONG_LEARNER,İngilizce Pratik,60,3,2,28,12,6
+sess_0508,LIFELONG_LEARNER,İngilizce Pratik,90,1,3,28,22,14
+sess_0509,LIFELONG_LEARNER,Finansal Okuryazarlık,25,1,3,19,16,12
+sess_0510,LIFELONG_LEARNER,React & TypeScript,45,5,3,23,1,5
+sess_0511,LIFELONG_LEARNER,İngilizce Pratik,90,2,1,17,19,4
+sess_0512,STUDENT,Kimya (Organik),60,1,1,9,19,4
+sess_0513,LIFELONG_LEARNER,Python & FastAPI,90,1,2,26,2,10
+sess_0514,LIFELONG_LEARNER,Python & FastAPI,25,2,5,13,11,10
+sess_0515,STUDENT,Matematik (Türev),60,5,5,22,39,6
+sess_0516,STUDENT,Biyoloji,45,1,5,5,1,16
+sess_0517,STUDENT,Matematik (Türev),60,5,2,23,35,5
+sess_0518,LIFELONG_LEARNER,React & TypeScript,60,4,5,5,13,5
+sess_0519,LIFELONG_LEARNER,Python & FastAPI,120,5,5,10,15,5
+sess_0520,STUDENT,Fizik (Mekanik),60,3,3,21,18,6
+sess_0521,STUDENT,Türkçe,60,3,1,27,33,5
+sess_0522,STUDENT,Biyoloji,90,5,1,10,43,2
+sess_0523,LIFELONG_LEARNER,Python & FastAPI,45,3,3,27,5,7
+sess_0524,LIFELONG_LEARNER,Finansal Okuryazarlık,90,4,3,7,12,3
+sess_0525,LIFELONG_LEARNER,Finansal Okuryazarlık,90,2,3,26,35,9
+sess_0526,STUDENT,Biyoloji,25,3,1,15,21,3
+sess_0527,STUDENT,Biyoloji,90,3,5,7,17,6
+sess_0528,STUDENT,Biyoloji,120,5,3,29,11,6
+sess_0529,STUDENT,Fizik (Mekanik),120,4,2,27,29,6
+sess_0530,LIFELONG_LEARNER,Python & FastAPI,25,2,3,15,39,7
+sess_0531,LIFELONG_LEARNER,İngilizce Pratik,45,5,4,3,6,3
+sess_0532,LIFELONG_LEARNER,Finansal Okuryazarlık,45,5,3,19,31,5
+sess_0533,LIFELONG_LEARNER,Python & FastAPI,90,4,1,10,18,2
+sess_0534,STUDENT,Biyoloji,90,2,3,28,5,9
+sess_0535,LIFELONG_LEARNER,React & TypeScript,90,4,4,29,19,7
+sess_0536,LIFELONG_LEARNER,Python & FastAPI,45,2,2,15,26,5
+sess_0537,LIFELONG_LEARNER,React & TypeScript,60,4,5,3,42,4
+sess_0538,STUDENT,Biyoloji,120,5,3,6,36,3
+sess_0539,STUDENT,Fizik (Mekanik),60,5,4,12,6,4
+sess_0540,STUDENT,Fizik (Mekanik),60,1,4,15,4,15
+sess_0541,LIFELONG_LEARNER,Finansal Okuryazarlık,45,3,2,6,10,3
+sess_0542,LIFELONG_LEARNER,React & TypeScript,60,4,1,13,14,3
+sess_0543,STUDENT,Fizik (Mekanik),25,1,3,29,2,14
+sess_0544,LIFELONG_LEARNER,İngilizce Pratik,90,3,4,19,4,7
+sess_0545,LIFELONG_LEARNER,İngilizce Pratik,25,4,2,3,22,2
+sess_0546,STUDENT,Fizik (Mekanik),120,2,5,8,36,9
+sess_0547,STUDENT,Türkçe,90,3,4,8,8,5
+sess_0548,LIFELONG_LEARNER,Finansal Okuryazarlık,60,5,2,23,14,5
+sess_0549,STUDENT,Kimya (Organik),120,1,1,26,2,7
+sess_0550,LIFELONG_LEARNER,Python & FastAPI,90,3,1,20,28,4
+sess_0551,STUDENT,Fizik (Mekanik),60,3,4,15,5,6
+sess_0552,LIFELONG_LEARNER,Finansal Okuryazarlık,25,5,4,4,16,3
+sess_0553,STUDENT,Türkçe,90,4,3,19,25,5
+sess_0554,STUDENT,Matematik (Türev),60,2,2,21,20,6
+sess_0555,LIFELONG_LEARNER,İngilizce Pratik,25,5,4,3,7,3
+sess_0556,STUDENT,Fizik (Mekanik),120,2,3,13,20,7
+sess_0557,STUDENT,Biyoloji,120,4,3,8,10,4
+sess_0558,STUDENT,Fizik (Mekanik),120,3,4,23,37,8
+sess_0559,LIFELONG_LEARNER,Finansal Okuryazarlık,120,2,1,16,7,4
+sess_0560,LIFELONG_LEARNER,React & TypeScript,45,1,2,13,41,8
+sess_0561,LIFELONG_LEARNER,React & TypeScript,90,1,2,3,23,7
+sess_0562,STUDENT,Fizik (Mekanik),90,5,1,16,34,3
+sess_0563,STUDENT,Türkçe,45,4,4,9,13,4
+sess_0564,STUDENT,Türkçe,60,5,2,28,13,5
+sess_0565,STUDENT,Türkçe,60,5,4,14,9,5
+sess_0566,STUDENT,Matematik (Türev),120,5,4,13,11,4
+sess_0567,STUDENT,Biyoloji,25,1,3,21,37,13
+sess_0568,STUDENT,Türkçe,60,1,1,25,43,7
+sess_0569,LIFELONG_LEARNER,İngilizce Pratik,25,5,4,7,33,4
+sess_0570,STUDENT,Matematik (Türev),90,1,5,15,40,18
+sess_0571,STUDENT,Biyoloji,25,4,1,7,9,2
+sess_0572,LIFELONG_LEARNER,React & TypeScript,90,5,2,6,16,2
+sess_0573,STUDENT,Matematik (Türev),45,1,3,2,16,10
+sess_0574,LIFELONG_LEARNER,İngilizce Pratik,45,2,2,9,2,4
+sess_0575,LIFELONG_LEARNER,Python & FastAPI,120,5,2,22,30,5
+sess_0576,LIFELONG_LEARNER,Python & FastAPI,60,5,1,24,0,4
+sess_0577,STUDENT,Biyoloji,120,4,2,17,11,4
+sess_0578,LIFELONG_LEARNER,React & TypeScript,90,3,4,5,38,5
+sess_0579,STUDENT,Kimya (Organik),120,3,2,12,3,4
+sess_0580,STUDENT,Türkçe,25,4,3,1,41,2
+sess_0581,STUDENT,Türkçe,90,4,3,10,12,4
+sess_0582,LIFELONG_LEARNER,İngilizce Pratik,45,4,5,11,33,6
+sess_0583,STUDENT,Matematik (Türev),60,3,3,16,41,6
+sess_0584,STUDENT,Biyoloji,90,4,2,14,20,4
+sess_0585,LIFELONG_LEARNER,Finansal Okuryazarlık,90,1,3,8,21,11
+sess_0586,STUDENT,Biyoloji,25,5,1,24,3,4
+sess_0587,STUDENT,Türkçe,60,5,3,17,17,4
+sess_0588,STUDENT,Kimya (Organik),45,2,4,25,4,10
+sess_0589,STUDENT,Fizik (Mekanik),90,2,1,18,18,4
+sess_0590,STUDENT,Kimya (Organik),90,5,5,12,1,5
+sess_0591,STUDENT,Fizik (Mekanik),25,1,4,25,11,16
+sess_0592,LIFELONG_LEARNER,Python & FastAPI,120,3,2,17,16,5
+sess_0593,STUDENT,Fizik (Mekanik),45,3,2,28,9,6
+sess_0594,STUDENT,Biyoloji,60,1,2,26,33,10
+sess_0595,LIFELONG_LEARNER,React & TypeScript,90,3,4,14,5,6
+sess_0596,STUDENT,Matematik (Türev),90,4,4,16,7,6
+sess_0597,LIFELONG_LEARNER,Python & FastAPI,45,5,4,14,10,5
+sess_0598,STUDENT,Türkçe,120,5,1,9,11,2
+sess_0599,STUDENT,Biyoloji,90,1,1,4,8,4
+sess_0600,STUDENT,Kimya (Organik),45,3,2,25,1,6
+sess_0601,STUDENT,Biyoloji,25,2,3,23,7,8
+sess_0602,STUDENT,Matematik (Türev),120,2,2,11,10,5
+sess_0603,STUDENT,Matematik (Türev),60,3,5,6,35,6
+sess_0604,STUDENT,Biyoloji,90,2,1,15,9,4
+sess_0605,STUDENT,Biyoloji,45,1,4,5,20,13
+sess_0606,STUDENT,Matematik (Türev),25,1,1,11,19,5
+sess_0607,STUDENT,Kimya (Organik),60,3,4,25,7,8
+sess_0608,STUDENT,Türkçe,45,2,5,18,35,11
+sess_0609,STUDENT,Türkçe,45,1,5,13,28,18
+sess_0610,LIFELONG_LEARNER,Finansal Okuryazarlık,60,1,1,11,41,5
+sess_0611,STUDENT,Türkçe,25,4,4,14,11,5
+sess_0612,LIFELONG_LEARNER,Python & FastAPI,25,4,5,28,13,8
+sess_0613,LIFELONG_LEARNER,Python & FastAPI,120,1,2,18,20,9
+sess_0614,STUDENT,Biyoloji,90,3,2,27,21,6
+sess_0615,LIFELONG_LEARNER,Finansal Okuryazarlık,60,5,4,28,20,7
+sess_0616,LIFELONG_LEARNER,Finansal Okuryazarlık,60,5,1,25,43,4
+sess_0617,STUDENT,Biyoloji,60,1,5,28,29,20
+sess_0618,STUDENT,Kimya (Organik),25,1,1,19,38,6
+sess_0619,LIFELONG_LEARNER,Python & FastAPI,90,1,2,24,19,10
+sess_0620,LIFELONG_LEARNER,Finansal Okuryazarlık,120,3,5,27,23,9
+sess_0621,STUDENT,Fizik (Mekanik),45,4,1,15,22,3
+sess_0622,STUDENT,Fizik (Mekanik),45,1,3,9,6,11
+sess_0623,STUDENT,Matematik (Türev),60,1,4,8,8,14
+sess_0624,STUDENT,Türkçe,90,2,4,20,0,9
+sess_0625,LIFELONG_LEARNER,Finansal Okuryazarlık,25,3,3,28,25,7
+sess_0626,STUDENT,Fizik (Mekanik),90,1,2,1,37,6
+sess_0627,STUDENT,Türkçe,90,2,5,4,37,8
+sess_0628,LIFELONG_LEARNER,Python & FastAPI,25,5,4,14,43,5
+sess_0629,STUDENT,Kimya (Organik),60,1,3,25,21,13
+sess_0630,STUDENT,Türkçe,90,1,3,2,43,10
+sess_0631,LIFELONG_LEARNER,Python & FastAPI,45,2,2,16,9,6
+sess_0632,LIFELONG_LEARNER,İngilizce Pratik,25,3,2,3,5,3
+sess_0633,STUDENT,Türkçe,120,1,1,26,16,7
+sess_0634,STUDENT,Matematik (Türev),60,5,4,8,37,4
+sess_0635,STUDENT,Matematik (Türev),25,1,1,6,23,4
+sess_0636,STUDENT,Kimya (Organik),120,5,3,16,9,4
+sess_0637,STUDENT,Biyoloji,120,4,5,24,7,8
+sess_0638,STUDENT,Fizik (Mekanik),90,4,5,16,20,6
+sess_0639,STUDENT,Biyoloji,90,5,2,7,5,2
+sess_0640,STUDENT,Türkçe,90,3,5,13,20,7
+sess_0641,STUDENT,Fizik (Mekanik),25,1,5,13,38,18
+sess_0642,STUDENT,Kimya (Organik),25,1,5,5,23,16
+sess_0643,STUDENT,Kimya (Organik),60,4,3,25,32,6
+sess_0644,STUDENT,Fizik (Mekanik),90,5,5,20,17,6
+sess_0645,STUDENT,Matematik (Türev),120,1,5,22,27,19
+sess_0646,LIFELONG_LEARNER,React & TypeScript,45,1,5,18,31,18
+sess_0647,STUDENT,Türkçe,60,3,1,15,11,3
+sess_0648,LIFELONG_LEARNER,Python & FastAPI,25,2,3,18,41,7
+sess_0649,LIFELONG_LEARNER,İngilizce Pratik,60,4,2,2,26,2
+sess_0650,STUDENT,Kimya (Organik),60,4,1,10,9,2
+sess_0651,STUDENT,Fizik (Mekanik),60,2,4,23,41,10
+sess_0652,STUDENT,Biyoloji,60,1,3,13,31,11
+sess_0653,STUDENT,Biyoloji,45,3,3,18,41,6
+sess_0654,LIFELONG_LEARNER,İngilizce Pratik,90,3,4,15,25,6
+sess_0655,STUDENT,Türkçe,120,4,4,12,24,5
+sess_0656,STUDENT,Biyoloji,60,3,4,15,10,6
+sess_0657,STUDENT,Fizik (Mekanik),60,2,2,13,22,5
+sess_0658,STUDENT,Fizik (Mekanik),60,1,5,18,33,18
+sess_0659,LIFELONG_LEARNER,Finansal Okuryazarlık,90,2,3,15,39,7
+sess_0660,STUDENT,Fizik (Mekanik),25,5,5,25,22,7
+sess_0661,STUDENT,Türkçe,25,4,5,23,28,7
+sess_0662,LIFELONG_LEARNER,Python & FastAPI,45,3,4,11,30,6
+sess_0663,LIFELONG_LEARNER,İngilizce Pratik,25,5,2,19,6,4
+sess_0664,STUDENT,Türkçe,60,3,1,3,39,1
+sess_0665,STUDENT,Türkçe,60,1,2,7,32,7
+sess_0666,STUDENT,Fizik (Mekanik),60,1,5,21,20,19
+sess_0667,STUDENT,Matematik (Türev),45,1,2,26,1,10
+sess_0668,STUDENT,Fizik (Mekanik),60,3,4,14,17,6
+sess_0669,STUDENT,Kimya (Organik),25,5,1,14,32,3
+sess_0670,STUDENT,Fizik (Mekanik),90,1,4,22,36,16
+sess_0671,STUDENT,Fizik (Mekanik),90,5,1,13,33,3
+sess_0672,LIFELONG_LEARNER,React & TypeScript,120,3,5,12,19,7
+sess_0673,STUDENT,Matematik (Türev),25,5,1,24,34,4
+sess_0674,STUDENT,Fizik (Mekanik),60,3,1,9,17,2
+sess_0675,STUDENT,Matematik (Türev),90,3,1,1,23,1
+sess_0676,LIFELONG_LEARNER,Finansal Okuryazarlık,25,4,2,19,7,4
+sess_0677,STUDENT,Kimya (Organik),90,3,2,11,29,4
+sess_0678,STUDENT,Matematik (Türev),60,3,5,23,43,9
+sess_0679,LIFELONG_LEARNER,React & TypeScript,90,2,1,22,9,5
+sess_0680,LIFELONG_LEARNER,Finansal Okuryazarlık,120,1,3,23,22,13
+sess_0681,LIFELONG_LEARNER,Python & FastAPI,120,4,5,24,10,8
+sess_0682,STUDENT,Matematik (Türev),90,4,1,22,1,4
+sess_0683,STUDENT,Kimya (Organik),25,4,1,19,25,4
+sess_0684,LIFELONG_LEARNER,İngilizce Pratik,25,2,2,18,35,6
+sess_0685,LIFELONG_LEARNER,Finansal Okuryazarlık,25,3,5,12,32,7
+sess_0686,STUDENT,Türkçe,90,1,1,23,12,7
+sess_0687,STUDENT,Türkçe,25,5,1,28,39,5
+sess_0688,STUDENT,Matematik (Türev),60,3,5,28,24,9
+sess_0689,LIFELONG_LEARNER,React & TypeScript,120,2,3,28,3,9
+sess_0690,STUDENT,Biyoloji,60,3,5,27,41,9
+sess_0691,STUDENT,Fizik (Mekanik),25,3,5,1,18,5
+sess_0692,STUDENT,Fizik (Mekanik),60,2,3,19,17,8
+sess_0693,STUDENT,Matematik (Türev),25,4,5,28,36,8
+sess_0694,STUDENT,Matematik (Türev),90,4,1,27,29,5
+sess_0695,STUDENT,Matematik (Türev),60,1,5,20,18,19
+sess_0696,LIFELONG_LEARNER,Python & FastAPI,90,1,3,29,22,14
+sess_0697,STUDENT,Türkçe,90,4,4,17,15,6
+sess_0698,STUDENT,Matematik (Türev),45,5,5,5,0,4
+sess_0699,STUDENT,Türkçe,25,3,2,26,11,6
+sess_0700,STUDENT,Türkçe,120,5,1,3,23,1
+sess_0701,STUDENT,Matematik (Türev),25,3,1,2,33,1
+sess_0702,STUDENT,Kimya (Organik),120,4,2,3,7,2
+sess_0703,STUDENT,Biyoloji,25,1,2,8,17,7
+sess_0704,STUDENT,Fizik (Mekanik),90,1,5,16,4,18
+sess_0705,STUDENT,Türkçe,60,5,2,6,25,2
+sess_0706,LIFELONG_LEARNER,React & TypeScript,60,1,4,13,29,14
+sess_0707,STUDENT,Biyoloji,45,4,3,23,12,6
+sess_0708,LIFELONG_LEARNER,React & TypeScript,120,5,2,28,18,5
+sess_0709,STUDENT,Kimya (Organik),120,3,2,22,28,5
+sess_0710,LIFELONG_LEARNER,React & TypeScript,120,1,4,22,2,16
+sess_0711,LIFELONG_LEARNER,React & TypeScript,90,2,1,16,25,4
+sess_0712,STUDENT,Fizik (Mekanik),120,1,1,28,39,7
+sess_0713,STUDENT,Türkçe,60,3,5,16,11,8
+sess_0714,STUDENT,Matematik (Türev),90,5,4,3,1,3
+sess_0715,STUDENT,Kimya (Organik),25,3,3,28,10,7
+sess_0716,LIFELONG_LEARNER,Python & FastAPI,120,2,3,13,43,7
+sess_0717,LIFELONG_LEARNER,İngilizce Pratik,120,4,4,14,27,5
+sess_0718,LIFELONG_LEARNER,Python & FastAPI,25,1,3,8,17,11
+sess_0719,STUDENT,Matematik (Türev),120,5,1,12,12,2
+sess_0720,LIFELONG_LEARNER,Python & FastAPI,25,4,3,23,36,6
+sess_0721,LIFELONG_LEARNER,İngilizce Pratik,90,3,3,23,21,7
+sess_0722,STUDENT,Matematik (Türev),60,5,4,22,11,6
+sess_0723,STUDENT,Biyoloji,25,4,4,21,1,6
+sess_0724,LIFELONG_LEARNER,React & TypeScript,45,5,3,26,36,6
+sess_0725,STUDENT,Türkçe,25,2,2,8,6,4
+sess_0726,LIFELONG_LEARNER,İngilizce Pratik,120,2,4,21,25,9
+sess_0727,STUDENT,Biyoloji,90,1,5,25,25,19
+sess_0728,LIFELONG_LEARNER,Python & FastAPI,90,1,5,9,23,17
+sess_0729,STUDENT,Matematik (Türev),25,2,1,1,11,2
+sess_0730,STUDENT,Matematik (Türev),60,5,3,6,15,3
+sess_0731,STUDENT,Matematik (Türev),45,2,2,23,22,7
+sess_0732,LIFELONG_LEARNER,Finansal Okuryazarlık,90,1,1,19,39,6
+sess_0733,LIFELONG_LEARNER,Python & FastAPI,120,2,3,23,8,8
+sess_0734,STUDENT,Kimya (Organik),120,2,4,11,31,8
+sess_0735,STUDENT,Biyoloji,60,5,5,11,14,5
+sess_0736,LIFELONG_LEARNER,React & TypeScript,90,4,2,23,36,5
+sess_0737,STUDENT,Fizik (Mekanik),25,1,5,13,12,18
+sess_0738,LIFELONG_LEARNER,İngilizce Pratik,120,5,4,11,4,4
+sess_0739,STUDENT,Kimya (Organik),60,2,3,18,10,7
+sess_0740,STUDENT,Fizik (Mekanik),90,2,4,23,9,10
+sess_0741,STUDENT,Fizik (Mekanik),90,4,4,15,12,5
+sess_0742,STUDENT,Matematik (Türev),90,1,5,1,40,16
+sess_0743,LIFELONG_LEARNER,İngilizce Pratik,90,1,2,21,14,9
+sess_0744,STUDENT,Türkçe,90,3,4,25,41,8
+sess_0745,STUDENT,Fizik (Mekanik),120,1,5,7,6,17
+sess_0746,LIFELONG_LEARNER,Finansal Okuryazarlık,60,4,2,23,39,5
+sess_0747,STUDENT,Fizik (Mekanik),90,3,3,27,27,7
+sess_0748,STUDENT,Biyoloji,45,3,3,13,31,5
+sess_0749,LIFELONG_LEARNER,Python & FastAPI,45,2,1,12,34,3
+sess_0750,LIFELONG_LEARNER,Python & FastAPI,60,2,5,18,14,11
+sess_0751,STUDENT,Fizik (Mekanik),25,1,2,24,35,10
+sess_0752,LIFELONG_LEARNER,Python & FastAPI,25,3,4,19,20,7
+sess_0753,LIFELONG_LEARNER,Finansal Okuryazarlık,25,2,3,15,5,7
+sess_0754,STUDENT,Türkçe,45,4,2,8,0,3
+sess_0755,STUDENT,Fizik (Mekanik),25,2,5,19,3,11
+sess_0756,LIFELONG_LEARNER,Finansal Okuryazarlık,120,2,1,10,10,3
+sess_0757,LIFELONG_LEARNER,Python & FastAPI,90,3,3,7,43,4
+sess_0758,STUDENT,Biyoloji,45,3,2,18,25,5
+sess_0759,LIFELONG_LEARNER,Finansal Okuryazarlık,60,5,2,16,36,4
+sess_0760,LIFELONG_LEARNER,İngilizce Pratik,60,4,2,20,22,5
+sess_0761,STUDENT,Kimya (Organik),90,3,5,27,28,9
+sess_0762,STUDENT,Fizik (Mekanik),45,1,5,6,20,17
+sess_0763,STUDENT,Biyoloji,25,4,5,27,44,8
+sess_0764,LIFELONG_LEARNER,İngilizce Pratik,25,4,4,9,44,4
+sess_0765,STUDENT,Kimya (Organik),120,3,2,21,26,5
+sess_0766,STUDENT,Türkçe,120,4,3,13,38,4
+sess_0767,LIFELONG_LEARNER,Python & FastAPI,25,3,5,25,39,9
+sess_0768,LIFELONG_LEARNER,İngilizce Pratik,60,2,5,21,12,11
+sess_0769,STUDENT,Kimya (Organik),60,5,2,26,22,5
+sess_0770,LIFELONG_LEARNER,İngilizce Pratik,120,2,5,8,15,9
+sess_0771,STUDENT,Türkçe,90,3,4,16,29,7
+sess_0772,LIFELONG_LEARNER,Finansal Okuryazarlık,25,3,4,13,3,6
+sess_0773,STUDENT,Matematik (Türev),120,2,5,13,39,10
+sess_0774,STUDENT,Biyoloji,120,1,2,17,15,9
+sess_0775,LIFELONG_LEARNER,İngilizce Pratik,25,1,2,23,30,10
+sess_0776,STUDENT,Kimya (Organik),25,1,2,20,41,9
+sess_0777,STUDENT,Biyoloji,60,3,1,5,24,2
+sess_0778,LIFELONG_LEARNER,Python & FastAPI,90,4,5,22,43,7
+sess_0779,LIFELONG_LEARNER,Python & FastAPI,90,3,2,21,11,5
+sess_0780,LIFELONG_LEARNER,React & TypeScript,25,4,4,28,25,7
+sess_0781,LIFELONG_LEARNER,İngilizce Pratik,45,2,3,17,36,7
+sess_0782,STUDENT,Fizik (Mekanik),120,5,3,28,32,6
+sess_0783,STUDENT,Türkçe,120,4,2,9,27,3
+sess_0784,STUDENT,Biyoloji,25,1,3,2,8,10
+sess_0785,STUDENT,Türkçe,45,3,3,25,11,7
+sess_0786,LIFELONG_LEARNER,Finansal Okuryazarlık,60,2,1,26,4,5
+sess_0787,STUDENT,Kimya (Organik),25,1,4,18,27,15
+sess_0788,STUDENT,Türkçe,25,2,4,9,34,8
+sess_0789,STUDENT,Biyoloji,120,5,1,6,4,2
+sess_0790,LIFELONG_LEARNER,İngilizce Pratik,25,3,1,11,33,3
+sess_0791,STUDENT,Fizik (Mekanik),25,3,3,25,33,7
+sess_0792,STUDENT,Biyoloji,25,5,5,29,12,7
+sess_0793,STUDENT,Fizik (Mekanik),120,3,3,6,38,4
+sess_0794,LIFELONG_LEARNER,React & TypeScript,60,4,1,6,41,2
+sess_0795,STUDENT,Matematik (Türev),60,2,4,13,44,8
+sess_0796,LIFELONG_LEARNER,Python & FastAPI,25,1,3,11,13,11
+sess_0797,LIFELONG_LEARNER,Finansal Okuryazarlık,120,5,5,14,10,5
+sess_0798,STUDENT,Fizik (Mekanik),60,4,3,2,41,3
+sess_0799,LIFELONG_LEARNER,Python & FastAPI,60,1,2,8,37,7
+sess_0800,LIFELONG_LEARNER,React & TypeScript,60,1,3,3,3,10
+sess_0801,LIFELONG_LEARNER,İngilizce Pratik,120,5,1,23,32,4
+sess_0802,STUDENT,Biyoloji,120,4,4,21,6,6
+sess_0803,STUDENT,Fizik (Mekanik),25,1,4,3,40,13
+sess_0804,LIFELONG_LEARNER,İngilizce Pratik,90,1,1,1,7,3
+sess_0805,STUDENT,Türkçe,60,4,2,24,36,5
+sess_0806,LIFELONG_LEARNER,İngilizce Pratik,90,3,1,19,9,4
+sess_0807,LIFELONG_LEARNER,İngilizce Pratik,120,1,3,18,42,12
+sess_0808,LIFELONG_LEARNER,İngilizce Pratik,120,2,1,17,14,4
+sess_0809,STUDENT,Matematik (Türev),120,4,1,20,37,4
+sess_0810,STUDENT,Fizik (Mekanik),90,1,2,29,14,11
+sess_0811,LIFELONG_LEARNER,Python & FastAPI,120,5,3,24,4,5
+sess_0812,LIFELONG_LEARNER,React & TypeScript,25,2,5,13,28,10
+sess_0813,STUDENT,Biyoloji,120,1,5,3,18,16
+sess_0814,LIFELONG_LEARNER,Finansal Okuryazarlık,45,2,4,1,9,6
+sess_0815,LIFELONG_LEARNER,Finansal Okuryazarlık,90,2,1,4,11,2
+sess_0816,STUDENT,Matematik (Türev),45,3,4,25,3,8
+sess_0817,STUDENT,Biyoloji,120,2,2,13,30,5
+sess_0818,STUDENT,Türkçe,25,3,5,17,17,8
+sess_0819,STUDENT,Fizik (Mekanik),60,4,1,28,15,5
+sess_0820,STUDENT,Kimya (Organik),120,3,2,11,39,4
+sess_0821,LIFELONG_LEARNER,Python & FastAPI,25,5,2,2,35,2
+sess_0822,STUDENT,Türkçe,90,1,1,25,24,7
+sess_0823,STUDENT,Biyoloji,45,4,2,16,22,4
+sess_0824,STUDENT,Matematik (Türev),45,4,1,2,11,1
+sess_0825,STUDENT,Fizik (Mekanik),45,5,1,29,33,5
+sess_0826,LIFELONG_LEARNER,Python & FastAPI,90,3,3,19,35,6
+sess_0827,STUDENT,Fizik (Mekanik),25,1,4,23,36,16
+sess_0828,STUDENT,Fizik (Mekanik),90,3,2,19,2,5
+sess_0829,LIFELONG_LEARNER,Python & FastAPI,45,2,2,25,8,7
+sess_0830,STUDENT,Türkçe,120,3,3,16,17,6
+sess_0831,STUDENT,Fizik (Mekanik),60,4,3,22,42,6
+sess_0832,STUDENT,Matematik (Türev),90,1,3,19,34,12
+sess_0833,STUDENT,Fizik (Mekanik),90,3,5,9,33,7
+sess_0834,STUDENT,Kimya (Organik),25,1,5,1,40,16
+sess_0835,STUDENT,Türkçe,25,1,5,10,13,17
+sess_0836,STUDENT,Biyoloji,90,2,1,19,3,4
+sess_0837,LIFELONG_LEARNER,React & TypeScript,45,2,2,1,28,3
+sess_0838,STUDENT,Kimya (Organik),60,4,4,2,40,3
+sess_0839,STUDENT,Biyoloji,25,5,1,16,44,3
+sess_0840,LIFELONG_LEARNER,Finansal Okuryazarlık,45,1,2,12,14,8
+sess_0841,STUDENT,Fizik (Mekanik),120,5,2,8,27,2
+sess_0842,LIFELONG_LEARNER,Python & FastAPI,25,4,3,23,41,6
+sess_0843,STUDENT,Fizik (Mekanik),45,1,3,18,15,12
+sess_0844,LIFELONG_LEARNER,İngilizce Pratik,45,1,1,2,11,3
+sess_0845,STUDENT,Biyoloji,60,5,3,25,4,6
+sess_0846,STUDENT,Fizik (Mekanik),60,3,2,29,33,6
+sess_0847,STUDENT,Matematik (Türev),120,2,3,13,41,7
+sess_0848,LIFELONG_LEARNER,İngilizce Pratik,45,3,5,6,0,6
+sess_0849,STUDENT,Fizik (Mekanik),45,5,3,21,38,5
+sess_0850,STUDENT,Türkçe,60,2,2,26,31,7
+sess_0851,STUDENT,Matematik (Türev),25,3,1,6,25,2
+sess_0852,LIFELONG_LEARNER,İngilizce Pratik,25,2,4,9,16,8
+sess_0853,STUDENT,Biyoloji,90,1,3,16,26,12
+sess_0854,LIFELONG_LEARNER,React & TypeScript,60,3,2,11,23,4
+sess_0855,STUDENT,Matematik (Türev),90,2,4,7,34,7
+sess_0856,STUDENT,Türkçe,60,2,4,10,41,8
+sess_0857,STUDENT,Matematik (Türev),120,2,5,10,38,9
+sess_0858,STUDENT,Türkçe,45,3,4,25,25,8
+sess_0859,STUDENT,Kimya (Organik),120,4,2,20,37,5
+sess_0860,STUDENT,Biyoloji,60,3,2,18,22,5
+sess_0861,LIFELONG_LEARNER,İngilizce Pratik,45,5,3,28,21,6
+sess_0862,STUDENT,Kimya (Organik),25,3,3,24,3,7
+sess_0863,STUDENT,Fizik (Mekanik),25,2,3,20,8,8
+sess_0864,STUDENT,Matematik (Türev),90,1,4,29,3,17
+sess_0865,STUDENT,Türkçe,60,3,4,9,6,6
+sess_0866,STUDENT,Türkçe,60,3,5,15,22,7
+sess_0867,STUDENT,Matematik (Türev),25,2,3,4,1,5
+sess_0868,STUDENT,Matematik (Türev),120,1,1,8,23,4
+sess_0869,LIFELONG_LEARNER,React & TypeScript,45,1,5,9,39,17
+sess_0870,LIFELONG_LEARNER,Finansal Okuryazarlık,120,5,1,13,30,3
+sess_0871,STUDENT,Kimya (Organik),120,3,4,9,30,6
+sess_0872,STUDENT,Türkçe,25,1,5,26,39,20
+sess_0873,LIFELONG_LEARNER,React & TypeScript,25,1,5,4,42,16
+sess_0874,STUDENT,Kimya (Organik),25,4,2,17,33,4
+sess_0875,STUDENT,Fizik (Mekanik),90,4,4,16,23,6
+sess_0876,STUDENT,Türkçe,120,1,4,15,25,15
+sess_0877,LIFELONG_LEARNER,İngilizce Pratik,60,5,5,3,15,4
+sess_0878,LIFELONG_LEARNER,Python & FastAPI,45,1,4,25,12,16
+sess_0879,STUDENT,Matematik (Türev),90,2,5,20,14,11
+sess_0880,STUDENT,Kimya (Organik),60,3,2,5,26,3
+sess_0881,STUDENT,Biyoloji,120,5,5,23,3,7
+sess_0882,LIFELONG_LEARNER,React & TypeScript,25,2,4,5,15,7
+sess_0883,STUDENT,Kimya (Organik),120,5,4,20,29,6
+sess_0884,STUDENT,Biyoloji,45,2,5,15,43,10
+sess_0885,LIFELONG_LEARNER,React & TypeScript,90,3,5,18,29,8
+sess_0886,STUDENT,Fizik (Mekanik),90,3,5,15,35,7
+sess_0887,LIFELONG_LEARNER,Finansal Okuryazarlık,45,4,3,2,2,3
+sess_0888,STUDENT,Türkçe,60,2,4,29,21,11
+sess_0889,STUDENT,Biyoloji,60,4,4,13,21,5
+sess_0890,STUDENT,Türkçe,90,2,3,4,11,5
+sess_0891,LIFELONG_LEARNER,Python & FastAPI,90,4,5,10,20,5
+sess_0892,LIFELONG_LEARNER,Finansal Okuryazarlık,25,3,2,13,3,4
+sess_0893,LIFELONG_LEARNER,İngilizce Pratik,60,5,5,10,30,5
+sess_0894,STUDENT,Matematik (Türev),45,4,5,29,43,8
+sess_0895,LIFELONG_LEARNER,Finansal Okuryazarlık,60,2,3,9,30,6
+sess_0896,STUDENT,Matematik (Türev),25,2,4,8,22,7
+sess_0897,STUDENT,Kimya (Organik),90,3,5,3,19,6
+sess_0898,LIFELONG_LEARNER,React & TypeScript,90,2,4,16,14,9
+sess_0899,STUDENT,Matematik (Türev),25,1,1,14,22,5
+sess_0900,STUDENT,Biyoloji,45,5,4,9,27,4
+sess_0901,STUDENT,Türkçe,90,4,2,21,15,5
+sess_0902,STUDENT,Matematik (Türev),120,5,2,11,36,3
+sess_0903,STUDENT,Biyoloji,90,3,5,3,20,6
+sess_0904,STUDENT,Fizik (Mekanik),120,4,4,5,14,4
+sess_0905,STUDENT,Biyoloji,25,4,5,29,16,8
+sess_0906,LIFELONG_LEARNER,Python & FastAPI,25,1,3,10,36,11
+sess_0907,LIFELONG_LEARNER,Finansal Okuryazarlık,90,3,2,13,12,4
+sess_0908,STUDENT,Kimya (Organik),60,2,5,4,18,8
+sess_0909,STUDENT,Türkçe,120,1,3,24,29,13
+sess_0910,STUDENT,Fizik (Mekanik),45,1,5,13,44,18
+sess_0911,STUDENT,Kimya (Organik),90,5,4,12,17,4
+sess_0912,STUDENT,Biyoloji,45,5,4,5,13,3
+sess_0913,LIFELONG_LEARNER,Python & FastAPI,90,5,4,10,35,4
+sess_0914,STUDENT,Fizik (Mekanik),60,1,4,28,35,17
+sess_0915,STUDENT,Kimya (Organik),60,2,1,24,19,5
+sess_0916,STUDENT,Fizik (Mekanik),60,4,3,9,18,4
+sess_0917,STUDENT,Biyoloji,60,5,3,20,44,5
+sess_0918,LIFELONG_LEARNER,React & TypeScript,25,2,4,7,43,7
+sess_0919,LIFELONG_LEARNER,React & TypeScript,25,3,1,2,6,1
+sess_0920,STUDENT,Matematik (Türev),120,5,4,22,43,6
+sess_0921,LIFELONG_LEARNER,İngilizce Pratik,45,4,1,24,3,4
+sess_0922,STUDENT,Fizik (Mekanik),90,3,4,28,33,8
+sess_0923,LIFELONG_LEARNER,İngilizce Pratik,90,3,2,23,1,6
+sess_0924,LIFELONG_LEARNER,React & TypeScript,25,4,2,7,4,3
+sess_0925,STUDENT,Biyoloji,90,5,5,8,9,4
+sess_0926,STUDENT,Biyoloji,25,1,4,7,31,14
+sess_0927,STUDENT,Fizik (Mekanik),120,4,3,21,41,5
+sess_0928,STUDENT,Biyoloji,45,4,5,23,40,7
+sess_0929,LIFELONG_LEARNER,Python & FastAPI,120,4,2,29,12,6
+sess_0930,STUDENT,Türkçe,60,3,4,14,38,6
+sess_0931,STUDENT,Türkçe,60,2,5,26,4,12
+sess_0932,LIFELONG_LEARNER,İngilizce Pratik,60,1,4,19,9,15
+sess_0933,LIFELONG_LEARNER,İngilizce Pratik,120,5,2,5,9,2
+sess_0934,STUDENT,Matematik (Türev),90,5,5,23,37,7
+sess_0935,STUDENT,Fizik (Mekanik),45,2,2,25,26,7
+sess_0936,STUDENT,Matematik (Türev),60,4,1,18,20,3
+sess_0937,STUDENT,Biyoloji,60,1,2,20,7,9
+sess_0938,LIFELONG_LEARNER,Python & FastAPI,60,5,4,12,0,4
+sess_0939,STUDENT,Biyoloji,45,5,3,23,27,5
+sess_0940,STUDENT,Biyoloji,60,4,2,17,38,4
+sess_0941,STUDENT,Kimya (Organik),45,2,3,13,13,7
+sess_0942,STUDENT,Türkçe,60,1,1,2,20,3
+sess_0943,LIFELONG_LEARNER,İngilizce Pratik,120,2,5,25,29,12
+sess_0944,LIFELONG_LEARNER,Finansal Okuryazarlık,120,2,5,13,20,10
+sess_0945,STUDENT,Kimya (Organik),45,1,3,26,8,13
+sess_0946,STUDENT,Türkçe,120,1,5,7,16,17
+sess_0947,STUDENT,Biyoloji,45,5,2,28,4,5
+sess_0948,LIFELONG_LEARNER,Finansal Okuryazarlık,120,5,3,10,30,3
+sess_0949,LIFELONG_LEARNER,Finansal Okuryazarlık,120,1,4,23,39,16
+sess_0950,STUDENT,Biyoloji,45,3,2,6,37,3
+sess_0951,LIFELONG_LEARNER,Python & FastAPI,90,5,2,3,42,2
+sess_0952,LIFELONG_LEARNER,Python & FastAPI,120,3,2,26,18,6
+sess_0953,STUDENT,Türkçe,60,1,4,3,35,13
+sess_0954,LIFELONG_LEARNER,Finansal Okuryazarlık,90,5,1,18,32,3
+sess_0955,STUDENT,Fizik (Mekanik),45,2,5,11,12,9
+sess_0956,STUDENT,Matematik (Türev),90,1,3,22,13,13
+sess_0957,STUDENT,Türkçe,25,4,1,20,32,4
+sess_0958,STUDENT,Biyoloji,25,3,3,5,28,4
+sess_0959,STUDENT,Biyoloji,120,1,5,19,42,18
+sess_0960,LIFELONG_LEARNER,React & TypeScript,120,1,4,22,35,16
+sess_0961,STUDENT,Türkçe,60,5,2,27,43,5
+sess_0962,LIFELONG_LEARNER,React & TypeScript,90,5,2,28,9,5
+sess_0963,STUDENT,Biyoloji,25,5,4,19,30,5
+sess_0964,STUDENT,Matematik (Türev),120,4,1,15,5,3
+sess_0965,STUDENT,Fizik (Mekanik),90,5,1,16,0,3
+sess_0966,STUDENT,Türkçe,120,1,3,24,6,13
+sess_0967,LIFELONG_LEARNER,React & TypeScript,120,5,4,9,26,4
+sess_0968,STUDENT,Matematik (Türev),25,2,1,4,20,2
+sess_0969,STUDENT,Türkçe,25,5,4,15,27,5
+sess_0970,STUDENT,Fizik (Mekanik),120,4,5,25,15,8
+sess_0971,LIFELONG_LEARNER,İngilizce Pratik,45,2,2,12,22,5
+sess_0972,LIFELONG_LEARNER,Python & FastAPI,120,1,2,23,19,10
+sess_0973,LIFELONG_LEARNER,Python & FastAPI,120,1,2,3,37,7
+sess_0974,STUDENT,Matematik (Türev),60,3,4,23,24,8
+sess_0975,STUDENT,Kimya (Organik),60,2,4,14,27,8
+sess_0976,STUDENT,Kimya (Organik),60,3,3,17,4,6
+sess_0977,STUDENT,Biyoloji,45,2,2,19,20,6
+sess_0978,STUDENT,Fizik (Mekanik),45,2,3,6,17,6
+sess_0979,STUDENT,Biyoloji,120,4,2,4,5,2
+sess_0980,STUDENT,Fizik (Mekanik),60,3,3,7,28,4
+sess_0981,STUDENT,Kimya (Organik),45,4,3,19,18,5
+sess_0982,LIFELONG_LEARNER,React & TypeScript,25,2,5,17,32,10
+sess_0983,STUDENT,Kimya (Organik),120,1,3,25,0,13
+sess_0984,STUDENT,Biyoloji,90,2,4,16,44,9
+sess_0985,LIFELONG_LEARNER,Python & FastAPI,120,4,3,15,2,5
+sess_0986,STUDENT,Biyoloji,90,3,2,22,41,5
+sess_0987,LIFELONG_LEARNER,React & TypeScript,60,3,3,8,20,4
+sess_0988,STUDENT,Biyoloji,90,4,1,19,34,4
+sess_0989,STUDENT,Matematik (Türev),60,3,2,8,40,3
+sess_0990,LIFELONG_LEARNER,React & TypeScript,25,5,1,18,39,3
+sess_0991,LIFELONG_LEARNER,React & TypeScript,90,1,2,28,2,10
+sess_0992,LIFELONG_LEARNER,React & TypeScript,120,1,4,16,24,15
+sess_0993,STUDENT,Türkçe,60,1,4,20,44,16
+sess_0994,STUDENT,Kimya (Organik),120,3,4,19,37,7
+sess_0995,STUDENT,Fizik (Mekanik),45,3,1,10,44,3
+sess_0996,STUDENT,Kimya (Organik),60,2,5,17,19,10
+sess_0997,LIFELONG_LEARNER,Finansal Okuryazarlık,90,2,2,13,43,5
+sess_0998,STUDENT,Biyoloji,60,1,4,13,44,14
+sess_0999,LIFELONG_LEARNER,React & TypeScript,120,5,2,7,33,2
+sess_1000,STUDENT,Matematik (Türev),25,2,1,27,20,6
