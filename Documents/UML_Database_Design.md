@@ -17,7 +17,7 @@ Projemizde veri tabanı olarak **PostgreSQL** ve ORM olarak **Prisma ORM** kulla
   - `passwordHash` (String, Şifrelenmiş)
   - `firstName` & `lastName` (String)
   - `role` (Enum: STUDENT, ADMIN)
-  - `educationLevel` (Enum: MIDDLE_SCHOOL, HIGH_SCHOOL, UNIVERSITY)
+  - `educationLevel` (Enum: MIDDLE_SCHOOL, HIGH_SCHOOL, UNIVERSITY, LIFELONG_LEARNER)
 
 #### B. Akademik Modül
 - **Subject (Dersler):** LGS, YKS veya üniversiteye göre önceden tanımlanmış veya kullanıcının kendi eklediği dersleri tutar.
