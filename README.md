@@ -62,16 +62,16 @@ This project is being developed as a full-stack software engineering project whi
 ## 📅 Roadmap
 
 - [x] Requirements Analysis
-- [ ] UML Design
-- [ ] Database Design
+- [x] UML Design
+- [x] Database Design
 - [ ] Authentication
-- [ ] Study Planner
-- [ ] Calendar
-- [ ] Dashboard
-- [ ] Machine Learning API
-- [ ] AI Study Coach
-- [ ] Habit Tracker
-- [ ] Journal
+- [x] Study Planner (frontend, mock data)
+- [x] Calendar (frontend, mock data)
+- [x] Dashboard (frontend, mock data)
+- [x] Machine Learning API (trained on real ASSISTments dataset, served via FastAPI)
+- [ ] AI Study Coach (frontend UI exists, not yet wired to the ML API)
+- [x] Habit Tracker (frontend, mock data)
+- [x] Journal (frontend, mock data)
 - [ ] Deploy
 
 ---
