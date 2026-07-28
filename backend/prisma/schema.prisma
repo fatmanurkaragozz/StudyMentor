@@ -14,9 +14,10 @@ enum Role {
 }
 
 enum EducationLevel {
-  MIDDLE_SCHOOL // LGS
-  HIGH_SCHOOL   // YKS
-  UNIVERSITY    // Vize/Final
+  MIDDLE_SCHOOL   // LGS
+  HIGH_SCHOOL     // YKS
+  UNIVERSITY      // Vize/Final
+  LIFELONG_LEARNER // Kişisel Gelişim & Kariyer / Genel Çalışma
 }
 
 enum TopicStatus {
