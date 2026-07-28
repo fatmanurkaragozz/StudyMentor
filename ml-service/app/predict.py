@@ -2,27 +2,29 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from typing import Literal
 
-from app.model import predict_productivity, priority_label
+from app.model import predict_correct_probability, priority_label
 
 router = APIRouter()
 
 
-class StudySessionFeatures(BaseModel):
-    duration_minutes: int = Field(gt=0)
-    difficulty_rating: int = Field(ge=1, le=5)
-    days_since_last_study: int = Field(ge=0)
-    habit_streak_days: int = Field(ge=0)
-    user_mode: Literal["STUDENT", "LIFELONG_LEARNER"]
-    subject_or_project: str
+class TopicPracticeFeatures(BaseModel):
+    skill_name: str = Field(description="Topic/skill being practiced, e.g. 'Equation Solving Two or Fewer Steps'")
+    opportunity: int = Field(ge=1, description="Which repetition this is for this topic")
+    attempt_count: int = Field(ge=0, description="Attempts made on this specific problem")
+    ms_first_response: float = Field(ge=0, description="Milliseconds to first response")
+    overlap_time: float = Field(ge=0, description="Total milliseconds spent on the problem, including hints")
+    hint_count: int = Field(ge=0, description="Hints requested on this problem")
 
 
 class PriorityPrediction(BaseModel):
-    predicted_productivity: float
+    correct_probability: float
     priority: Literal["YUKSEK", "ORTA", "DUSUK"]
 
 
 @router.post("/predict/priority", response_model=PriorityPrediction)
-def predict_priority(features: StudySessionFeatures) -> PriorityPrediction:
-    predicted_productivity = predict_productivity(features.model_dump())
-    priority = priority_label(predicted_productivity, features.difficulty_rating)
-    return PriorityPrediction(predicted_productivity=round(predicted_productivity, 2), priority=priority)
+def predict_priority(features: TopicPracticeFeatures) -> PriorityPrediction:
+    correct_probability = predict_correct_probability(features.model_dump())
+    return PriorityPrediction(
+        correct_probability=round(correct_probability, 3),
+        priority=priority_label(correct_probability),
+    )

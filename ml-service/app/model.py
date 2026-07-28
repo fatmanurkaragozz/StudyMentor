@@ -1,4 +1,4 @@
-"""Loads the trained productivity model and turns its output into a priority label."""
+"""Loads the trained correctness classifier and maps its output to a priority label."""
 
 from functools import lru_cache
 from pathlib import Path
@@ -6,7 +6,7 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
-MODEL_PATH = Path(__file__).parent.parent / "models" / "productivity_model.joblib"
+MODEL_PATH = Path(__file__).parent.parent / "models" / "priority_model.joblib"
 
 
 @lru_cache(maxsize=1)
@@ -16,17 +16,16 @@ def get_pipeline():
     return joblib.load(MODEL_PATH)
 
 
-def predict_productivity(features: dict) -> float:
+def predict_correct_probability(features: dict) -> float:
     pipeline = get_pipeline()
     row = pd.DataFrame([features])
-    prediction = pipeline.predict(row)[0]
-    return float(prediction)
+    return float(pipeline.predict_proba(row)[0][1])
 
 
-def priority_label(predicted_productivity: float, difficulty_rating: int) -> str:
-    """Low predicted productivity combined with high difficulty means this topic needs attention first."""
-    if predicted_productivity <= 2.5 and difficulty_rating >= 4:
+def priority_label(correct_probability: float) -> str:
+    """Low probability of answering correctly means this topic needs review now."""
+    if correct_probability < 0.5:
         return "YUKSEK"
-    if predicted_productivity <= 3.5:
+    if correct_probability < 0.8:
         return "ORTA"
     return "DUSUK"
