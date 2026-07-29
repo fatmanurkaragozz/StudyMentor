@@ -111,3 +111,22 @@ Bu rapor, StudyMentor projesi kapsamında gerçekleştirilen günlük çalışma
 
   Random Forest'in tek bir karar ağacına göre sağladığı katkının ölçülü olduğu, buna karşın doğrusal bir modelin (Logistic Regression) belirgin şekilde geride kaldığı (verideki ilişkilerin doğrusal olmadığını doğrulayarak) gözlemlendi.
 - **Feature Selection Denemesi:** `skill_name` özelliği tamamen çıkarılıp sadece 5 davranışsal özellikle model yeniden eğitildi: AUC 0.958'den 0.942'ye (yalnızca 0.016 düşüş) geriledi — bu da konu bilgisinin katkısının sınırlı olduğu bulgusunu (feature importance analiziyle tutarlı şekilde) doğruladı.
+
+---
+
+### 📅 8. Gün: 29 Temmuz 2026 (Çarşamba)
+
+**Yapılan Çalışmalar:**
+
+- **Scrum Eğitimi:** Scrum framework'leri ve Scrum teorisi (roller, olaylar, artefaktlar) incelendi.
+- **%70/%15/%15 Eğitim/Doğrulama/Test Bölünmesi (Mentör Talebi Üzerine):** Tek `train_test_split` çağrısıyla bölünemediği için iki aşamalı bölme uygulandı (önce %15 test, kalan %85'ten 15/85 oranıyla doğrulama ayrıldı). Doğrulama AUC 0.959 ve test AUC 0.958'in birbirine çok yakın çıkması, modelin doğrulama setine göre "ayarlanıp" test setinde şişirilmiş bir sonuç almadığını doğruladı.
+- **XGBoost'un Model Karşılaştırmasına Eklenmesi:** Mentörün belirttiği Bagging/Boosting/Ensemble kavramları doğrultusunda, notebook'taki karşılaştırmaya boosting ailesinden **XGBoost** eklendi:
+  | Model | AUC | Doğruluk |
+  |---|---|---|
+  | Logistic Regression | 0.915 | 0.879 |
+  | Decision Tree | 0.944 | 0.930 |
+  | Random Forest | 0.958 | 0.926 |
+  | **XGBoost** | **0.967** | 0.928 |
+- **Üretim Modelinin XGBoost'a Geçirilmesi:** Karşılaştırmada en iyi sonucu veren XGBoost, `train.py` ve `app/model.py`'da üretim modeli olarak benimsendi (sınıf dengesizliği `scale_pos_weight` ile ele alındı). Sonuçlar: 5 katlı cross-validation AUC 0.970 (±0.001), test AUC 0.968 — Random Forest'e göre "yanlış" sınıfını yakalama oranı (recall) %77'den %84'e yükseldi. FastAPI servisi üzerinden uçtan uca tekrar doğrulandı.
+- **Kapsamlı ML Metodoloji Raporu:** Tüm veri seti araştırma süreci, kullanılan yöntemlerin (Decision Tree, Bagging/Random Forest, Boosting/XGBoost, Logistic Regression, feature importance, feature selection, cross-validation, train/validation/test bölünmesi) birbirinden farkları ve sonuçların yorumunu içeren `Documents/ML_Metodoloji_ve_Sonuclar_Raporu.md` dokümanı hazırlandı.
+- **Yol Haritası Netleştirildi:** Duolingo veri setinin ileride eklenebilecek bir İngilizce kelime kartı (flashcard) özelliği için referans olarak saklanmasına karar verildi. Kısa vadeli hedef ASSISTments (vekil/proxy) veriyle sistemi ilerletmek; StudyMentor gerçek kullanıcı verisi topladıkça aynı eğitim sürecinin gerçek veriyle tekrarlanıp daha kapsamlı bir modele dönüştürülmesi planlandı.
