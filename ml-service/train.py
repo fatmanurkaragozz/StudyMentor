@@ -1,5 +1,9 @@
-"""Trains the "will the student get this topic right?" classifier from
+"""Trains the "will the student get this topic right?" XGBoost classifier from
 assistments_sample_100k.csv.
+
+XGBoost was chosen over Decision Tree / Logistic Regression / Random Forest after
+a head-to-head comparison in notebooks/spaced_repetition_eda.ipynb (test AUC 0.967
+for XGBoost vs 0.958 for Random Forest, the next best).
 
 Dataset: a 100,000-row random sample of the ASSISTments 2009-2010 skill-builder
 dataset (real math-tutoring platform logs, Pardos & Heffernan / WPI, 4,217 real
@@ -20,11 +24,11 @@ Produces models/priority_model.joblib, loaded by app/model.py at request time.
 
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
+from xgboost import XGBClassifier
 import joblib
 from pathlib import Path
 
@@ -54,14 +58,22 @@ def load_dataset() -> pd.DataFrame:
     return df
 
 
-def build_pipeline() -> Pipeline:
+def build_pipeline(scale_pos_weight: float) -> Pipeline:
     preprocessor = ColumnTransformer(
         transformers=[
             ("categorical", OneHotEncoder(handle_unknown="ignore"), CATEGORICAL_FEATURES),
         ],
         remainder="passthrough",
     )
-    model = RandomForestClassifier(n_estimators=300, max_depth=12, random_state=42, class_weight="balanced")
+    # XGBoost (boosting): notebook karsilastirmasinda Decision Tree (0.944),
+    # Logistic Regression (0.915) ve Random Forest'i (0.958) geride birakip
+    # en yuksek AUC'yi (0.967) verdi, o yuzden uretim modeli olarak secildi.
+    # scale_pos_weight, class_weight="balanced"'in XGBoost karsiligi -
+    # dogru/yanlis sinif dengesizligini (%69.5/%30.5) dengeler.
+    model = XGBClassifier(
+        n_estimators=300, max_depth=6, learning_rate=0.1,
+        scale_pos_weight=scale_pos_weight, random_state=42, eval_metric="logloss",
+    )
     return Pipeline(steps=[("preprocess", preprocessor), ("model", model)])
 
 
@@ -85,8 +97,11 @@ def main() -> None:
     # StratifiedKFold ile modeli 5 farkli bolunmede egitip test ederek
     # AUC/accuracy'nin ortalamasini VE standart sapmasini goruyoruz - bu,
     # sonucun rastlantiya mi bagli oldugunu anlamamizi saglar.
+    global_scale_pos_weight = (y == 0).sum() / (y == 1).sum()
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_results = cross_validate(build_pipeline(), X, y, cv=cv, scoring=["roc_auc", "accuracy"])
+    cv_results = cross_validate(
+        build_pipeline(global_scale_pos_weight), X, y, cv=cv, scoring=["roc_auc", "accuracy"]
+    )
     print("=== 5-katli cross-validation (tum veri uzerinde) ===")
     print(f"AUC:      {cv_results['test_roc_auc'].mean():.3f} (+/- {cv_results['test_roc_auc'].std():.3f})")
     print(f"Accuracy: {cv_results['test_accuracy'].mean():.3f} (+/- {cv_results['test_accuracy'].std():.3f})")
@@ -109,7 +124,8 @@ def main() -> None:
     print(f"Test:       {len(X_test):>6} satir (%{100 * len(X_test) / len(X):.0f})")
     print()
 
-    pipeline = build_pipeline()
+    scale_pos_weight = (y_train == 0).sum() / (y_train == 1).sum()
+    pipeline = build_pipeline(scale_pos_weight)
     pipeline.fit(X_train, y_train)
 
     # Dogrulama seti: gelistirme sirasinda modelin/hiperparametrelerin
