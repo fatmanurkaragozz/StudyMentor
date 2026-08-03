@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { apiClient, type RecommendationRow } from '../lib/apiClient';
+import { TopicCheckModal } from './onboarding/TopicCheckModal';
 import {
   Clock,
   Flame,
@@ -10,11 +12,13 @@ import {
   Zap,
   BookOpen,
   TrendingUp,
-  BrainCircuit
+  BrainCircuit,
+  Loader2,
+  Sparkles
 } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
-  const { user, sessions, habits, milestones, recommendations, subjectsOrProjects, setActiveTab } = useApp();
+  const { user, sessions, habits, milestones, subjectsOrProjects, setActiveTab } = useApp();
   const isStudent = user.mode === 'STUDENT';
 
   // Metrics Calculations
@@ -28,7 +32,23 @@ export const Dashboard: React.FC = () => {
 
   const activeMilestone = milestones[0];
 
-  const primaryRecommendation = recommendations.find(r => r.mode === user.mode) || recommendations[0];
+  const [aiRecommendations, setAiRecommendations] = useState<RecommendationRow[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(true);
+  const [checkTopic, setCheckTopic] = useState<{ id: string; name: string; subjectName: string } | null>(null);
+
+  const loadRecommendations = () => {
+    setLoadingRecommendations(true);
+    apiClient
+      .getRecommendations()
+      .then(setAiRecommendations)
+      .finally(() => setLoadingRecommendations(false));
+  };
+
+  useEffect(() => {
+    loadRecommendations();
+  }, []);
+
+  const latestRecommendation = aiRecommendations[0] ?? null;
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -146,20 +166,68 @@ export const Dashboard: React.FC = () => {
               </span>
               <span className="text-xs text-slate-400">Spaced Repetition & Analytics Engine</span>
             </div>
-            <h3 className="text-sm font-bold text-slate-100">{primaryRecommendation?.title}</h3>
-            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-              {primaryRecommendation?.content}
-            </p>
-            <button
-              onClick={() => setActiveTab('planner')}
-              className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors"
-            >
-              <span>{primaryRecommendation?.actionText}</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
+
+            {loadingRecommendations && (
+              <div className="flex items-center gap-2 text-xs text-slate-400 mt-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Öneriler yükleniyor...</span>
+              </div>
+            )}
+
+            {!loadingRecommendations && latestRecommendation && (
+              <>
+                <h3 className="text-sm font-bold text-slate-100">{latestRecommendation.title}</h3>
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                  {latestRecommendation.content}
+                </p>
+                {latestRecommendation.topicId && (
+                  <button
+                    onClick={() =>
+                      setCheckTopic({
+                        id: latestRecommendation.topicId as string,
+                        name: latestRecommendation.topicName ?? '',
+                        subjectName: latestRecommendation.subjectName ?? '',
+                      })
+                    }
+                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors"
+                  >
+                    <span>Kontrol Et</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </>
+            )}
+
+            {!loadingRecommendations && !latestRecommendation && (
+              <>
+                <h3 className="text-sm font-bold text-slate-100">Henüz bir kontrolün yok</h3>
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                  Bir konu seç ve ilk mini kontrolünü yap, AI Koç sana özel tekrar önceliklerini burada göstermeye başlasın.
+                </p>
+                <button
+                  onClick={() => setActiveTab(isStudent ? 'courses' : 'planner')}
+                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{isStudent ? 'Derslerime Git' : 'Odaklanmaya Başla'}</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
+
+      {checkTopic && (
+        <TopicCheckModal
+          topicId={checkTopic.id}
+          topicName={checkTopic.name}
+          subjectName={checkTopic.subjectName}
+          onClose={() => {
+            setCheckTopic(null);
+            loadRecommendations();
+          }}
+        />
+      )}
 
       {/* 2-Column Section: Active Subjects/Projects & Recent Sessions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

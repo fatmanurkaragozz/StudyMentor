@@ -23,7 +23,7 @@ export const AIInsights: React.FC = () => {
 
       {/* AI Recommendations List */}
       <div className="space-y-4">
-        {recommendations.map(item => (
+        {recommendations.filter(item => item.mode === user.mode).map(item => (
           <div key={item.id} className="glass-panel p-6 rounded-2xl border border-purple-500/30 bg-slate-900/80 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">

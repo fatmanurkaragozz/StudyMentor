@@ -221,7 +221,7 @@ export const StudyPlanner: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-semibold">Ders veya Proje</label>
+                <label className="block text-slate-300 mb-1 font-semibold">{isStudent ? 'Ders' : 'Proje / Uğraş'}</label>
                 <select
                   value={selectedSubject}
                   onChange={e => setSelectedSubject(e.target.value)}
