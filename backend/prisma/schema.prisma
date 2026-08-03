@@ -32,6 +32,12 @@ enum RecommendationType {
   GENERAL
 }
 
+enum PriorityLevel {
+  YUKSEK
+  ORTA
+  DUSUK
+}
+
 model User {
   id             String         @id @default(uuid())
   email          String         @unique
@@ -40,8 +46,18 @@ model User {
   lastName       String
   role           Role           @default(STUDENT)
   educationLevel EducationLevel
+  grade          Int?           // Kaçıncı sınıf/yıl (LIFELONG_LEARNER için null)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+
+  // E-posta doğrulama
+  emailVerified              Boolean   @default(false)
+  emailVerificationCode      String?
+  emailVerificationExpiresAt DateTime?
+
+  // Şifremi unuttum
+  passwordResetCode      String?
+  passwordResetExpiresAt DateTime?
 
   // İlişkiler
   customSubjects       Subject[]
@@ -51,6 +67,8 @@ model User {
   journals             Journal[]
   aiRecommendations    AIRecommendation[]
   resourceSuggestions ResourceSuggestion[]
+  topicChecks          TopicCheck[]
+  scheduleSlots        ScheduleSlot[]
 }
 
 model Subject {
@@ -65,8 +83,23 @@ model Subject {
   topics        Topic[]
   studySessions StudySession[]
   exams         ExamSubject[]
+  scheduleSlots ScheduleSlot[]
 
   @@unique([name, userId])
+}
+
+// Öğrencinin haftalık ders programı - her hafta tekrar eden sabit çizelge (belirli bir tarihe değil, güne bağlı)
+model ScheduleSlot {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  dayOfWeek Int      // 1=Pazartesi ... 7=Pazar
+  startTime String   // "10:00"
+  endTime   String   // "11:30"
+  location  String?
+  createdAt DateTime @default(now())
 }
 
 model Topic {
@@ -80,7 +113,29 @@ model Topic {
   createdAt   DateTime    @default(now())
 
   // İlişkiler
-  studySessions StudySession[]
+  studySessions   StudySession[]
+  checks          TopicCheck[]
+  recommendations AIRecommendation[]
+}
+
+// Uygulama içi "mini kontrol" (soru-cevap) etkileşimi - ML servisine gönderilen
+// gerçek (uydurulmamış) attempt_count/hint_count/yanıt-süresi verisini üretir.
+model TopicCheck {
+  id                 String         @id @default(uuid())
+  userId             String
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId            String
+  topic              Topic          @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  opportunity        Int            // Bu konu için kaçıncı kontrol olduğu
+  attemptCount       Int?
+  hintCount          Int?
+  msFirstResponse    Float?
+  overlapTimeMs      Float?
+  selfGradedCorrect  Boolean?
+  correctProbability Float?
+  priority           PriorityLevel?
+  startedAt          DateTime       @default(now())
+  submittedAt        DateTime?
 }
 
 model StudySession {
@@ -156,6 +211,8 @@ model AIRecommendation {
   id        String             @id @default(uuid())
   userId    String
   user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId   String?            // Önerinin hangi konudan üretildiği (izlenebilirlik için)
+  topic     Topic?             @relation(fields: [topicId], references: [id])
   title     String
   content   String
   type      RecommendationType

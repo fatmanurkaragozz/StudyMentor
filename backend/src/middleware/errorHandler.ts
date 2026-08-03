@@ -1,10 +1,22 @@
 import type { NextFunction, Request, Response } from "express";
+import { ZodError } from "zod";
+import { HttpError } from "../utils/httpError.js";
 
 export function notFoundHandler(_req: Request, res: Response) {
   res.status(404).json({ error: "Not found" });
 }
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+  if (err instanceof HttpError) {
+    res.status(err.statusCode).json({ error: err.message });
+    return;
+  }
+
+  if (err instanceof ZodError) {
+    res.status(400).json({ error: "Validation failed", details: err.issues });
+    return;
+  }
+
   console.error(err);
   const message = err instanceof Error ? err.message : "Internal server error";
   res.status(500).json({ error: message });
