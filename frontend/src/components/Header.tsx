@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { getEducationLabel } from '../lib/labels';
 import { Search, Bell, Plus, UserCheck } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -39,7 +40,10 @@ export const Header: React.FC = () => {
         </button>
 
         {/* User Profile Info */}
-        <div className="flex items-center gap-3 pl-2 border-l border-slate-800">
+        <button
+          onClick={() => setActiveTab('profile')}
+          className="flex items-center gap-3 pl-2 border-l border-slate-800 hover:opacity-80 transition-opacity"
+        >
           <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-indigo-400">
             {user.name.split(' ').map(n => n[0]).join('')}
           </div>
@@ -49,10 +53,10 @@ export const Header: React.FC = () => {
               <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
             </div>
             <div className="text-[10px] text-slate-400 font-medium">
-              {isStudent ? '🎓 YKS Sayısal Öğrencisi' : '💼 Lifelong Learner & Dev'}
+              {getEducationLabel(user)}
             </div>
           </div>
-        </div>
+        </button>
       </div>
     </header>
   );
