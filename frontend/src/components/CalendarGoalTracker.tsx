@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { CalendarDays, Plus, Award, Target } from 'lucide-react';
+import { StudentCalendar } from './StudentCalendar';
 
 export const CalendarGoalTracker: React.FC = () => {
   const { user, milestones, addMilestone } = useApp();
@@ -10,6 +11,10 @@ export const CalendarGoalTracker: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [date, setDate] = useState<string>('');
   const [targetScore, setTargetScore] = useState<number>(500);
+
+  if (isStudent) {
+    return <StudentCalendar />;
+  }
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();

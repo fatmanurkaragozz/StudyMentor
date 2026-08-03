@@ -9,8 +9,11 @@ import { StudyPlanner } from './components/StudyPlanner';
 import { CalendarGoalTracker } from './components/CalendarGoalTracker';
 import { GrowthHub } from './components/GrowthHub';
 import { AIInsights } from './components/AIInsights';
+import { ProfilePage } from './components/ProfilePage';
+import { MyCourses } from './components/MyCourses';
+import { clearToken } from './lib/apiClient';
 
-const MainLayout: React.FC<{ onGoToLanding: () => void }> = ({ onGoToLanding }) => {
+const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> = ({ onGoToLanding, onLogout }) => {
   const { activeTab } = useApp();
 
   return (
@@ -24,10 +27,12 @@ const MainLayout: React.FC<{ onGoToLanding: () => void }> = ({ onGoToLanding }) 
 
         <main className="flex-1 overflow-y-auto">
           {activeTab === 'dashboard' && <Dashboard />}
+          {activeTab === 'courses' && <MyCourses />}
           {activeTab === 'planner' && <StudyPlanner />}
           {activeTab === 'calendar' && <CalendarGoalTracker />}
           {activeTab === 'growth' && <GrowthHub />}
           {activeTab === 'insights' && <AIInsights />}
+          {activeTab === 'profile' && <ProfilePage onLogout={onLogout} />}
         </main>
       </div>
     </div>
@@ -37,11 +42,16 @@ const MainLayout: React.FC<{ onGoToLanding: () => void }> = ({ onGoToLanding }) 
 export function AppContent() {
   const [showLanding, setShowLanding] = useState<boolean>(true);
 
+  const handleLogout = () => {
+    clearToken();
+    setShowLanding(true);
+  };
+
   if (showLanding) {
     return <Hero3DLanding onEnterApp={() => setShowLanding(false)} />;
   }
 
-  return <MainLayout onGoToLanding={() => setShowLanding(true)} />;
+  return <MainLayout onGoToLanding={() => setShowLanding(true)} onLogout={handleLogout} />;
 }
 
 export function App() {
