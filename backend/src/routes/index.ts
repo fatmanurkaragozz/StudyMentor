@@ -1,6 +1,24 @@
 import { Router } from "express";
 import { healthRouter } from "./health.routes.js";
+import { authRouter } from "./auth.routes.js";
+import { usersRouter } from "./users.routes.js";
+import { topicsRouter } from "./topics.routes.js";
+import { subjectsRouter } from "./subjects.routes.js";
+import { topicChecksRouter } from "./topicChecks.routes.js";
+import { studySessionsRouter } from "./studySessions.routes.js";
+import { recommendationsRouter } from "./recommendations.routes.js";
+import { scheduleRouter } from "./schedule.routes.js";
+import { examsRouter } from "./exams.routes.js";
 
 export const router = Router();
 
 router.use(healthRouter);
+router.use(authRouter);
+router.use(usersRouter);
+router.use(topicsRouter);
+router.use(subjectsRouter);
+router.use(topicChecksRouter);
+router.use(studySessionsRouter);
+router.use(recommendationsRouter);
+router.use(scheduleRouter);
+router.use(examsRouter);
