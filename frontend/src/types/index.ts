@@ -8,6 +8,7 @@ export interface UserProfile {
   email: string;
   mode: UserMode;
   educationLevel: EducationLevel;
+  grade?: number; // Kaçıncı sınıf/yıl (LIFELONG_LEARNER'da yok)
   targetGoal: string; // e.g. "YKS 2026 Derece" or "Full-Stack Dev & AI Specialist"
 }
 

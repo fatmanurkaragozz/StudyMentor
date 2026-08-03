@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useRef, useState } from 'react';
 import type { UserProfile, UserMode, StudySession, Habit, JournalEntry, ExamOrMilestone, AIRecommendation, SubjectOrProject } from '../types';
 
 interface AppContextType {
   user: UserProfile;
   setUserMode: (mode: UserMode) => void;
+  setUserProfile: (profile: UserProfile) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   sessions: StudySession[];
@@ -123,17 +124,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
-  const [sessions, setSessions] = useState<StudySession[]>(initialSessions);
+  const [allSessions, setAllSessions] = useState<StudySession[]>(initialSessions);
+  const sessions = allSessions.filter(s => s.mode === user.mode);
   const [habits, setHabits] = useState<Habit[]>(initialHabits);
   const [journals, setJournals] = useState<JournalEntry[]>(initialJournals);
   const [milestones, setMilestones] = useState<ExamOrMilestone[]>(initialMilestones);
   const [recommendations] = useState<AIRecommendation[]>(initialRecommendations);
 
+  // Kayıt/giriş sonrası gerçek backend profili burada saklanır - mod önizlemesi
+  // (Platform Modu değiştirici) bu gerçek veriyi asla ezmez, sadece geçici bir
+  // önizleme gösterir; kullanıcı kendi gerçek moduna dönünce tam olarak geri yüklenir.
+  const realProfileRef = useRef<UserProfile | null>(null);
+
+  const setUserProfile = (profile: UserProfile) => {
+    realProfileRef.current = profile;
+    setUser(profile);
+  };
+
   const setUserMode = (mode: UserMode) => {
+    const realProfile = realProfileRef.current;
+    if (realProfile && realProfile.mode === mode) {
+      setUser(realProfile);
+      return;
+    }
     setUser(prev => ({
       ...prev,
       mode,
       educationLevel: mode === 'STUDENT' ? 'HIGH_SCHOOL' : 'LIFELONG_LEARNER',
+      grade: undefined,
     }));
   };
 
@@ -144,7 +162,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       date: new Date().toISOString().split('T')[0],
       mode: user.mode,
     };
-    setSessions(prev => [newSession, ...prev]);
+    setAllSessions(prev => [newSession, ...prev]);
   };
 
   const toggleHabit = (habitId: string, dateStr: string) => {
@@ -210,6 +228,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       value={{
         user,
         setUserMode,
+        setUserProfile,
         activeTab,
         setActiveTab,
         sessions,

@@ -1,8 +1,8 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { useTheme } from '../context/ThemeContext';
-import { useApp } from '../context/AppContext';
-import { AuthModal } from './AuthModal';
+import { OnboardingFlow } from './onboarding/OnboardingFlow';
+import type { PendingProfile } from './onboarding/types';
 import { StaticHeroFallback, hasWebGLSupport } from './hero3d/WebGLFallback';
 import { useReducedMotion } from './hero3d/useReducedMotion';
 import {
@@ -22,24 +22,52 @@ interface Hero3DLandingProps {
   onEnterApp: () => void;
 }
 
+interface OnboardingState {
+  open: boolean;
+  step: 'MODE_LEVEL' | 'AUTH';
+  authMode: 'LOGIN' | 'REGISTER';
+  pendingProfile: PendingProfile | null;
+  presetMode: 'STUDENT' | 'LIFELONG_LEARNER' | null;
+}
+
+const CLOSED_ONBOARDING: OnboardingState = {
+  open: false,
+  step: 'MODE_LEVEL',
+  authMode: 'REGISTER',
+  pendingProfile: null,
+  presetMode: null,
+};
+
 export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
   const { theme, toggleTheme } = useTheme();
-  const { setUserMode } = useApp();
   const reducedMotion = useReducedMotion();
   const webglSupported = useMemo(() => hasWebGLSupport(), []);
 
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
+  const [onboarding, setOnboarding] = useState<OnboardingState>(CLOSED_ONBOARDING);
   const [hoveredMode, setHoveredMode] = useState<'STUDENT' | 'LEARNER' | null>(null);
 
-  const openAuth = (mode: 'LOGIN' | 'REGISTER') => {
-    setAuthMode(mode);
-    setAuthModalOpen(true);
+  const openLogin = () => {
+    setOnboarding({ open: true, step: 'AUTH', authMode: 'LOGIN', pendingProfile: null, presetMode: null });
   };
 
+  const openRegister = () => {
+    setOnboarding({ open: true, step: 'MODE_LEVEL', authMode: 'REGISTER', pendingProfile: null, presetMode: null });
+  };
+
+  const closeOnboarding = () => setOnboarding(CLOSED_ONBOARDING);
+
   const handleSelectModeAndEnter = (mode: 'STUDENT' | 'LIFELONG_LEARNER') => {
-    setUserMode(mode);
-    onEnterApp();
+    if (mode === 'LIFELONG_LEARNER') {
+      setOnboarding({
+        open: true,
+        step: 'AUTH',
+        authMode: 'REGISTER',
+        pendingProfile: { mode: 'LIFELONG_LEARNER', educationLevel: 'LIFELONG_LEARNER' },
+        presetMode: null,
+      });
+    } else {
+      setOnboarding({ open: true, step: 'MODE_LEVEL', authMode: 'REGISTER', pendingProfile: null, presetMode: 'STUDENT' });
+    }
   };
 
   return (
@@ -65,14 +93,14 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
           </button>
 
           <button
-            onClick={() => openAuth('LOGIN')}
+            onClick={openLogin}
             className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition-all"
           >
             Giriş Yap
           </button>
 
           <button
-            onClick={() => openAuth('REGISTER')}
+            onClick={openRegister}
             className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white shadow-lg glow-amber transition-all transform hover:-translate-y-0.5"
           >
             Ücretsiz Kayıt Ol
@@ -161,7 +189,7 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
               </div>
               <div className="h-12 w-0.5 bg-gradient-to-b from-amber-500 to-emerald-500 rounded-full"></div>
               <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                <span>Kariyer</span>
+                <span>Gelişim</span>
                 <ArrowRight className="w-4 h-4 animate-pulse" />
               </div>
             </div>
@@ -185,7 +213,7 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
                 <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">
                   Beceri &amp; Proje Odaklı
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">💼 Kariyer &amp; Gelişim Modu</h3>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">💼 İş Hayatım ve Gelişim</h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
                   Yazılım projeleri, dil öğrenimi, kişisel okumalar ve rutin alışkanlık takibi yapan yetişkinler ve çalışanlar için.
                 </p>
@@ -211,7 +239,7 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
               onClick={() => handleSelectModeAndEnter('LIFELONG_LEARNER')}
               className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all"
             >
-              <span>Kariyer Modunu Keşfet</span>
+              <span>Bu Modu Keşfet</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -222,12 +250,16 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
         <p>© 2026 StudyMentor. All rights reserved. Doğa ve İnsan Odaklı Öğrenme Mimarisi.</p>
       </footer>
 
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        initialMode={authMode}
-        onSuccess={onEnterApp}
-      />
+      {onboarding.open && (
+        <OnboardingFlow
+          initialStep={onboarding.step}
+          initialAuthMode={onboarding.authMode}
+          initialPendingProfile={onboarding.pendingProfile}
+          initialPresetMode={onboarding.presetMode}
+          onClose={closeOnboarding}
+          onComplete={onEnterApp}
+        />
+      )}
     </div>
   );
 };
