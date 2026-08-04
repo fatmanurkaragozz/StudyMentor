@@ -101,15 +101,18 @@ Bu rapor, StudyMentor projesi kapsamında gerçekleştirilen günlük çalışma
 - **Model Doğrulamasının Güçlendirilmesi:**
   - Gerçekçi olmayan uç değerler (`attempt_count` max=3740, `ms_first_response` max≈8 saat) 99. yüzdelikte kırpılarak (winsorize) temizlendi.
   - Tek bir train/test bölünmesinin güvenilirliğini test etmek için **5 katlı StratifiedKFold cross-validation** uygulandı: AUC 0.960 (±0.002), doğruluk %92.8 — sonucun şansa bağlı olmadığı ve aykırı değer temizliğinin sonucu neredeyse hiç değiştirmediği doğrulandı.
+
 - **Feature Importance (Özellik Önem) Analizi:** Modelin davranışsal özelliklere (deneme sayısı, ipucu sayısı, yanıt süresi, tekrar sayısı) toplamda **%93.4**, konu bilgisine (`skill_name`, 110 kategori) ise sadece **%6.6** ağırlık verdiği görüldü. Tekil en önemli özellik `attempt_count` (%45.9) olarak belirlendi; bu, korelasyon analizindeki en güçlü yordayıcı olan `hint_count`'tan (%29.4) farklı çıkarak korelasyon ile model-içi önemin farklı şeyler ölçtüğünü gösterdi.
 - **Model Karşılaştırması (Mentör Talebi Üzerine):** Aynı veri ve bölünmeyle **Decision Tree**, **Logistic Regression** (sayısal özellikler `StandardScaler` ile ölçeklendirilerek) ve **Random Forest** karşılaştırıldı:
-  | Model | AUC | Doğruluk |
-  |---|---|---|
-  | Decision Tree | 0.946 | 0.927 |
-  | Logistic Regression | 0.915 | 0.881 |
-  | Random Forest | 0.958 | 0.927 |
+
+  | Model               | AUC   | Doğruluk |
+  | ------------------- | ----- | -------- |
+  | Decision Tree       | 0.946 | 0.927    |
+  | Logistic Regression | 0.915 | 0.881    |
+  | Random Forest       | 0.958 | 0.927    |
 
   Random Forest'in tek bir karar ağacına göre sağladığı katkının ölçülü olduğu, buna karşın doğrusal bir modelin (Logistic Regression) belirgin şekilde geride kaldığı (verideki ilişkilerin doğrusal olmadığını doğrulayarak) gözlemlendi.
+
 - **Feature Selection Denemesi:** `skill_name` özelliği tamamen çıkarılıp sadece 5 davranışsal özellikle model yeniden eğitildi: AUC 0.958'den 0.942'ye (yalnızca 0.016 düşüş) geriledi — bu da konu bilgisinin katkısının sınırlı olduğu bulgusunu (feature importance analiziyle tutarlı şekilde) doğruladı.
 
 ---
@@ -120,13 +123,36 @@ Bu rapor, StudyMentor projesi kapsamında gerçekleştirilen günlük çalışma
 
 - **Scrum Eğitimi:** Scrum framework'leri ve Scrum teorisi (roller, olaylar, artefaktlar) incelendi.
 - **%70/%15/%15 Eğitim/Doğrulama/Test Bölünmesi (Mentör Talebi Üzerine):** Tek `train_test_split` çağrısıyla bölünemediği için iki aşamalı bölme uygulandı (önce %15 test, kalan %85'ten 15/85 oranıyla doğrulama ayrıldı). Doğrulama AUC 0.959 ve test AUC 0.958'in birbirine çok yakın çıkması, modelin doğrulama setine göre "ayarlanıp" test setinde şişirilmiş bir sonuç almadığını doğruladı.
-- **XGBoost'un Model Karşılaştırmasına Eklenmesi:** Mentörün belirttiği Bagging/Boosting/Ensemble kavramları doğrultusunda, notebook'taki karşılaştırmaya boosting ailesinden **XGBoost** eklendi:
-  | Model | AUC | Doğruluk |
-  |---|---|---|
-  | Logistic Regression | 0.915 | 0.879 |
-  | Decision Tree | 0.944 | 0.930 |
-  | Random Forest | 0.958 | 0.926 |
-  | **XGBoost** | **0.967** | 0.928 |
+- | **XGBoost'un Model Karşılaştırmasına Eklenmesi:** Mentörün belirttiği Bagging/Boosting/Ensemble kavramları doğrultusunda, notebook'taki karşılaştırmaya boosting ailesinden **XGBoost** eklendi: | Model     | AUC   | Doğruluk |
+  | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- | ----- | -------- |
+  | Logistic Regression                                                                                                                                                                              | 0.915     | 0.879 |
+  | Decision Tree                                                                                                                                                                                    | 0.944     | 0.930 |
+  | Random Forest                                                                                                                                                                                    | 0.958     | 0.926 |
+  | **XGBoost**                                                                                                                                                                                      | **0.967** | 0.928 |
 - **Üretim Modelinin XGBoost'a Geçirilmesi:** Karşılaştırmada en iyi sonucu veren XGBoost, `train.py` ve `app/model.py`'da üretim modeli olarak benimsendi (sınıf dengesizliği `scale_pos_weight` ile ele alındı). Sonuçlar: 5 katlı cross-validation AUC 0.970 (±0.001), test AUC 0.968 — Random Forest'e göre "yanlış" sınıfını yakalama oranı (recall) %77'den %84'e yükseldi. FastAPI servisi üzerinden uçtan uca tekrar doğrulandı.
 - **Kapsamlı ML Metodoloji Raporu:** Tüm veri seti araştırma süreci, kullanılan yöntemlerin (Decision Tree, Bagging/Random Forest, Boosting/XGBoost, Logistic Regression, feature importance, feature selection, cross-validation, train/validation/test bölünmesi) birbirinden farkları ve sonuçların yorumunu içeren `Documents/ML_Metodoloji_ve_Sonuclar_Raporu.md` dokümanı hazırlandı.
 - **Yol Haritası Netleştirildi:** Duolingo veri setinin ileride eklenebilecek bir İngilizce kelime kartı (flashcard) özelliği için referans olarak saklanmasına karar verildi. Kısa vadeli hedef ASSISTments (vekil/proxy) veriyle sistemi ilerletmek; StudyMentor gerçek kullanıcı verisi topladıkça aynı eğitim sürecinin gerçek veriyle tekrarlanıp daha kapsamlı bir modele dönüştürülmesi planlandı.
+- Bugün ethernet ucu da bastık caston kablo ucu da yaptık. (görseller gelecek)
+
+📅 9. Gün: 30 Temmuz 2026 (Perşembe)
+
+Bilgisayar kasası açtık. İçindeki parçaları inceledik: işlemci, anakart ,ram, kablo girişleri bios ekranı... bu konuların detaylarını anlattı (fotoğraflar gelecek)
+
+---
+
+### 📅 10. Gün: 31 Temmuz 2026 (Cuma)
+
+**Yapılan Çalışmalar:**
+
+- **Backend + Frontend + ML Servisinin Gerçek Entegrasyonu (Faz 1):** Şu ana kadar birbirinden bağımsız çalışan üç alt sistem ilk kez birbirine bağlandı.
+  - **Kimlik Doğrulama:** `POST /auth/register` ve `POST /auth/login` uç noktaları geliştirildi; şifreler `bcryptjs` ile hash'lenerek (10 round) Supabase Postgres'e yazılıyor, JWT (7 gün geçerli) ile oturum yönetiliyor. `HttpError`, `asyncHandler`, genişletilmiş `errorHandler` (Zod hataları dahil) ile hata yönetimi altyapısı kuruldu.
+  - **Prisma Şema Genişletmesi:** `User.grade`, `TopicCheck` (mini-kontrol) modeli, `AIRecommendation.topicId` eklendi; global (müfredat) ve kullanıcıya özel (`userId` dolu) ders/konu ayrımını destekleyen mevcut `Subject`/`Topic` şeması bu akışa entegre edildi. İdempotent bir seed script'i (`seed.ts`) ile her eğitim seviyesi için örnek ders/konu verisi oluşturuldu.
+  - **Onboarding Akışı:** Kayıt sırasında eğitim seviyesi/sınıf seçimi (`EducationLevelStep`), ardından "dünkü çalışma verisi" girişi veya **mini kontrol** (soru-cevap) akışı (`DataEntryStep`, `TopicCheckModal`) eklendi. Mini kontrol; gerçek `hint_count`, `attempt_count` ve yanıt süresini ölçerek backend üzerinden FastAPI ML servisine gönderiyor, dönen öncelik (YÜKSEK/ORTA/DÜŞÜK) ve öneri metni `AIRecommendation` tablosuna kaydediliyor. ML servisi geçici olarak ulaşılamazsa sistem çökmeden ham veriyi kaydedip nazik bir mesaj döndürüyor (graceful degradation).
+  - Artık kayıt/giriş olmadan uygulamaya anında giriş yapılan eski kısayol kapatıldı; gerçek kimlik doğrulama zorunlu hale getirildi.
+- **E-posta Doğrulama ve Şifremi Unuttum Sistemi:** Gmail SMTP (`nodemailer`, projeye özel bir Gmail hesabı ve Uygulama Şifresi ile) üzerinden 6 haneli doğrulama/sıfırlama kodları gönderiliyor. Kayıt sonrası e-posta doğrulaması zorunlu hale getirildi (doğrulanmamış hesapla giriş `403` ile engelleniyor); `POST /auth/verify-email`, `/resend-verification`, `/forgot-password`, `/reset-password` uç noktaları eklendi.
+- **"Öğrenci" / "Gelişim" Modu Ayrımının Düzeltilmesi:** Kapsamlı bir kod taraması sonucunda iki kullanıcı personası arasında karışan birçok nokta (mod'a göre filtrelenmeyen öneri/oturum listeleri, sabit-kodlanmış "Ders" etiketleri) tespit edilip düzeltildi. Öğrenciler müfredat tipi ders/konu seçiyor; "Gelişim" modundaki kullanıcılar ise serbest metinle kendi "uğraşlarını" giriyor (arka planda kullanıcıya özel `Subject` kaydı otomatik oluşturuluyor).
+- **"Derslerim" ve "Takvim" Modüllerinin Gerçek Backend'e Bağlanması (Öğrenci Modu):** Öğrencilerin kendi derslerini ve her dersin konularını ekleyip yönetebildiği yeni bir "Derslerim" sekmesi; haftalık ders programı (yeni `ScheduleSlot` Prisma modeli) ve sınav tarihlerini (mevcut `Exam`/`ExamSubject` modelleri için ilk kez yazılan CRUD servisleri) yönetebildiği yeni bir "Takvim" sekmesi eklendi. Tüm yeni uç noktalarda sahiplik (ownership) kontrolü test edildi (başka kullanıcının dersine erişim `403` ile engelleniyor).
+- **Modelin Verimli Kullanımı İçin Kullanıcı Akışının Yeniden Tasarlanması:** Giriş (login) sonrası her seferinde zorla açılan "veri girişi" ekranının kullanıcı deneyimini bozduğu belirlendi; bu ekran sadece ilk kayıt anına taşındı. Bunun yerine, modeli gerçekten besleyen mini-kontrol akışı uygulamanın günlük kullanılan yerlerine entegre edildi: Dashboard'da gerçek `GET /recommendations` verisiyle çalışan bir AI öneri kartı (doğrudan "Kontrol Et" ile mini-kontrolü açıyor) ve "Derslerim" sekmesinde her konunun yanında bir kontrol aksiyonu eklendi.
+- **Diğer Düzeltmeler:** Aydınlık/karanlık tema tutarsızlıkları (onboarding modallarının sabit koyu renkte kalması) giderildi; gerçek kullanıcı bilgilerini gösteren bir "Profilim" sayfası eklendi; Sidebar'daki mod değiştirme butonunun gerçek kullanıcı profilini (`educationLevel`/`grade`) istemci tarafında bozması hatası tespit edilip, gerçek profil ayrıca saklanacak şekilde kalıcı olarak düzeltildi.
+
+*(Not: Bu güne ait değişiklikler yerel geliştirme ortamında tamamlanıp uçtan uca test edildi, GitHub'a henüz push edilmedi.)*

@@ -7,12 +7,14 @@ import {
   CalendarDays, 
   Sparkles, 
   Flame, 
-  GraduationCap, 
+  GraduationCap,
   Briefcase,
   TrendingUp,
   Sun,
   Moon,
-  Home
+  Home,
+  UserCircle,
+  BookOpen
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -27,10 +29,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onGoToLanding }) => {
 
   const menuItems = [
     { id: 'dashboard', label: 'Ana Dashboard', icon: LayoutDashboard },
+    ...(isStudent ? [{ id: 'courses', label: 'Derslerim', icon: BookOpen }] : []),
     { id: 'planner', label: isStudent ? 'Çalışma & Pomodoro' : 'Odak & Zamanlayıcı', icon: Timer },
-    { id: 'calendar', label: isStudent ? 'Sınav & Net Takibi' : 'Proje & Milestones', icon: CalendarDays },
+    { id: 'calendar', label: isStudent ? 'Takvim' : 'Proje & Milestones', icon: CalendarDays },
     { id: 'growth', label: 'Habit & Journal Hub', icon: Flame },
     { id: 'insights', label: 'AI Analiz & Koç', icon: Sparkles },
+    { id: 'profile', label: 'Profilim', icon: UserCircle },
   ];
 
   return (
@@ -60,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onGoToLanding }) => {
           )}
         </div>
 
-        {/* Mode Switcher Banner */}
+        {/* Profil Özeti */}
         <div className="bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 mb-6">
           <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mb-2 font-semibold">
             <span>Platform Modu:</span>
@@ -77,8 +81,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onGoToLanding }) => {
             <button
               onClick={() => setUserMode('STUDENT')}
               className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-all ${
-                isStudent 
-                  ? 'bg-indigo-600 text-white shadow-md glow-indigo' 
+                isStudent
+                  ? 'bg-indigo-600 text-white shadow-md glow-indigo'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
               }`}
             >
@@ -88,13 +92,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onGoToLanding }) => {
             <button
               onClick={() => setUserMode('LIFELONG_LEARNER')}
               className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-all ${
-                !isStudent 
-                  ? 'bg-emerald-600 text-white shadow-md glow-emerald' 
+                !isStudent
+                  ? 'bg-emerald-600 text-white shadow-md glow-emerald'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
               }`}
             >
               <Briefcase className="w-3.5 h-3.5" />
-              <span>Kariyer</span>
+              <span>Gelişim</span>
             </button>
           </div>
         </div>
