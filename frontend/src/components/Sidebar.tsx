@@ -29,9 +29,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onGoToLanding }) => {
 
   const menuItems = [
     { id: 'dashboard', label: 'Ana Dashboard', icon: LayoutDashboard },
-    ...(isStudent ? [{ id: 'courses', label: 'Derslerim', icon: BookOpen }] : []),
+    { id: 'courses', label: isStudent ? 'Derslerim' : 'Uğraşlarım', icon: BookOpen },
     { id: 'planner', label: isStudent ? 'Çalışma & Pomodoro' : 'Odak & Zamanlayıcı', icon: Timer },
-    { id: 'calendar', label: isStudent ? 'Takvim' : 'Proje & Milestones', icon: CalendarDays },
+    { id: 'calendar', label: 'Takvim', icon: CalendarDays },
     { id: 'growth', label: 'Habit & Journal Hub', icon: Flame },
     { id: 'insights', label: 'AI Analiz & Koç', icon: Sparkles },
     { id: 'profile', label: 'Profilim', icon: UserCircle },

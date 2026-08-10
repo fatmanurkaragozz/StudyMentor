@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Lightbulb, RotateCcw, CheckCircle2, XCircle, Loader2, AlertCircle, Sparkles } from 'lucide-react';
+import { X, RotateCcw, CheckCircle2, XCircle, Loader2, AlertCircle, Sparkles, Compass } from 'lucide-react';
 import { apiClient, type RecommendationResult } from '../../lib/apiClient';
+import { useApp } from '../../context/AppContext';
+import { getKaptanMessage } from '../../lib/kaptan';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './priorityLabels';
 
 interface TopicCheckModalProps {
@@ -13,11 +15,9 @@ interface TopicCheckModalProps {
 type Stage = 'LOADING' | 'ERROR_START' | 'ACTIVE' | 'SELF_GRADE' | 'SUBMITTING' | 'RESULT' | 'ERROR_SUBMIT';
 
 export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topicName, subjectName, onClose }) => {
+  const { user } = useApp();
   const [stage, setStage] = useState<Stage>('LOADING');
   const [checkId, setCheckId] = useState<string | null>(null);
-  const [hint, setHint] = useState<string>('');
-  const [hintVisible, setHintVisible] = useState(false);
-  const [hintCount, setHintCount] = useState(0);
   const [attemptCount, setAttemptCount] = useState(1);
   const [msFirstResponse, setMsFirstResponse] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -32,7 +32,6 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
       .then(res => {
         if (cancelled) return;
         setCheckId(res.checkId);
-        setHint(res.hint);
         startTimeRef.current = Date.now();
         setStage('ACTIVE');
       })
@@ -50,16 +49,9 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
     setMsFirstResponse(prev => (prev === null ? Date.now() - startTimeRef.current : prev));
   };
 
-  const handleShowHint = () => {
-    recordFirstResponse();
-    setHintCount(c => c + 1);
-    setHintVisible(true);
-  };
-
   const handleRetry = () => {
     recordFirstResponse();
     setAttemptCount(c => c + 1);
-    setHintVisible(false);
   };
 
   const handleFinish = () => {
@@ -74,7 +66,7 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
     try {
       const res = await apiClient.submitTopicCheck(checkId, {
         attemptCount,
-        hintCount,
+        hintCount: 0,
         msFirstResponse: msFirstResponse ?? overlapTimeMs,
         overlapTimeMs,
         selfGradedCorrect,
@@ -127,39 +119,21 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
         {stage === 'ACTIVE' && (
           <div className="space-y-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Bu konuyu şu an ne kadar hatırladığını kendi kendine değerlendir. Zorlanırsan ipucu iste, hazır olduğunda bitir.
+              Bu konuyu şu an ne kadar hatırladığını kendi kendine değerlendir. Gerekirse tekrar dene, hazır olduğunda bitir.
             </p>
-
-            {hintVisible && (
-              <div className="text-xs bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 text-amber-700 dark:text-amber-200">
-                {hint}
-              </div>
-            )}
 
             <div className="flex items-center gap-2 text-[10px] text-slate-500">
               <span>Deneme: {attemptCount}</span>
-              <span>•</span>
-              <span>İpucu: {hintCount}</span>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2">
-              <button
-                type="button"
-                onClick={handleShowHint}
-                className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 hover:border-amber-500/50 text-amber-600 dark:text-amber-300 font-semibold text-xs flex items-center justify-center gap-2 transition-all"
-              >
-                <Lightbulb className="w-4 h-4" />
-                <span>İpucu Göster</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold text-xs flex items-center justify-center gap-2 transition-all"
-              >
-                <RotateCcw className="w-4 h-4" />
-                <span>Tekrar Dene</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold text-xs flex items-center justify-center gap-2 transition-all"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Tekrar Dene</span>
+            </button>
 
             <button
               type="button"
@@ -238,9 +212,28 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
             )}
 
             {result.recommendation && (
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 px-4 py-3 space-y-1">
-                <div className="text-xs font-bold text-slate-800 dark:text-slate-200">{result.recommendation.title}</div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{result.recommendation.content}</p>
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 px-4 py-3 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-500 dark:text-purple-400">
+                  <Compass className="w-3.5 h-3.5" />
+                  <span>Kaptan</span>
+                </div>
+                {(() => {
+                  const message = result.priority
+                    ? getKaptanMessage({
+                        id: result.recommendation.id,
+                        firstName: user.name.split(' ')[0],
+                        priority: result.priority,
+                        topicName,
+                        subjectName,
+                      })
+                    : result.recommendation;
+                  return (
+                    <>
+                      <div className="text-xs font-bold text-slate-800 dark:text-slate-200">{message.title}</div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{message.content}</p>
+                    </>
+                  );
+                })()}
               </div>
             )}
 
