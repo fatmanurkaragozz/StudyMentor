@@ -9,6 +9,9 @@ import { studySessionsRouter } from "./studySessions.routes.js";
 import { recommendationsRouter } from "./recommendations.routes.js";
 import { scheduleRouter } from "./schedule.routes.js";
 import { examsRouter } from "./exams.routes.js";
+import { habitsRouter } from "./habits.routes.js";
+import { journalsRouter } from "./journals.routes.js";
+import { dailyTasksRouter } from "./dailyTasks.routes.js";
 
 export const router = Router();
 
@@ -22,3 +25,6 @@ router.use(studySessionsRouter);
 router.use(recommendationsRouter);
 router.use(scheduleRouter);
 router.use(examsRouter);
+router.use(habitsRouter);
+router.use(journalsRouter);
+router.use(dailyTasksRouter);
