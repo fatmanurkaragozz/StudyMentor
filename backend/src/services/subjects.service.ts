@@ -47,3 +47,12 @@ export async function addTopicToSubject(userId: string, subjectId: string, name:
   const topic = await prisma.topic.create({ data: { subjectId, name } });
   return { topicId: topic.id, topicName: topic.name };
 }
+
+export async function deleteSubject(userId: string, subjectId: string) {
+  const subject = await prisma.subject.findUnique({ where: { id: subjectId } });
+  // Sadece kullanıcının kendi eklediği ders/uğraş silinebilir - genel müfredat/sınav kataloğu dersleri korunur.
+  if (!subject || subject.userId !== userId) {
+    throw new HttpError(403, "Bu derse erişimin yok");
+  }
+  await prisma.subject.delete({ where: { id: subjectId } });
+}
