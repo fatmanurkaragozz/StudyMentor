@@ -2,6 +2,7 @@ import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 import { predictPriority } from "./mlClient.service.js";
 import { getDisplayTopicLabel } from "../utils/topicLabel.js";
+import { computeNextReview } from "../utils/spacedRepetition.js";
 
 interface CreateStudySessionInput {
   subjectId: string;
@@ -50,7 +51,11 @@ export async function createStudySession(userId: string, input: CreateStudySessi
     hint_count: DEFAULT_HINT_COUNT,
   });
 
-  await prisma.topic.update({ where: { id: input.topicId }, data: { lastStudied: new Date() } });
+  const nextReview = prediction ? await computeNextReview(input.topicId, prediction.priority) : undefined;
+  await prisma.topic.update({
+    where: { id: input.topicId },
+    data: { lastStudied: new Date(), ...(nextReview ? { nextReview } : {}) },
+  });
 
   if (!prediction) {
     return { studySession, mlAvailable: false, correctProbability: null, priority: null, recommendation: null };
@@ -64,6 +69,7 @@ export async function createStudySession(userId: string, input: CreateStudySessi
       title: `${displayLabel} için Öneri`,
       content: `Son çalışma verine göre ${displayLabel} konusunun önceliği: ${prediction.priority}.`,
       type: "STUDY_PRIORITY",
+      priority: prediction.priority,
     },
   });
 
@@ -74,4 +80,23 @@ export async function createStudySession(userId: string, input: CreateStudySessi
     priority: prediction.priority,
     recommendation,
   };
+}
+
+export async function listStudySessions(userId: string) {
+  const sessions = await prisma.studySession.findMany({
+    where: { userId },
+    include: { subject: true, topic: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return sessions.map((s) => ({
+    id: s.id,
+    subjectName: s.subject.name,
+    topicName: s.topic.name,
+    durationMinutes: s.durationMinutes,
+    difficulty: s.difficulty,
+    productivity: s.productivity,
+    notes: s.notes,
+    createdAt: s.createdAt,
+  }));
 }

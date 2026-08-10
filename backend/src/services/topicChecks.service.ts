@@ -3,6 +3,7 @@ import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 import { predictPriority } from "./mlClient.service.js";
 import { getDisplayTopicLabel } from "../utils/topicLabel.js";
+import { computeNextReview } from "../utils/spacedRepetition.js";
 
 interface SubmitCheckInput {
   attemptCount: number;
@@ -89,7 +90,11 @@ export async function submitCheck(userId: string, checkId: string, input: Submit
     },
   });
 
-  await prisma.topic.update({ where: { id: check.topicId }, data: { lastStudied: new Date() } });
+  const nextReview = prediction ? await computeNextReview(check.topicId, prediction.priority) : undefined;
+  await prisma.topic.update({
+    where: { id: check.topicId },
+    data: { lastStudied: new Date(), ...(nextReview ? { nextReview } : {}) },
+  });
 
   if (!prediction) {
     return { mlAvailable: false, correctProbability: null, priority: null, recommendation: null };
@@ -98,7 +103,7 @@ export async function submitCheck(userId: string, checkId: string, input: Submit
   const displayLabel = getDisplayTopicLabel(check.topic, check.topic.subject);
   const { title, content } = RECOMMENDATION_TEXT[prediction.priority](displayLabel);
   const recommendation = await prisma.aIRecommendation.create({
-    data: { userId, topicId: check.topicId, title, content, type: "REVISION" },
+    data: { userId, topicId: check.topicId, title, content, type: "REVISION", priority: prediction.priority },
   });
 
   return {
