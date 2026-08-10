@@ -5,7 +5,8 @@ import { EducationLevelStep } from './EducationLevelStep';
 import { DataEntryStep } from './DataEntryStep';
 import type { PendingProfile } from './types';
 import type { BackendUser } from '../../lib/apiClient';
-import type { UserProfile, UserMode, EducationLevel } from '../../types';
+import { toUserProfile } from '../../lib/apiClient';
+import type { UserMode } from '../../types';
 
 type Step = 'MODE_LEVEL' | 'AUTH' | 'DATA_ENTRY';
 
@@ -16,26 +17,6 @@ interface OnboardingFlowProps {
   initialPresetMode?: UserMode | null;
   onClose: () => void;
   onComplete: () => void;
-}
-
-const TARGET_GOALS: Record<EducationLevel, string> = {
-  MIDDLE_SCHOOL: 'LGS Hazırlık',
-  HIGH_SCHOOL: 'YKS Hazırlık',
-  UNIVERSITY: 'Üniversite Akademik Başarısı',
-  LIFELONG_LEARNER: 'Kişisel ve Kariyer Gelişimi',
-};
-
-function toUserProfile(backendUser: BackendUser): UserProfile {
-  const mode: UserMode = backendUser.educationLevel === 'LIFELONG_LEARNER' ? 'LIFELONG_LEARNER' : 'STUDENT';
-  return {
-    id: backendUser.id,
-    name: `${backendUser.firstName} ${backendUser.lastName}`.trim(),
-    email: backendUser.email,
-    mode,
-    educationLevel: backendUser.educationLevel,
-    grade: backendUser.grade ?? undefined,
-    targetGoal: TARGET_GOALS[backendUser.educationLevel],
-  };
 }
 
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({

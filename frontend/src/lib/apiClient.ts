@@ -1,4 +1,4 @@
-import type { EducationLevel } from "../types";
+import type { EducationLevel, UserProfile, UserMode } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api";
 const TOKEN_KEY = "studymentor_token";
@@ -60,6 +60,26 @@ interface AuthResponse {
   user: BackendUser;
 }
 
+const TARGET_GOALS: Record<EducationLevel, string> = {
+  MIDDLE_SCHOOL: 'LGS Hazırlık',
+  HIGH_SCHOOL: 'YKS Hazırlık',
+  UNIVERSITY: 'Üniversite Akademik Başarısı',
+  LIFELONG_LEARNER: 'Kişisel ve Kariyer Gelişimi',
+};
+
+export function toUserProfile(backendUser: BackendUser): UserProfile {
+  const mode: UserMode = backendUser.educationLevel === 'LIFELONG_LEARNER' ? 'LIFELONG_LEARNER' : 'STUDENT';
+  return {
+    id: backendUser.id,
+    name: `${backendUser.firstName} ${backendUser.lastName}`.trim(),
+    email: backendUser.email,
+    mode,
+    educationLevel: backendUser.educationLevel,
+    grade: backendUser.grade ?? undefined,
+    targetGoal: TARGET_GOALS[backendUser.educationLevel],
+  };
+}
+
 export interface TopicSummary {
   id: string;
   name: string;
@@ -101,6 +121,7 @@ export interface RecommendationRow {
   topicId: string | null;
   topicName: string | null;
   subjectName: string | null;
+  priority: PriorityLevel | null;
 }
 
 export interface MyTopic {
@@ -130,7 +151,70 @@ export interface ExamDto {
   date: string;
   targetScore: number | null;
   resultScore: number | null;
-  subjects: string[];
+  examCategory: ExamCategory | null;
+  subjects: { id: string; name: string }[];
+}
+
+export interface StudySessionRow {
+  id: string;
+  subjectName: string;
+  topicName: string;
+  durationMinutes: number;
+  difficulty: number;
+  productivity: number;
+  notes: string | null;
+  createdAt: string;
+}
+
+export interface HabitRow {
+  id: string;
+  name: string;
+  streakDays: number;
+  completedDates: string[];
+}
+
+export interface JournalRow {
+  id: string;
+  content: string;
+  mood: string;
+  sentimentScore: number | null;
+  createdAt: string;
+}
+
+export type ExamCategory =
+  | 'LGS'
+  | 'TYT'
+  | 'AYT'
+  | 'YDT'
+  | 'KPSS'
+  | 'KPSS_EGITIM_BILIMLERI'
+  | 'ALES'
+  | 'DGS'
+  | 'YOKDIL'
+  | 'YOKDIL_FEN'
+  | 'YOKDIL_SOSYAL'
+  | 'YOKDIL_SAGLIK'
+  | 'AGS'
+  | 'YDS'
+  | 'OTHER';
+
+export interface ExamCatalogSubject {
+  subjectId: string;
+  subjectName: string;
+  topics: { id: string; name: string }[];
+}
+
+export type DailyTaskStatus = 'PLANNED' | 'DONE' | 'SKIPPED';
+
+export interface DailyTaskRow {
+  id: string;
+  subjectId: string;
+  subjectName: string;
+  topicId: string;
+  topicName: string;
+  date: string;
+  status: DailyTaskStatus;
+  studySessionId: string | null;
 }
 
 export const apiClient = {
@@ -158,8 +242,7 @@ export const apiClient = {
   resetPassword: (body: { email: string; code: string; newPassword: string }) =>
     request<{ message: string }>("/auth/reset-password", { method: "POST", body: JSON.stringify(body) }),
 
-  updateProfile: (body: { educationLevel?: EducationLevel; grade?: number }) =>
-    request<BackendUser>("/users/me", { method: "PATCH", body: JSON.stringify(body) }),
+  getMe: () => request<BackendUser>("/users/me"),
 
   getTopics: () => request<SubjectWithTopics[]>("/topics"),
 
@@ -174,6 +257,8 @@ export const apiClient = {
       body: JSON.stringify({ name }),
     }),
 
+  deleteSubject: (subjectId: string) => request<{ message: string }>(`/subjects/${subjectId}`, { method: "DELETE" }),
+
   getSchedule: () => request<ScheduleSlotDto[]>("/schedule"),
 
   createScheduleSlot: (body: { subjectId: string; dayOfWeek: number; startTime: string; endTime: string; location?: string }) =>
@@ -181,8 +266,25 @@ export const apiClient = {
 
   getExams: () => request<ExamDto[]>("/exams"),
 
-  createExam: (body: { name: string; date: string; targetScore?: number; subjectIds: string[] }) =>
+  createExam: (body: { name: string; date: string; targetScore?: number; subjectIds: string[]; examCategory?: ExamCategory }) =>
     request<{ id: string }>("/exams", { method: "POST", body: JSON.stringify(body) }),
+
+  updateExam: (
+    id: string,
+    body: {
+      name?: string;
+      date?: string;
+      targetScore?: number | null;
+      resultScore?: number | null;
+      subjectIds?: string[];
+      examCategory?: ExamCategory;
+    },
+  ) => request<{ message: string }>(`/exams/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+
+  deleteExam: (id: string) => request<{ message: string }>(`/exams/${id}`, { method: "DELETE" }),
+
+  getExamCatalog: (category: Exclude<ExamCategory, "OTHER">) =>
+    request<ExamCatalogSubject[]>(`/exams/catalog/${category}`),
 
   startTopicCheck: (topicId: string) =>
     request<StartCheckResponse>("/topic-checks/start", { method: "POST", body: JSON.stringify({ topicId }) }),
@@ -199,8 +301,36 @@ export const apiClient = {
     difficulty: number;
     productivity: number;
     notes?: string;
-  }) => request<{ studySession: unknown } & RecommendationResult>("/study-sessions", { method: "POST", body: JSON.stringify(body) }),
+  }) => request<{ studySession: { id: string } } & RecommendationResult>("/study-sessions", { method: "POST", body: JSON.stringify(body) }),
+
+  getStudySessions: () => request<StudySessionRow[]>("/study-sessions"),
 
   getRecommendations: () =>
     request<RecommendationRow[]>("/recommendations"),
+
+  getHabits: () => request<HabitRow[]>("/habits"),
+
+  createHabit: (name: string) =>
+    request<HabitRow>("/habits", { method: "POST", body: JSON.stringify({ name }) }),
+
+  toggleHabitLog: (habitId: string, date: string) =>
+    request<{ message: string }>(`/habits/${habitId}/toggle`, { method: "POST", body: JSON.stringify({ date }) }),
+
+  getJournals: () => request<JournalRow[]>("/journals"),
+
+  createJournal: (body: { content: string; mood: string }) =>
+    request<JournalRow>("/journals", { method: "POST", body: JSON.stringify(body) }),
+
+  getDailyTasks: (date?: string) => request<DailyTaskRow[]>(`/daily-tasks${date ? `?date=${date}` : ""}`),
+
+  createDailyTask: (body: { subjectId: string; topicId: string; date: string }) =>
+    request<DailyTaskRow>("/daily-tasks", { method: "POST", body: JSON.stringify(body) }),
+
+  completeDailyTask: (taskId: string, studySessionId: string) =>
+    request<{ message: string }>(`/daily-tasks/${taskId}/complete`, {
+      method: "POST",
+      body: JSON.stringify({ studySessionId }),
+    }),
+
+  deleteDailyTask: (taskId: string) => request<{ message: string }>(`/daily-tasks/${taskId}`, { method: "DELETE" }),
 };
