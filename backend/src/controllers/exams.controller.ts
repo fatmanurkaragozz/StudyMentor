@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { createExamSchema } from "../validation/schemas.js";
-import { createExam, listExams } from "../services/exams.service.js";
+import { createExamSchema, examCatalogParamsSchema, updateExamSchema } from "../validation/schemas.js";
+import { createExam, listExams, getExamCatalog, updateExam, deleteExam } from "../services/exams.service.js";
 
 export async function postExam(req: Request, res: Response) {
   const input = createExamSchema.parse(req.body);
@@ -11,4 +11,21 @@ export async function postExam(req: Request, res: Response) {
 export async function getExams(req: Request, res: Response) {
   const result = await listExams(req.userId as string);
   res.json(result);
+}
+
+export async function getExamCatalogHandler(req: Request<{ category: string }>, res: Response) {
+  const { category } = examCatalogParamsSchema.parse(req.params);
+  const result = await getExamCatalog(category);
+  res.json(result);
+}
+
+export async function patchExam(req: Request<{ id: string }>, res: Response) {
+  const input = updateExamSchema.parse(req.body);
+  await updateExam(req.userId as string, req.params.id, input);
+  res.json({ message: "Sınav güncellendi" });
+}
+
+export async function deleteExamHandler(req: Request<{ id: string }>, res: Response) {
+  await deleteExam(req.userId as string, req.params.id);
+  res.json({ message: "Sınav silindi" });
 }

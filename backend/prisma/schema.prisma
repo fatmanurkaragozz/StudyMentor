@@ -38,6 +38,33 @@ enum PriorityLevel {
   DUSUK
 }
 
+// Hazır ders/konu kataloğu sunulan merkezi sınav türleri (OTHER = tamamen manuel sınav/hedef).
+// YOKDIL eski/genel değer - geriye dönük uyumluluk için duruyor, yeni seçim arayüzünde
+// yerini YOKDIL_FEN/YOKDIL_SOSYAL/YOKDIL_SAGLIK varyantları aldı.
+enum ExamCategory {
+  LGS
+  TYT
+  AYT
+  YDT
+  KPSS
+  KPSS_EGITIM_BILIMLERI
+  ALES
+  DGS
+  YOKDIL
+  YOKDIL_FEN
+  YOKDIL_SOSYAL
+  YOKDIL_SAGLIK
+  AGS
+  YDS
+  OTHER
+}
+
+enum DailyTaskStatus {
+  PLANNED
+  DONE
+  SKIPPED
+}
+
 model User {
   id             String         @id @default(uuid())
   email          String         @unique
@@ -69,12 +96,14 @@ model User {
   resourceSuggestions ResourceSuggestion[]
   topicChecks          TopicCheck[]
   scheduleSlots        ScheduleSlot[]
+  dailyTasks           DailyTask[]
 }
 
 model Subject {
   id             String          @id @default(uuid())
   name           String
   educationLevel EducationLevel? // Null ise kullanıcıya özel veya genel derstir
+  examCategory   ExamCategory?   // Dolu ise KPSS/YÖKDİL/ALES gibi merkezi bir sınav kataloğuna ait genel ders
   userId         String?         // Kullanıcıya özel tanımlandıysa
   user           User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt      DateTime        @default(now())
@@ -84,6 +113,7 @@ model Subject {
   studySessions StudySession[]
   exams         ExamSubject[]
   scheduleSlots ScheduleSlot[]
+  dailyTasks    DailyTask[]
 
   @@unique([name, userId])
 }
@@ -116,6 +146,7 @@ model Topic {
   studySessions   StudySession[]
   checks          TopicCheck[]
   recommendations AIRecommendation[]
+  dailyTasks      DailyTask[]
 }
 
 // Uygulama içi "mini kontrol" (soru-cevap) etkileşimi - ML servisine gönderilen
@@ -139,32 +170,53 @@ model TopicCheck {
 }
 
 model StudySession {
-  id              String   @id @default(uuid())
+  id              String     @id @default(uuid())
   userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   subjectId       String
-  subject         Subject  @relation(fields: [subjectId], references: [id])
+  subject         Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   topicId         String
-  topic           Topic    @relation(fields: [topicId], references: [id])
+  topic           Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
   durationMinutes Int
-  difficulty      Int      // 1-5 arası zorluk
-  productivity    Int      // 1-5 arası verimlilik
+  difficulty      Int        // 1-5 arası zorluk
+  productivity    Int        // 1-5 arası verimlilik
   notes           String?
-  createdAt       DateTime @default(now())
+  createdAt       DateTime   @default(now())
+
+  // İlişkiler
+  dailyTask       DailyTask?
 }
 
 model Exam {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String   // Örn: "YKS Deneme-1", "Matematik Vize"
-  date        DateTime
-  targetScore Float?
-  resultScore Float?
-  createdAt   DateTime @default(now())
+  id           String        @id @default(uuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String        // Örn: "YKS Deneme-1", "Matematik Vize"
+  date         DateTime
+  targetScore  Float?
+  resultScore  Float?
+  examCategory ExamCategory? // Hangi hazır katalogdan oluşturulduğu (KPSS/YÖKDİL/ALES); null/OTHER = tamamen manuel
+  createdAt    DateTime      @default(now())
 
   // İlişkiler
   subjects    ExamSubject[]
+}
+
+// Günlük "bugün ne çalışacağım" planı - bir ders/konuyu o güne planlar, tamamlanınca
+// gerçek StudySession kaydına bağlanır (Pomodoro zorunlu değildir).
+model DailyTask {
+  id             String          @id @default(uuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId      String
+  subject        Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topicId        String
+  topic          Topic           @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  date           DateTime        // Gün bazında tarih (YYYY-MM-DD)
+  status         DailyTaskStatus @default(PLANNED)
+  studySessionId String?         @unique
+  studySession   StudySession?   @relation(fields: [studySessionId], references: [id])
+  createdAt      DateTime        @default(now())
 }
 
 model ExamSubject {
@@ -172,7 +224,7 @@ model ExamSubject {
   examId    String
   exam      Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
   subjectId String
-  subject   Subject @relation(fields: [subjectId], references: [id])
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   score     Float?  // Bu dersten yapılan net veya alınan puan
 }
 
@@ -212,14 +264,17 @@ model AIRecommendation {
   userId    String
   user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   topicId   String?            // Önerinin hangi konudan üretildiği (izlenebilirlik için)
-  topic     Topic?             @relation(fields: [topicId], references: [id])
+  topic     Topic?             @relation(fields: [topicId], references: [id], onDelete: SetNull)
   title     String
   content   String
   type      RecommendationType
+  priority  PriorityLevel?     // "Kaptan" kisiliginin frontend'de mesaj uretmesi icin ham veri
   isRead    Boolean            @default(false)
   createdAt DateTime           @default(now())
 }
 
+// Henüz hiçbir serviste kullanılmıyor - kullanıcıya özel kaynak önerisi özelliği
+// için önceden tasarlanmış ama arka ucu hiç yazılmamış (bkz. CLAUDE.md "Known gaps").
 model ResourceSuggestion {
   id          String   @id @default(uuid())
   userId      String

@@ -1,3 +1,4 @@
+import type { ExamCategory } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 
@@ -6,12 +7,15 @@ interface CreateExamInput {
   date: string;
   targetScore?: number;
   subjectIds: string[];
+  examCategory?: ExamCategory;
 }
 
 export async function createExam(userId: string, input: CreateExamInput) {
   const subjects = await prisma.subject.findMany({ where: { id: { in: input.subjectIds } } });
-  const ownsAll = subjects.length === input.subjectIds.length && subjects.every((s) => s.userId === userId);
-  if (!ownsAll) {
+  // Kullanıcının kendi eklediği dersler VEYA merkezi sınav kataloğuna (KPSS/YÖKDİL/ALES) ait genel dersler kullanılabilir.
+  const usableByAll =
+    subjects.length === input.subjectIds.length && subjects.every((s) => s.userId === userId || s.examCategory != null);
+  if (!usableByAll) {
     throw new HttpError(403, "Seçilen derslerden birine erişimin yok");
   }
 
@@ -21,6 +25,7 @@ export async function createExam(userId: string, input: CreateExamInput) {
       name: input.name,
       date: new Date(input.date),
       targetScore: input.targetScore,
+      examCategory: input.examCategory,
       subjects: {
         create: input.subjectIds.map((subjectId) => ({ subjectId })),
       },
@@ -28,6 +33,66 @@ export async function createExam(userId: string, input: CreateExamInput) {
   });
 
   return { id: exam.id };
+}
+
+interface UpdateExamInput {
+  name?: string;
+  date?: string;
+  targetScore?: number | null;
+  resultScore?: number | null;
+  subjectIds?: string[];
+  examCategory?: ExamCategory;
+}
+
+export async function updateExam(userId: string, examId: string, input: UpdateExamInput) {
+  const exam = await prisma.exam.findUnique({ where: { id: examId } });
+  if (!exam || exam.userId !== userId) {
+    throw new HttpError(403, "Bu sınava erişimin yok");
+  }
+
+  if (input.subjectIds) {
+    const subjects = await prisma.subject.findMany({ where: { id: { in: input.subjectIds } } });
+    const usableByAll =
+      subjects.length === input.subjectIds.length && subjects.every((s) => s.userId === userId || s.examCategory != null);
+    if (!usableByAll) {
+      throw new HttpError(403, "Seçilen derslerden birine erişimin yok");
+    }
+    await prisma.examSubject.deleteMany({ where: { examId } });
+  }
+
+  await prisma.exam.update({
+    where: { id: examId },
+    data: {
+      name: input.name,
+      date: input.date ? new Date(input.date) : undefined,
+      targetScore: input.targetScore,
+      resultScore: input.resultScore,
+      examCategory: input.examCategory,
+      ...(input.subjectIds ? { subjects: { create: input.subjectIds.map((subjectId) => ({ subjectId })) } } : {}),
+    },
+  });
+}
+
+export async function deleteExam(userId: string, examId: string) {
+  const exam = await prisma.exam.findUnique({ where: { id: examId } });
+  if (!exam || exam.userId !== userId) {
+    throw new HttpError(403, "Bu sınava erişimin yok");
+  }
+  await prisma.exam.delete({ where: { id: examId } });
+}
+
+export async function getExamCatalog(category: ExamCategory) {
+  const subjects = await prisma.subject.findMany({
+    where: { examCategory: category },
+    include: { topics: true },
+    orderBy: { name: "asc" },
+  });
+
+  return subjects.map((subject) => ({
+    subjectId: subject.id,
+    subjectName: subject.name,
+    topics: subject.topics.map((topic) => ({ id: topic.id, name: topic.name })),
+  }));
 }
 
 export async function listExams(userId: string) {
@@ -43,6 +108,7 @@ export async function listExams(userId: string) {
     date: exam.date,
     targetScore: exam.targetScore,
     resultScore: exam.resultScore,
-    subjects: exam.subjects.map((es) => es.subject.name),
+    examCategory: exam.examCategory,
+    subjects: exam.subjects.map((es) => ({ id: es.subject.id, name: es.subject.name })),
   }));
 }
