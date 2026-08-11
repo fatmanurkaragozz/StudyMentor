@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { apiClient, type SubjectWithTopics, type RecommendationResult, type DailyTaskRow } from '../lib/apiClient';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
+import { getKaptanSessionMessage } from '../lib/kaptan';
 import {
   Play,
   Pause,
@@ -15,6 +16,7 @@ import {
   ListTodo,
   PlusCircle,
   Trash2,
+  Compass,
 } from 'lucide-react';
 
 const todayKey = () => new Date().toISOString().split('T')[0];
@@ -118,6 +120,9 @@ export const StudyPlanner: React.FC = () => {
   };
 
   const selectedSubject = subjects.find(s => s.subjectId === selectedSubjectId) ?? null;
+  const activeTopicName = isStudent
+    ? selectedSubject?.topics.find(t => t.id === selectedTopicId)?.name ?? null
+    : pursuitName.trim() || null;
 
   const handleSelectSubject = (subjectId: string) => {
     setSelectedSubjectId(subjectId);
@@ -203,7 +208,8 @@ export const StudyPlanner: React.FC = () => {
     setActiveTaskId(task.id);
     setSelectedSubjectId(task.subjectId);
     setSelectedTopicId(task.topicId);
-    setShowCompleteModal(true);
+    setSecondsLeft(durations[timerMode === 'CUSTOM' ? 'POMODORO' : timerMode] * 60);
+    setIsRunning(true);
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -396,6 +402,16 @@ export const StudyPlanner: React.FC = () => {
               Uzun Mola (15dk)
             </button>
           </div>
+
+          {activeTaskId && (
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 border border-indigo-500/30 rounded-lg px-3 py-1.5">
+              <ListTodo className="w-3.5 h-3.5" />
+              <span>
+                Şu an çalışıyorsun: {selectedSubject?.subjectName ?? ''}
+                {activeTopicName ? ` — ${activeTopicName}` : ''}
+              </span>
+            </div>
+          )}
 
           {/* Süre Ayarı */}
           <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
@@ -669,6 +685,29 @@ export const StudyPlanner: React.FC = () => {
                     ML servisi şu anda ulaşılamıyor, verilerin kaydedildi.
                   </div>
                 )}
+
+                {(() => {
+                  const message = getKaptanSessionMessage({
+                    id: submitResult.recommendation?.id ?? selectedTopicId ?? 'kaptan-session',
+                    firstName: user.name.split(' ')[0],
+                    priority: submitResult.priority,
+                    difficulty,
+                    productivity,
+                    topicName: activeTopicName,
+                    subjectName: selectedSubject?.subjectName ?? null,
+                  });
+                  return (
+                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 px-4 py-3 space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-500 dark:text-purple-400">
+                        <Compass className="w-3.5 h-3.5" />
+                        <span>Kaptan</span>
+                      </div>
+                      <div className="text-xs font-bold text-slate-800 dark:text-slate-200">{message.title}</div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{message.content}</p>
+                    </div>
+                  );
+                })()}
+
                 <button
                   onClick={handleCloseModal}
                   className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg glow-indigo"
