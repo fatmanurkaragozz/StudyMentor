@@ -1,7 +1,6 @@
 import { config } from "../config/env.js";
 
 export interface PriorityFeatures {
-  skill_name: string;
   opportunity: number;
   attempt_count: number;
   ms_first_response: number;

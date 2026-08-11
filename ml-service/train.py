@@ -16,6 +16,15 @@ Given a topic and a student's practice history on it (past repetitions,
 attempts, response time, hints used), predicts whether they will answer
 correctly right now. A low predicted probability means "review this topic now."
 
+skill_name (the ASSISTments topic label) is intentionally NOT used as a feature.
+StudyMentor's backend sends its own real (Turkish) subject/topic names, which
+never match any of the 110 ASSISTments skill labels this dataset has - a one-hot
+encoder fit on those labels would always see StudyMentor's input as an unseen
+category. The notebook's ablation shows dropping skill_name costs AUC 0.958 ->
+0.941 on this dataset, but since it already contributed nothing in production,
+training without it doesn't cost anything in practice - it just makes the
+served score honestly reflect what the model actually uses.
+
 Run manually whenever the dataset changes:
     python train.py
 
@@ -23,11 +32,8 @@ Produces models/priority_model.joblib, loaded by app/model.py at request time.
 """
 
 import pandas as pd
-from sklearn.compose import ColumnTransformer
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
 from xgboost import XGBClassifier
 import joblib
 from pathlib import Path
@@ -35,51 +41,54 @@ from pathlib import Path
 DATA_PATH = Path(__file__).parent / "assistments_sample_100k.csv"
 MODEL_PATH = Path(__file__).parent / "models" / "priority_model.joblib"
 
-# skill_name = the topic (110 real math skills). No absolute timestamp exists in
-# this dataset (only order_id sequence), so hour-of-day is not a feature here -
-# a known, accepted gap (see notebooks/spaced_repetition_eda.ipynb history).
+# No absolute timestamp exists in this dataset (only order_id sequence), so
+# hour-of-day is not a feature here - a known, accepted gap (see
+# notebooks/spaced_repetition_eda.ipynb history).
 NUMERIC_FEATURES = ["opportunity", "attempt_count", "ms_first_response", "overlap_time", "hint_count"]
-CATEGORICAL_FEATURES = ["skill_name"]
 TARGET = "correct"
 
 # attempt_count/ms_first_response/overlap_time'da gozlemledigimiz gercekci olmayan
 # uc degerleri (orn. attempt_count=3740, ms_first_response~8 saat) muhtemelen
 # kayit hatasi - bu sutunlari 99. yuzdelikte kirpiyoruz (winsorize) ki birkac
 # bozuk satir agac bolme noktalarini carpitmasin.
+#
+# Bu sinirlar SADECE egitimde degil, servis aninda da (app/model.py) uygulanmali:
+# StudyMentor'dan gelen gercek istekler (orn. 25 dakikalik bir Pomodoro oturumu,
+# overlap_time=1.500.000ms) bu veri setindeki 99. yuzdelikten (~437.000ms) kat kat
+# buyuk olabiliyor - modelin hic gormedigi bir bolgede ekstrapolasyon yapmasina
+# yol aciyor ve tahmini anlamsizlastiriyor. O yuzden bu sinirlari modelle birlikte
+# kaydedip (bkz. main()'deki joblib.dump), servis aninda da uyguluyoruz.
 OUTLIER_CLIP_COLUMNS = ["attempt_count", "ms_first_response", "overlap_time"]
 CLIP_PERCENTILE = 0.99
 
 
-def load_dataset() -> pd.DataFrame:
+def load_dataset() -> tuple[pd.DataFrame, dict[str, float]]:
     df = pd.read_csv(DATA_PATH)
+    clip_caps: dict[str, float] = {}
     for col in OUTLIER_CLIP_COLUMNS:
-        cap = df[col].quantile(CLIP_PERCENTILE)
+        cap = float(df[col].quantile(CLIP_PERCENTILE))
+        clip_caps[col] = cap
         df[col] = df[col].clip(upper=cap)
-    return df
+    return df, clip_caps
 
 
-def build_pipeline(scale_pos_weight: float) -> Pipeline:
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ("categorical", OneHotEncoder(handle_unknown="ignore"), CATEGORICAL_FEATURES),
-        ],
-        remainder="passthrough",
-    )
+def build_pipeline(scale_pos_weight: float) -> XGBClassifier:
     # XGBoost (boosting): notebook karsilastirmasinda Decision Tree (0.944),
     # Logistic Regression (0.915) ve Random Forest'i (0.958) geride birakip
     # en yuksek AUC'yi (0.967) verdi, o yuzden uretim modeli olarak secildi.
     # scale_pos_weight, class_weight="balanced"'in XGBoost karsiligi -
     # dogru/yanlis sinif dengesizligini (%69.5/%30.5) dengeler.
-    model = XGBClassifier(
+    # Butun ozellikler sayisal oldugu icin (skill_name kaldirildi) bir
+    # ColumnTransformer/Pipeline'a gerek yok, XGBClassifier dogrudan egitiliyor.
+    return XGBClassifier(
         n_estimators=300, max_depth=6, learning_rate=0.1,
         scale_pos_weight=scale_pos_weight, random_state=42, eval_metric="logloss",
     )
-    return Pipeline(steps=[("preprocess", preprocessor), ("model", model)])
 
 
-def evaluate(pipeline: Pipeline, X, y, label: str) -> None:
-    predictions = pipeline.predict(X)
-    probabilities = pipeline.predict_proba(X)[:, 1]
+def evaluate(model: XGBClassifier, X, y, label: str) -> None:
+    predictions = model.predict(X)
+    probabilities = model.predict_proba(X)[:, 1]
     print(f"=== {label} ===")
     print(classification_report(y, predictions, target_names=["yanlis (0)", "dogru (1)"]))
     print("AUC:", round(roc_auc_score(y, probabilities), 3))
@@ -89,8 +98,8 @@ def evaluate(pipeline: Pipeline, X, y, label: str) -> None:
 
 
 def main() -> None:
-    df = load_dataset()
-    X = df[NUMERIC_FEATURES + CATEGORICAL_FEATURES]
+    df, clip_caps = load_dataset()
+    X = df[NUMERIC_FEATURES]
     y = df[TARGET]
 
     # Tek bir train/test bolunmesi sansli/sanssiz cikabilir. 5 katli
@@ -125,21 +134,25 @@ def main() -> None:
     print()
 
     scale_pos_weight = (y_train == 0).sum() / (y_train == 1).sum()
-    pipeline = build_pipeline(scale_pos_weight)
-    pipeline.fit(X_train, y_train)
+    model = build_pipeline(scale_pos_weight)
+    model.fit(X_train, y_train)
 
     # Dogrulama seti: gelistirme sirasinda modelin/hiperparametrelerin
     # gorulmemis veride nasil davrandigini kontrol etmek icin kullanilir.
-    evaluate(pipeline, X_val, y_val, "Dogrulama (validation) sonuclari")
+    evaluate(model, X_val, y_val, "Dogrulama (validation) sonuclari")
 
     # Test seti: SADECE en sonda, bir kez, nihai/tarafsiz performansi
     # raporlamak icin kullanilir - modeli veya ayarlari test setine gore
     # degistirmiyoruz (aksi halde test seti de dogrulama setine donusur).
-    evaluate(pipeline, X_test, y_test, "Test sonuclari (nihai, tarafsiz degerlendirme)")
+    evaluate(model, X_test, y_test, "Test sonuclari (nihai, tarafsiz degerlendirme)")
 
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(pipeline, MODEL_PATH)
+    # clip_caps'i modelle birlikte kaydediyoruz ki app/model.py, egitimde
+    # uygulanan ayni uc-deger sinirlarini servis aninda da uygulayabilsin -
+    # aksi halde egitim/servis arasinda deger araligi tutarsizligi olur.
+    joblib.dump({"model": model, "clip_caps": clip_caps}, MODEL_PATH)
     print(f"Model saved to {MODEL_PATH}")
+    print(f"Clip caps (servis aninda da uygulanacak uc deger sinirlari): {clip_caps}")
 
 
 if __name__ == "__main__":

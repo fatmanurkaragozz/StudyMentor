@@ -66,9 +66,7 @@ export async function submitCheck(userId: string, checkId: string, input: Submit
     throw new HttpError(409, "Bu kontrol zaten tamamlanmış");
   }
 
-  const skillName = `${check.topic.subject.name} - ${check.topic.name}`;
   const prediction = await predictPriority({
-    skill_name: skillName,
     opportunity: check.opportunity,
     attempt_count: input.attemptCount,
     ms_first_response: input.msFirstResponse,

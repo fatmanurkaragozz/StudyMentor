@@ -8,7 +8,6 @@ router = APIRouter()
 
 
 class TopicPracticeFeatures(BaseModel):
-    skill_name: str = Field(description="Topic/skill being practiced, e.g. 'Equation Solving Two or Fewer Steps'")
     opportunity: int = Field(ge=1, description="Which repetition this is for this topic")
     attempt_count: int = Field(ge=0, description="Attempts made on this specific problem")
     ms_first_response: float = Field(ge=0, description="Milliseconds to first response")
