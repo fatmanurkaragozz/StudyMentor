@@ -10,7 +10,7 @@ Bu doküman, StudyMentor'ın öneri motoru (spaced repetition / çalışma önce
 
 **Neden bu soru?** Bu olasılık düşükse, o konu "unutulmaya yüz tutmuş" demektir ve öğrenciye "bu konuyu şimdi tekrar et" önerisi verilebilir. Yani model, StudyMentor'ın "AI Study Coach" / öneri modülünün temelini oluşturuyor — UML tasarım dokümanında öngörülen "Random Forest + Spaced Repetition" bileşeninin somut karşılığı.
 
-**Girdi (feature'lar)**: konu adı, o konudaki tekrar sayısı (`opportunity`), bu soruya yapılan deneme sayısı (`attempt_count`), ilk yanıt süresi (`ms_first_response`), soru üzerinde harcanan toplam süre (`overlap_time`), istenen ipucu sayısı (`hint_count`).
+**Girdi (feature'lar)**: o konudaki tekrar sayısı (`opportunity`), bu soruya yapılan deneme sayısı (`attempt_count`), ilk yanıt süresi (`ms_first_response`), soru üzerinde harcanan toplam süre (`overlap_time`), istenen ipucu sayısı (`hint_count`). (Konu adı — `skill_name` — bir ara denenmişti, neden üretim modelinden çıkarıldığı için bkz. §4.2.)
 
 **Çıktı**: doğru cevap olasılığı (0-1) → düşükse `YUKSEK` öncelik, ortaysa `ORTA`, yüksekse `DUSUK` öncelik etiketi.
 
@@ -89,15 +89,17 @@ Veride gerçekçi olmayan uç değerler bulundu (`attempt_count` max=3740, `ms_f
 
 `skill_name` (hangi konu olduğu) tamamen çıkarılınca AUC 0.958'den 0.941-0.942'ye düştü — **sadece ~0.016-0.017 puanlık bir kayıp**. Bu, modelin büyük ölçüde **davranışa** (ne kadar denedi, ne kadar ipucu istedi) dayandığını, **hangi spesifik konu olduğuna** nispeten az bağlı olduğunu gösteriyor. Pratik anlamı: bu davranışsal sinyaller muhtemelen StudyMentor'daki **her derse/konuya genellenebilir**.
 
+**Güncelleme — `skill_name` üretim modelinden tamamen çıkarıldı.** Bu, sadece "ihmal edilebilir kayıp" gerekçesiyle değil, bir doğruluk sorunu yüzünden zorunlu hale geldi: backend (`topicChecks.service.ts`, `studySessions.service.ts`), `skill_name` alanına StudyMentor'ın kendi Türkçe ders/konu adını gönderiyor (örn. "Matematik - İkinci Dereceden Denklemler"). Bu string, modelin eğitimde gördüğü 110 ASSISTments konu adından (İngilizce, farklı müfredat) hiçbiriyle eşleşmiyor; `OneHotEncoder(handle_unknown="ignore")` bunu sessizce sıfır vektöre çeviriyor. Yani `skill_name`, üretimdeki **hiçbir** tahminde gerçekte bilgi taşımıyordu — yukarıdaki AUC 0.958 rakamı sadece ASSISTments'in kendi 110 konusu için geçerliydi, StudyMentor kullanıcıları için hiçbir zaman geçerli olmadı. `train.py` artık `skill_name`'i hiç eğitmiyor; üretim modelinin gerçek performansı, yukarıdaki "olmadan" sonucudur: 5-katlı CV AUC 0.941 (±0.002), test AUC 0.94.
+
 ### 4.3 Veri Doğrulama Tutarlılığı
 
 Doğrulama seti (AUC 0.959), test seti (AUC 0.958) ve 5-kat cross-validation (AUC 0.960±0.002) sonuçları birbirine çok yakın çıktı. Bunun anlamı: model, gördüğü veriyi ezberlemiyor (overfit değil), gerçekten genelleme yapıyor — yani üretimde de benzer performans beklenebilir.
 
 ### 4.4 Genel Sonuç
 
-- **Kullanılabilir bir model var**: XGBoost ile AUC 0.967 (notebook karşılaştırması) / 0.968 (üretim modeli, tam eğitim), Random Forest ile 0.958 — XGBoost daha iyi performans verdi.
+- **Kullanılabilir bir model var**: `skill_name` dahilken XGBoost ile AUC 0.967 (notebook karşılaştırması), Random Forest ile 0.958 — XGBoost daha iyi performans verdi. Ancak §4.2'de açıklandığı gibi `skill_name` üretimde hiç işe yaramadığı için üretim modeli bu özellik olmadan eğitiliyor; güncel gerçek performans için bir alt maddeye bakın.
 - **En büyük tek sinyal**: öğrencinin bir soruda ne kadar "zorlandığı" (deneme sayısı + ipucu sayısı) — bu, klasik unutma-eğrisi mantığıyla (ne kadar çok tekrar/çaba gerekiyor, o kadar çok pekiştirme gerekir) örtüşüyor.
-- **Karar verildi: Üretim modeli XGBoost**. `train.py`, `app/model.py` ve FastAPI servisi artık XGBoost kullanıyor — 5-katlı cross-validation AUC 0.970 (±0.001), test AUC 0.968, "yanlış" sınıfını yakalama oranı (recall) Random Forest'e göre arttı (0.77 → 0.84).
+- **Karar verildi: Üretim modeli XGBoost, `skill_name` olmadan**. `train.py`, `app/model.py` ve FastAPI servisi artık `skill_name` içermeyen XGBoost kullanıyor — 5-katlı cross-validation AUC 0.941 (±0.002), test AUC 0.94. Bu rakam, önceki maddedeki 0.967/0.958'den düşük görünse de, o rakamlar hiçbir zaman gerçek StudyMentor kullanıcıları için geçerli değildi (bkz. §4.2) — bu yeni sayı, servis edilen skorun gerçek performansını dürüstçe yansıtıyor.
 - **Duolingo veri seti için gelecek planı**: Bu veri seti (kelime bazlı, gerçek dil öğrenimi verisi) StudyMentor'a ileride eklenebilecek bir **İngilizce kelime kartı (flashcard)** özelliği için referans olarak `ml-service/fixtures/duolingo_sample_50k.csv`'de saklanmaya devam ediyor — o özellik geliştirildiğinde doğrudan kullanılabilir.
 - **Sıradaki faz**: Şu an ASSISTments (proxy/vekil) veriyle çalışan bir sistem kuruyoruz. StudyMentor gerçek kullanıcılardan veri topladıkça (kendi öğrencilerin gerçek çalışma oturumları), aynı `train.py` kalıbı gerçek veriyle yeniden eğitilip çok daha kapsamlı, uygulamaya özel bir model haline getirilecek.
 - **Bilinen sınırlama**: Bu veri setinde gerçek saat/tarih bilgisi yok (sadece işlem sırası var), o yüzden "günün hangi saatinde daha verimli çalışıyor" sorusunu şu an cevaplayamıyoruz.
