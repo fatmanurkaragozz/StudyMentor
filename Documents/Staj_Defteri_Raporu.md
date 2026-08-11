@@ -277,3 +277,25 @@ _(Not: Bu güne ait değişiklikler yerel geliştirme ortamında tamamlanıp tes
 _(Not: Bu güne ait değişiklikler yerel geliştirme ortamında tamamlanıp test edildi, GitHub'a henüz push edilmedi.)_
 
 ---
+
+📅 16. Gün: 10 Ağustos 2026 (Pazartesi)
+
+**Yapılan Çalışmalar:**
+
+- **Kod Tabanı Sağlık Denetimi:** Üç paralel araştırma ajanıyla backend, frontend ve repo genelinde kapsamlı bir durum tespiti yapıldı. Bulgular: `AppContext.tsx`'in artık güvenilir bir gerçek veri kaynağı olmadığı (statik mock `recommendations`, Dashboard'un ayrı ve bağımsız bir öneri kaynağı kullanması), yazılmış ama hiç route'a bağlanmamış bir rate limiter, `recommendations`/`health` uç noktalarının servis katmanını atlayıp Prisma'yı doğrudan route içinde çağırması ve `CLAUDE.md`'nin projenin artık çok gerisinde kaldığı (hâlâ "backend/src yok" gibi yanlış ifadeler içermesi) tespit edildi.
+- **CLAUDE.md Güncellemesi:** Rehber dosya, doğrulanmış güncel bilgilerle (gerçek backend mimarisi, `ml-service`'in artık çalışan bir FastAPI servisi olduğu, güncel komutlar) yeniden yazıldı; bilinçli olarak henüz çözülmemiş eksiklerin listelendiği yeni bir "Known gaps" bölümü eklendi.
+- **Oturum Kalıcılığı ve AppContext Temizliği:** `GET /users/me` uç noktası eklendi; uygulama artık sayfa yenilendiğinde `localStorage`'daki token'ı kontrol edip oturumu geri yüklüyor (önceden F5 atınca kullanıcı login ekranına düşüyordu). `AppContext.tsx`'teki hiç güncellenmeyen `recommendations` mock verisi tamamen kaldırıldı; "AI Analiz & Koç" sekmesi artık Dashboard'la aynı şekilde gerçek backend verisiyle çalışıyor.
+- **Auth Rate Limiting:** Önceden yazılıp hiçbir route'a bağlanmamış olan `authLimiter`/`emailCodeLimiter` middleware'leri login/register/e-posta doğrulama/şifre sıfırlama uçlarına bağlandı; kaba kuvvet saldırılarına karşı koruma canlıya alındı ve gerçek istek testleriyle (16. denemede 429 dönmesi) doğrulandı.
+- **Playwright ile Gerçek Tarayıcı Testi Kurulumu:** Bu oturumda ilk kez, kodun sadece derlendiğini değil gerçekten doğru göründüğünü de kontrol edebilmek için proje bağımlılıklarına dokunmadan izole bir Playwright ortamı kuruldu (ekran görüntüsü alma, DOM/CSS cascade inceleme, uçtan uca kullanıcı akışı otomasyonu). Bu sayede üç gerçek, kod okumayla fark edilemeyecek bug bulundu ve düzeltildi:
+  - Açılış sayfasındaki 3D sahne (Kaptan, Manta, okyanus shader'ı) hiçbir konsol hatası vermeden hiç render edilmiyordu — sebebi `min-h-[640px]` (kesin olmayan yükseklik) kullanan bir kapsayıcının içinde `height: 100%` kullanılması, CSS'te bunun 0'a çökmesiydi.
+  - Kaptan'ın çene sakalı 3D uzayda gülümseme şekliyle çakışıp garip bir görüntü oluşturuyordu; sakal aşağı/geri taşınıp küçültülerek düzeltildi.
+  - **En önemli bulgu:** Tailwind CSS v4'te class tabanlı karanlık mod için gereken `@custom-variant dark (&:where(.dark, .dark *));` satırı hiç yoktu — bu olmadan Tailwind, uygulamanın kendi tema anahtarı yerine işletim sisteminin `prefers-color-scheme` tercihine bakıyordu. Yani bu ve önceki oturumlarda eklenen **hiçbir** `dark:` Tailwind sınıfı, işletim sistemi açık modda olan bir kullanıcıda gerçekte çalışmıyordu. Chrome DevTools Protokolü ile kanıtlanıp tek satırlık resmi düzeltmeyle giderildi.
+- **GrowthHub Light-Mode Kontrast Düzeltmesi:** "Habit & Journal Hub" sekmesinin tamamında hiç `dark:` varyantı kullanılmadığı (Dashboard/Header'da zaten yapılmış olan düzeltmenin bu dosyaya hiç uygulanmamış olduğu) tespit edildi; Dashboard'daki mevcut renk deseniyle tüm dosya light/dark modda okunur hale getirildi.
+- **Mimari Tutarlılık:** `recommendations.routes.ts` ve `health.routes.ts`, projedeki tek istisna olarak Prisma'yı doğrudan route içinde çağırıyordu; diğer tüm uç noktalarla aynı route→controller→service zincirine taşındı, davranış değişmedi.
+- **Ölü Kod Temizliği:** Hiç çağrılmayan `apiClient.updateProfile` kaldırıldı. Hiç kullanılmayan `ResourceSuggestion` Prisma modeli, geri dönüşü zor bir migration/DROP TABLE gerektirdiği için silinmedi — sadece amacı belgelenip "Known gaps"a not düşüldü.
+- **.gitignore Düzeltmesi:** Kökten yanlış sabitlendiği için hiçbir şeyi eşlemeyen `/prisma/migrations/` kuralı kaldırıldı.
+- **Git Düzeni:** Birikmiş 74 dosyalık commit edilmemiş değişiklik, `feature/exam-catalog-and-platform-fixes` adında yeni bir dalda 13 anlamlı, tek-konulu commit'e bölünerek düzenlendi ve `origin`'e push'landı; `main`'e birleştirme kararı henüz verilmedi.
+
+_(Not: Bu güne ait değişiklikler `feature/exam-catalog-and-platform-fixes` dalına commit edilip GitHub'a push edildi; `main`'e merge henüz yapılmadı.)_
+
+---
