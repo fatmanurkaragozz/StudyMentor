@@ -1,17 +1,7 @@
 import { Router } from "express";
-import { prisma } from "../config/prisma.js";
+import { getHealth, getDbHealth } from "../controllers/health.controller.js";
 
 export const healthRouter = Router();
 
-healthRouter.get("/health", (_req, res) => {
-  res.json({ status: "ok" });
-});
-
-healthRouter.get("/health/db", async (_req, res) => {
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    res.json({ status: "ok" });
-  } catch (error) {
-    res.status(503).json({ status: "unavailable", error: (error as Error).message });
-  }
-});
+healthRouter.get("/health", getHealth);
+healthRouter.get("/health/db", getDbHealth);

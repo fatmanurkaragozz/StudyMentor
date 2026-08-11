@@ -1,10 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Sparkles, BrainCircuit, Calendar, ExternalLink, ArrowRight } from 'lucide-react';
+import { apiClient, type RecommendationRow } from '../lib/apiClient';
+import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
+import { Sparkles, BrainCircuit, Calendar, ExternalLink, ArrowRight, Loader2 } from 'lucide-react';
+
+const TYPE_LABELS: Record<string, string> = {
+  REVISION: 'Aralıklı Tekrar Önerisi (Spaced Repetition)',
+  STUDY_PRIORITY: 'Derin Odaklanma Tavsiyesi',
+};
 
 export const AIInsights: React.FC = () => {
-  const { user, recommendations } = useApp();
+  const { user, setActiveTab } = useApp();
   const isStudent = user.mode === 'STUDENT';
+
+  const [recommendations, setRecommendations] = useState<RecommendationRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiClient
+      .getRecommendations()
+      .then(setRecommendations)
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
@@ -22,14 +39,34 @@ export const AIInsights: React.FC = () => {
       </div>
 
       {/* AI Recommendations List */}
+      {loading && (
+        <div className="flex items-center gap-2 text-xs text-slate-400">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span>Öneriler yükleniyor...</span>
+        </div>
+      )}
+
+      {!loading && recommendations.length === 0 && (
+        <div className="glass-panel p-6 rounded-2xl border border-purple-500/30 bg-slate-900/80 text-center space-y-1">
+          <h3 className="text-sm font-bold text-slate-100">Kaptan henüz haritanı göremiyor</h3>
+          <p className="text-xs text-slate-300">
+            Bir konu seç ve ilk mini kontrolünü yap, Kaptan sana özel rotanı çizmeye başlasın.
+          </p>
+        </div>
+      )}
+
       <div className="space-y-4">
-        {recommendations.filter(item => item.mode === user.mode).map(item => (
+        {recommendations.map(item => (
           <div key={item.id} className="glass-panel p-6 rounded-2xl border border-purple-500/30 bg-slate-900/80 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                {item.type === 'REVISION' ? 'Aralıklı Tekrar Önerisi (Spaced Repetition)' : 'Derin Odaklanma Tavsiyesi'}
+                {TYPE_LABELS[item.type] ?? item.type}
               </span>
-              <span className="text-xs text-slate-400">Model Doğruluk Skoru: %94.2</span>
+              {item.priority && (
+                <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border ${PRIORITY_COLORS[item.priority]}`}>
+                  {PRIORITY_LABELS[item.priority]}
+                </span>
+              )}
             </div>
 
             <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
@@ -42,15 +79,22 @@ export const AIInsights: React.FC = () => {
             </p>
 
             <div className="pt-2 flex items-center justify-between border-t border-slate-800">
-              <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Hesaplanan Bir Sonraki Optimal Tekrar: <b>25 Temmuz 2026</b></span>
-              </div>
+              {item.subjectName && (
+                <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>{item.subjectName}{item.topicName ? ` — ${item.topicName}` : ''}</span>
+                </div>
+              )}
 
-              <button className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-all flex items-center gap-1.5 shadow-md glow-purple">
-                <span>{item.actionText}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              {item.topicId && (
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className="ml-auto px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-all flex items-center gap-1.5 shadow-md glow-purple"
+                >
+                  <span>Dashboard'dan Kontrol Et</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
         ))}

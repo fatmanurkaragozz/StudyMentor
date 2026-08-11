@@ -5,6 +5,7 @@ import { OnboardingFlow } from './onboarding/OnboardingFlow';
 import type { PendingProfile } from './onboarding/types';
 import { StaticHeroFallback, hasWebGLSupport } from './hero3d/WebGLFallback';
 import { useReducedMotion } from './hero3d/useReducedMotion';
+import { WaveStrip } from './WaveStrip';
 import {
   GraduationCap,
   Briefcase,
@@ -71,7 +72,14 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col selection:bg-amber-500 selection:text-white transition-colors duration-300">
+    <div className="min-h-screen relative overflow-hidden flex flex-col selection:bg-amber-500 selection:text-white transition-colors duration-300 bg-gradient-to-b from-sky-50 via-cyan-50 to-teal-100/50 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950/40">
+      {/* Deniz atmosferi - yumuşak ışık yansımaları */}
+      <div className="absolute top-10 right-[10%] w-72 h-72 rounded-full bg-cyan-400/10 dark:bg-cyan-400/5 blur-3xl pointer-events-none select-none" />
+      <div className="absolute bottom-24 left-[6%] w-80 h-80 rounded-full bg-teal-400/10 dark:bg-teal-500/5 blur-3xl pointer-events-none select-none" />
+
+      {/* Deniz atmosferi - sayfanın en altında (footer arka planı) kayan dalga şeridi */}
+      <WaveStrip reducedMotion={reducedMotion} />
+
       <header className="relative z-30 h-20 px-6 sm:px-12 flex items-center justify-between max-w-7xl mx-auto w-full shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 via-rose-600 to-amber-500 flex items-center justify-center shadow-lg glow-amber">
@@ -79,7 +87,7 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
           </div>
           <div>
             <h1 className="font-bold text-xl tracking-tight text-slate-900 dark:text-slate-100">StudyMentor</h1>
-            <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 tracking-wider uppercase">AI Learning &amp; Habit Platform</span>
+            <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 tracking-wider uppercase">Rotanı Kaptan'la Çiz</span>
           </div>
         </div>
 
@@ -110,23 +118,36 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
 
       {/* 3D Hero Viewport */}
       <div className="relative w-full min-h-[640px] flex-1 overflow-hidden">
-        {webglSupported ? (
-          <Suspense fallback={<StaticHeroFallback />}>
-            <LazyHeroCanvas reducedMotion={reducedMotion} />
-          </Suspense>
-        ) : (
-          <StaticHeroFallback />
-        )}
-
-        <h2 className="absolute z-10 top-[8%] left-[5%] sm:left-[7%] text-6xl sm:text-8xl font-black tracking-tight bg-gradient-to-r from-amber-600 via-rose-500 to-amber-500 bg-clip-text text-transparent pointer-events-none select-none">
+        {/* Dev arka plan yazıları - en geride, sade ve sabit bir watermark */}
+        <h2 className="absolute z-0 top-[8%] left-[5%] sm:left-[7%] whitespace-nowrap text-8xl sm:text-[10rem] lg:text-[13rem] font-black tracking-tight bg-gradient-to-r from-amber-600 via-rose-600 to-amber-500 bg-clip-text text-transparent opacity-45 pointer-events-none select-none">
           STUDY
         </h2>
-        <h2 className="absolute z-10 bottom-[6%] right-[5%] sm:right-[7%] text-6xl sm:text-8xl font-black tracking-tight bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 bg-clip-text text-transparent pointer-events-none select-none">
+        <h2 className="absolute z-0 bottom-[6%] right-[5%] sm:right-[7%] whitespace-nowrap text-8xl sm:text-[10rem] lg:text-[13rem] font-black tracking-tight bg-gradient-to-r from-slate-900 via-indigo-800 to-amber-600 bg-clip-text text-transparent opacity-45 pointer-events-none select-none">
           MENTOR
         </h2>
+
+        {/* Görünür deniz yüzeyi - fold üstünde, hemen görünür */}
+        <WaveStrip reducedMotion={reducedMotion} className="z-10" />
+
+        {/* 3D sahne (Kaptan + Manta) - metnin ve dalganın önünde */}
+        <div className="absolute inset-0 z-20">
+          {webglSupported ? (
+            <Suspense fallback={<StaticHeroFallback />}>
+              <LazyHeroCanvas reducedMotion={reducedMotion} />
+            </Suspense>
+          ) : (
+            <StaticHeroFallback />
+          )}
+        </div>
+
+        {/* Akıcı geçiş - hero alanından ana içeriğe yumuşak geçiş */}
+        <div className="absolute inset-x-0 bottom-0 h-24 z-30 bg-gradient-to-b from-transparent to-sky-50 dark:to-slate-950 pointer-events-none select-none" />
       </div>
 
       <main className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 py-12 w-full">
+        <p className="text-center text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10">
+          Kaptan; çalışma rotanı, alışkanlıklarını ve hedeflerini tek pusulada birleştirir.
+        </p>
         <div className="w-full grid grid-cols-1 lg:grid-cols-7 gap-6 items-stretch">
           <div
             onMouseEnter={() => setHoveredMode('STUDENT')}
@@ -148,14 +169,14 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">🎓 Öğrenci Modu</h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
-                  LGS, YKS, Üniversite vize/final sınavlarına yönelik ders takibi, deneme netleri ve Spaced Repetition algoritması.
+                  LGS, YKS, Üniversite vize/final sınavlarına yönelik ders takibi, deneme netleri ve akıllı tekrar hatırlatmaları.
                 </p>
               </div>
 
               <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span>Ders ve Konu Bazlı Spaced Repetition (Tekrar)</span>
+                  <span>Ders ve Konu Bazlı Akıllı Tekrar Planı</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
@@ -247,7 +268,7 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
       </main>
 
       <footer className="relative z-20 py-6 border-t border-slate-300/40 dark:border-slate-800 text-center text-xs text-slate-500">
-        <p>© 2026 StudyMentor. All rights reserved. Doğa ve İnsan Odaklı Öğrenme Mimarisi.</p>
+        <p>© 2026 StudyMentor. All rights reserved. Kaptan ile rotanı hiç kaybetme.</p>
       </footer>
 
       {onboarding.open && (

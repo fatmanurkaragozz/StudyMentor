@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AppProvider, useApp } from './context/AppContext';
 import { Hero3DLanding } from './components/Hero3DLanding';
@@ -6,12 +7,12 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
 import { StudyPlanner } from './components/StudyPlanner';
-import { CalendarGoalTracker } from './components/CalendarGoalTracker';
+import { RealCalendar } from './components/RealCalendar';
 import { GrowthHub } from './components/GrowthHub';
 import { AIInsights } from './components/AIInsights';
 import { ProfilePage } from './components/ProfilePage';
 import { MyCourses } from './components/MyCourses';
-import { clearToken } from './lib/apiClient';
+import { apiClient, clearToken, getToken, toUserProfile } from './lib/apiClient';
 
 const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> = ({ onGoToLanding, onLogout }) => {
   const { activeTab } = useApp();
@@ -29,7 +30,7 @@ const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> 
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'courses' && <MyCourses />}
           {activeTab === 'planner' && <StudyPlanner />}
-          {activeTab === 'calendar' && <CalendarGoalTracker />}
+          {activeTab === 'calendar' && <RealCalendar />}
           {activeTab === 'growth' && <GrowthHub />}
           {activeTab === 'insights' && <AIInsights />}
           {activeTab === 'profile' && <ProfilePage onLogout={onLogout} />}
@@ -40,12 +41,35 @@ const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> 
 };
 
 export function AppContent() {
+  const { setUserProfile } = useApp();
   const [showLanding, setShowLanding] = useState<boolean>(true);
+  const [checkingSession, setCheckingSession] = useState<boolean>(() => !!getToken());
+
+  useEffect(() => {
+    if (!getToken()) return;
+    apiClient
+      .getMe()
+      .then(user => {
+        setUserProfile(toUserProfile(user));
+        setShowLanding(false);
+      })
+      .catch(() => clearToken())
+      .finally(() => setCheckingSession(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleLogout = () => {
     clearToken();
     setShowLanding(true);
   };
+
+  if (checkingSession) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#faf8f5] dark:bg-[#121417]">
+        <Loader2 className="w-6 h-6 animate-spin text-slate-400 dark:text-slate-600" />
+      </div>
+    );
+  }
 
   if (showLanding) {
     return <Hero3DLanding onEnterApp={() => setShowLanding(false)} />;

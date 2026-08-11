@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { BookOpen, Plus, Loader2, AlertCircle, Sparkles } from 'lucide-react';
+import { BookOpen, Plus, Loader2, AlertCircle, Sparkles, Trash2 } from 'lucide-react';
 import { apiClient, type MySubject } from '../lib/apiClient';
+import { useApp } from '../context/AppContext';
 import { TopicCheckModal } from './onboarding/TopicCheckModal';
 
 export const MyCourses: React.FC = () => {
+  const { user } = useApp();
+  const isStudent = user.mode === 'STUDENT';
+
   const [subjects, setSubjects] = useState<MySubject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,13 +19,14 @@ export const MyCourses: React.FC = () => {
   const [addingTopicFor, setAddingTopicFor] = useState<string | null>(null);
 
   const [checkTopic, setCheckTopic] = useState<{ id: string; name: string; subjectName: string } | null>(null);
+  const [deletingSubjectId, setDeletingSubjectId] = useState<string | null>(null);
 
   const loadSubjects = () => {
     setLoading(true);
     apiClient
       .getMySubjects()
       .then(setSubjects)
-      .catch(err => setError(err instanceof Error ? err.message : 'Dersler yüklenemedi'))
+      .catch(err => setError(err instanceof Error ? err.message : 'Yüklenemedi'))
       .finally(() => setLoading(false));
   };
 
@@ -39,9 +44,26 @@ export const MyCourses: React.FC = () => {
       setNewCourseName('');
       loadSubjects();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ders eklenemedi');
+      setError(err instanceof Error ? err.message : 'Eklenemedi');
     } finally {
       setAddingCourse(false);
+    }
+  };
+
+  const handleDeleteSubject = async (subjectId: string, subjectName: string) => {
+    const label = isStudent ? 'dersi' : 'uğraşı';
+    if (!window.confirm(`"${subjectName}" ${label} silmek istediğine emin misin? Bu derse ait tüm konular ve çalışma kayıtları da silinecek.`)) {
+      return;
+    }
+    setDeletingSubjectId(subjectId);
+    setError(null);
+    try {
+      await apiClient.deleteSubject(subjectId);
+      loadSubjects();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Silinemedi');
+    } finally {
+      setDeletingSubjectId(null);
     }
   };
 
@@ -65,18 +87,20 @@ export const MyCourses: React.FC = () => {
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
       <div>
         <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border bg-indigo-500/10 border-indigo-500/30 text-indigo-300">
-          🎓 Kendi Ders Listem
+          {isStudent ? '🎓 Kendi Ders Listem' : '💼 Kendi Uğraş Listem'}
         </span>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">Derslerim</h2>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">{isStudent ? 'Derslerim' : 'Uğraşlarım'}</h2>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Bu dönem aldığın dersleri ekle, her dersin altına çalıştığın konuları işle. Takvim sekmesinde ders programı ve sınav eklerken buradaki derslerden seçeceksin.
+          {isStudent
+            ? 'Bu dönem aldığın dersleri ekle, her dersin altına çalıştığın konuları işle. Takvim sekmesinde ders programı ve sınav eklerken buradaki derslerden seçeceksin.'
+            : 'Üzerinde çalıştığın uğraşları/projeleri ekle, her birinin altına alt başlıkları işle. Takvim sekmesinde program ve hedef eklerken buradaki uğraşlardan seçeceksin.'}
         </p>
       </div>
 
       <form onSubmit={handleAddCourse} className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-3">
         <input
           type="text"
-          placeholder="Örn: Veri Tabanları Yönetimi"
+          placeholder={isStudent ? 'Örn: Veri Tabanları Yönetimi' : 'Örn: Gitar Öğrenme, Kişisel Blog Projesi'}
           value={newCourseName}
           onChange={e => setNewCourseName(e.target.value)}
           className="flex-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-sm text-slate-900 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
@@ -87,7 +111,7 @@ export const MyCourses: React.FC = () => {
           className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold text-xs shadow-md glow-indigo flex items-center gap-2 shrink-0 transition-all"
         >
           <Plus className="w-4 h-4" />
-          <span>Ders Ekle</span>
+          <span>{isStudent ? 'Ders Ekle' : 'Uğraş Ekle'}</span>
         </button>
       </form>
 
@@ -107,17 +131,30 @@ export const MyCourses: React.FC = () => {
 
       {!loading && subjects.length === 0 && !error && (
         <div className="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
-          Henüz ders eklemedin. Yukarıdaki formdan ilk dersini ekleyerek başla.
+          {isStudent
+            ? 'Henüz ders eklemedin. Yukarıdaki formdan ilk dersini ekleyerek başla.'
+            : 'Henüz uğraş eklemedin. Yukarıdaki formdan ilk uğraşını ekleyerek başla.'}
         </div>
       )}
 
       <div className="space-y-4">
         {subjects.map(subject => (
           <div key={subject.subjectId} className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-              <span>{subject.subjectName}</span>
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                <span>{subject.subjectName}</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => handleDeleteSubject(subject.subjectId, subject.subjectName)}
+                disabled={deletingSubjectId === subject.subjectId}
+                title={isStudent ? 'Dersi Sil' : 'Uğraşı Sil'}
+                className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 disabled:opacity-40 transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
 
             {subject.topics.length > 0 && (
               <div className="flex flex-wrap gap-2">

@@ -9,7 +9,12 @@ export async function listTopicsForUser(userId: string) {
 
   const subjects = await prisma.subject.findMany({
     where: {
-      OR: [{ educationLevel: user.educationLevel }, { userId }],
+      OR: [
+        { educationLevel: user.educationLevel },
+        { userId },
+        // Kullanıcının eklediği bir sınavın (KPSS/YÖKDİL/ALES) kataloğundan seçtiği dersler
+        { exams: { some: { exam: { userId } } } },
+      ],
     },
     include: { topics: true },
     orderBy: { name: "asc" },

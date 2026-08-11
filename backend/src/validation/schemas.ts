@@ -56,11 +56,44 @@ export const createScheduleSlotSchema = z.object({
   location: z.string().max(80).optional(),
 });
 
+const examCatalogCategories = [
+  "LGS",
+  "TYT",
+  "AYT",
+  "YDT",
+  "KPSS",
+  "KPSS_EGITIM_BILIMLERI",
+  "ALES",
+  "DGS",
+  "YOKDIL",
+  "YOKDIL_FEN",
+  "YOKDIL_SOSYAL",
+  "YOKDIL_SAGLIK",
+  "AGS",
+  "YDS",
+] as const;
+
+const examCategorySchema = z.enum([...examCatalogCategories, "OTHER"]);
+
 export const createExamSchema = z.object({
   name: z.string().min(1).max(120),
   date: z.string().min(1),
   targetScore: z.number().optional(),
   subjectIds: z.array(z.string().min(1)).min(1),
+  examCategory: examCategorySchema.optional(),
+});
+
+export const examCatalogParamsSchema = z.object({
+  category: z.enum(examCatalogCategories),
+});
+
+export const updateExamSchema = z.object({
+  name: z.string().min(1).max(120).optional(),
+  date: z.string().min(1).optional(),
+  targetScore: z.number().nullable().optional(),
+  resultScore: z.number().nullable().optional(),
+  subjectIds: z.array(z.string().min(1)).min(1).optional(),
+  examCategory: examCategorySchema.optional(),
 });
 
 export const startTopicCheckSchema = z.object({
@@ -82,4 +115,27 @@ export const createStudySessionSchema = z.object({
   difficulty: z.number().int().min(1).max(5),
   productivity: z.number().int().min(1).max(5),
   notes: z.string().optional(),
+});
+
+export const createHabitSchema = z.object({
+  name: z.string().min(1).max(80),
+});
+
+export const toggleHabitLogSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
+export const createJournalSchema = z.object({
+  content: z.string().min(1),
+  mood: z.string().min(1).max(4),
+});
+
+export const createDailyTaskSchema = z.object({
+  subjectId: z.string().min(1),
+  topicId: z.string().min(1),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
+export const completeDailyTaskSchema = z.object({
+  studySessionId: z.string().min(1),
 });

@@ -2,6 +2,15 @@ import type { EducationLevel } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 import { isValidGrade } from "../utils/grade.js";
+import { toPublicUser } from "./auth.service.js";
+
+export async function getMe(userId: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    throw new HttpError(404, "Kullanıcı bulunamadı");
+  }
+  return toPublicUser(user);
+}
 
 interface UpdateProfileInput {
   educationLevel?: EducationLevel;

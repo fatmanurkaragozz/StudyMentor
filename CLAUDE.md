@@ -4,13 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-StudyMentor is an early-stage, solo-developer full-stack project (internship/learning project, currently on `setup/week-1`). Treat the three subprojects as being at very different levels of maturity:
+StudyMentor is a solo-developer full-stack project (internship/learning project, currently on `feature/exam-catalog-and-platform-fixes`, not yet merged to `main`). All three subprojects now have real, working code — this is no longer an early scaffolding-only state:
 
-- **frontend/** — a real React app with UI screens, mock in-memory data, and no backend wiring yet.
-- **backend/** — only a Prisma schema and package scaffolding exist. There is **no `backend/src` directory and no Express server code yet** (`package.json` points at `src/index.js`, which does not exist). Don't assume API routes, controllers, or middleware exist — check first.
-- **ml-service/** and **frontend/ml-service/** — placeholder/scratch material (a dataset CSV and a pandas learning script), not a running FastAPI service. Don't assume an ML API exists.
+- **frontend/** — a React app whose screens are wired to the real backend via [frontend/src/lib/apiClient.ts](frontend/src/lib/apiClient.ts) (Dashboard, StudyPlanner, RealCalendar, GrowthHub, MyCourses, AIInsights, auth/onboarding flow all call it directly). Session survives a page reload (see `App.tsx`'s bootstrap effect + `GET /users/me`).
+- **backend/** — a full Express + TypeScript + Prisma API under `backend/src` (JWT auth + email verification, layered controllers/services/routes/validation/middleware, auth rate limiting). `npm run dev` actually runs a server now.
+- **ml-service/** — a small FastAPI service (`ml-service/app/main.py`, `model.py`, `predict.py`) that serves priority predictions from a trained model (`ml-service/models/priority_model.joblib`, gitignored, produced by `ml-service/train.py`). Backend calls it from [backend/src/services/mlClient.service.ts](backend/src/services/mlClient.service.ts) via the `ML_SERVICE_URL` env var, with a fallback when it's unreachable. Treat it as a small single-model scoring service, not a general ML platform — don't assume endpoints beyond what's in `app/main.py`.
 
-Because backend and ML service are unbuilt, the frontend currently runs entirely on mock data defined in [frontend/src/context/AppContext.tsx](frontend/src/context/AppContext.tsx) — there are no real HTTP calls yet.
+### Known gaps (don't assume these are finished)
+- No automated test suite exists yet for backend or frontend.
+- `ResourceSuggestion` (Prisma model) is defined but unused by any service — see Architecture below.
+- Tailwind v4's dark mode is class-based via `@custom-variant dark (&:where(.dark, .dark *));` in [frontend/src/index.css](frontend/src/index.css) — if this line is ever removed/lost (e.g. during a merge), every `dark:` utility class silently falls back to following the OS `prefers-color-scheme` instead of the in-app theme toggle, with no error or warning. Worth remembering if dark mode ever "stops working" after a merge.
 
 ## Commands
 
@@ -25,13 +28,18 @@ There is no test runner configured yet.
 
 ### Backend (`backend/`)
 ```
-npm run dev              # nodemon src/index.js (will fail until src/index.js is created)
-npm run start            # node src/index.js
-npm run prisma:migrate   # prisma migrate dev
-npm run prisma:studio    # prisma studio
-npm run prisma:generate  # prisma generate
+npm run dev              # tsx watch src/index.ts
+npm run build             # tsc
+npm run start             # node dist/index.js
+npm run prisma:migrate    # prisma migrate dev
+npm run prisma:studio     # prisma studio
+npm run prisma:generate   # prisma generate
+npm run prisma:seed       # tsx prisma/seed.ts (seeds the full exam/subject/topic catalog)
 ```
-Requires `backend/.env` with `DATABASE_URL` and `DIRECT_URL` (Supabase Postgres, pooled + direct connection) and `JWT_SECRET` — see [backend/.env.example](backend/.env.example).
+Requires `backend/.env` with `DATABASE_URL` and `DIRECT_URL` (Supabase Postgres, pooled + direct connection), `JWT_SECRET`, and Gmail SMTP credentials (`GMAIL_USER`, `GMAIL_APP_PASSWORD`) for email verification — see [backend/.env.example](backend/.env.example). Optional `ML_SERVICE_URL` points at the ml-service below.
+
+### ML service (`ml-service/`)
+Python/FastAPI, with its own `.venv` and `requirements.txt`. `train.py` trains the model and writes `models/priority_model.joblib`; `app/main.py` serves predictions from it.
 
 ## Architecture
 
@@ -40,15 +48,18 @@ Requires `backend/.env` with `DATABASE_URL` and `DIRECT_URL` (Supabase Postgres,
 - Single-page app; navigation is done via local component state, not a router. [frontend/src/App.tsx](frontend/src/App.tsx) sequences three screens: `NotebookIntro` (mode selection) → `LandingPage` → `MainLayout` (sidebar + header + tab content switched on `activeTab`).
 - Global state lives in two React contexts, both wrapping the whole app in `App()`:
   - [ThemeContext](frontend/src/context/ThemeContext.tsx) — light/dark theme.
-  - [AppContext](frontend/src/context/AppContext.tsx) — the app's single in-memory "database": user profile, study sessions, habits, journal entries, milestones/exams, AI recommendations, and subjects/projects. All of it is seeded with hardcoded mock data and mutated via `useState` setters exposed through `useApp()`. When wiring up the real backend, this is the layer to replace/back with real API calls.
-- The app has two parallel personas driven by `UserMode` (`STUDENT` vs `LIFELONG_LEARNER`), set once during the `NotebookIntro` step. Most contexts branch on `user.mode` to pick different seed data/copy (e.g. `initialSubjectsStudent` vs `initialSubjectsLearner` in AppContext). Keep this dual-mode branching in mind when adding features — most data models need a sensible variant for both personas.
+  - [AppContext](frontend/src/context/AppContext.tsx) — holds the current `user` profile (hydrated from the backend on login and restored from a stored JWT via `GET /users/me` on page load, see `App.tsx`) and `activeTab`. It is not a general data cache — most screens fetch their own domain data (recommendations, sessions, habits, etc.) directly via `apiClient` rather than going through context.
+- The app has two parallel personas driven by `UserMode` (`STUDENT` vs `LIFELONG_LEARNER`), set once during the `NotebookIntro` step. Most screens branch on `user.mode` / `isStudent` to pick different copy and data sources. Keep this dual-mode branching in mind when adding features — most data models need a sensible variant for both personas.
 - Shared domain types are centralized in [frontend/src/types/index.ts](frontend/src/types/index.ts) — these mirror (but are not generated from) the Prisma schema's shape, so keep them in sync by hand when the schema changes.
 - Linting uses `oxlint` (config in [frontend/.oxlintrc.json](frontend/.oxlintrc.json)), not ESLint.
 
-### Backend (schema-first, unimplemented)
-- [backend/prisma/schema.prisma](backend/prisma/schema.prisma) is the source of truth for the data model and is further ahead than any server code. Key models: `User` → `Subject` → `Topic` → `StudySession`; plus `Exam`/`ExamSubject`, `Habit`/`HabitLog`, `Journal`, `AIRecommendation`, `ResourceSuggestion`.
+### Backend
+- Layered and consistent: `routes/` → `controllers/` (parse input via zod schemas in [backend/src/validation/schemas.ts](backend/src/validation/schemas.ts)) → `services/` (business logic + Prisma) → `prisma`. Every route is wrapped in [asyncHandler](backend/src/utils/asyncHandler.ts); business errors are thrown as [HttpError](backend/src/utils/httpError.ts) and centrally handled by [errorHandler](backend/src/middleware/errorHandler.ts).
+- [backend/prisma/schema.prisma](backend/prisma/schema.prisma) is the source of truth for the data model. Key models: `User` → `Subject` → `Topic` → `StudySession`; plus `Exam`/`ExamSubject`, `Habit`/`HabitLog`, `Journal`, `AIRecommendation`, `DailyTask`, and `ResourceSuggestion` (defined but not yet used by any service — don't build against it without checking first).
+- `backend/prisma/migrations/` holds the real incremental history (8 migrations as of this writing) — don't hand-edit the schema without a matching migration.
+- `ExamCategory` covers the full Turkish national exam catalog (LGS, TYT/AYT/YDT, KPSS incl. Eğitim Bilimleri, ALES, DGS, YÖKDİL incl. Fen/Sosyal/Sağlık, AGS, YDS, plus legacy `YOKDIL` kept for back-compat and `OTHER` for user-defined exams) — seeded via [backend/prisma/seed.ts](backend/prisma/seed.ts), which also builds the full subject/topic curriculum tree per exam category.
 - `EducationLevel` in the Prisma schema (`MIDDLE_SCHOOL`, `HIGH_SCHOOL`, `UNIVERSITY`, `LIFELONG_LEARNER`) and the frontend's `UserMode`/`EducationLevel` types in [frontend/src/types/index.ts](frontend/src/types/index.ts) are meant to line up — double check both when changing either.
-- Subjects can be either global/curriculum-defined (`educationLevel` set, `userId` null) or user-defined custom subjects (`userId` set) — respect this nullable-owner pattern rather than assuming every `Subject` belongs to a user.
+- Subjects can be either global (curriculum/`educationLevel`-defined, or exam-catalog/`examCategory`-defined, `userId` null) or user-defined custom subjects (`userId` set) — respect this nullable-owner pattern rather than assuming every `Subject` belongs to a user.
 - DB is Postgres via Supabase, accessed through Prisma with a pooled `DATABASE_URL` (pgbouncer, port 6543) for the app and a `DIRECT_URL` (port 5432) for migrations — don't collapse these into one connection string.
 - Schema comments are in Turkish; the codebase mixes Turkish (domain content, comments) and English (identifiers) — keep that convention when extending the schema or seed content.
 

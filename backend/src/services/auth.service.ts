@@ -11,7 +11,7 @@ import { sendVerificationEmail, sendPasswordResetEmail } from "./mailer.service.
 const VERIFICATION_CODE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat
 const RESET_CODE_TTL_MS = 15 * 60 * 1000; // 15 dakika
 
-function toPublicUser(user: User) {
+export function toPublicUser(user: User) {
   const { passwordHash: _passwordHash, emailVerificationCode: _c1, passwordResetCode: _c2, ...publicUser } = user;
   return publicUser;
 }

@@ -22,8 +22,6 @@ out/
 .env.dec
 *.env
 
-# Prisma
-/prisma/migrations/
 
 # Debug logs
 npm-debug.log*
