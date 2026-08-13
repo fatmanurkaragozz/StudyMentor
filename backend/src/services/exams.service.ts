@@ -1,6 +1,7 @@
 import type { ExamCategory } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
+import { getSubjectsByIds } from "./subjects.service.js";
 
 interface CreateExamInput {
   name: string;
@@ -11,7 +12,7 @@ interface CreateExamInput {
 }
 
 export async function createExam(userId: string, input: CreateExamInput) {
-  const subjects = await prisma.subject.findMany({ where: { id: { in: input.subjectIds } } });
+  const subjects = await getSubjectsByIds(input.subjectIds);
   // Kullanıcının kendi eklediği dersler VEYA merkezi sınav kataloğuna (KPSS/YÖKDİL/ALES) ait genel dersler kullanılabilir.
   const usableByAll =
     subjects.length === input.subjectIds.length && subjects.every((s) => s.userId === userId || s.examCategory != null);
@@ -51,7 +52,7 @@ export async function updateExam(userId: string, examId: string, input: UpdateEx
   }
 
   if (input.subjectIds) {
-    const subjects = await prisma.subject.findMany({ where: { id: { in: input.subjectIds } } });
+    const subjects = await getSubjectsByIds(input.subjectIds);
     const usableByAll =
       subjects.length === input.subjectIds.length && subjects.every((s) => s.userId === userId || s.examCategory != null);
     if (!usableByAll) {
@@ -79,20 +80,6 @@ export async function deleteExam(userId: string, examId: string) {
     throw new HttpError(403, "Bu sınava erişimin yok");
   }
   await prisma.exam.delete({ where: { id: examId } });
-}
-
-export async function getExamCatalog(category: ExamCategory) {
-  const subjects = await prisma.subject.findMany({
-    where: { examCategory: category },
-    include: { topics: true },
-    orderBy: { name: "asc" },
-  });
-
-  return subjects.map((subject) => ({
-    subjectId: subject.id,
-    subjectName: subject.name,
-    topics: subject.topics.map((topic) => ({ id: topic.id, name: topic.name })),
-  }));
 }
 
 export async function listExams(userId: string) {

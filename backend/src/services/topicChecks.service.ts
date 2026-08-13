@@ -1,9 +1,7 @@
-import type { PriorityLevel } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
-import { predictPriority } from "./mlClient.service.js";
-import { getDisplayTopicLabel } from "../utils/topicLabel.js";
-import { computeNextReview } from "../utils/spacedRepetition.js";
+import { getDisplayTopicLabel, getTopicWithSubject, markTopicReviewed } from "./topics.service.js";
+import { scoreAndRecommend } from "./recommendations.service.js";
 
 interface SubmitCheckInput {
   attemptCount: number;
@@ -13,23 +11,8 @@ interface SubmitCheckInput {
   selfGradedCorrect: boolean;
 }
 
-const RECOMMENDATION_TEXT: Record<PriorityLevel, (topicName: string) => { title: string; content: string }> = {
-  YUKSEK: (topicName) => ({
-    title: `${topicName} için Yüksek Öncelik`,
-    content: `${topicName} konusunu unutma riskin yüksek görünüyor - bu konuyu yakın zamanda tekrar etmelisin.`,
-  }),
-  ORTA: (topicName) => ({
-    title: `${topicName} için Orta Öncelik`,
-    content: `${topicName} konusunu orta vadede tekrar etmen faydalı olur.`,
-  }),
-  DUSUK: (topicName) => ({
-    title: `${topicName} için Düşük Öncelik`,
-    content: `${topicName} konusunu iyi biliyorsun gibi görünüyor, şimdilik düşük öncelikli.`,
-  }),
-};
-
 export async function startCheck(userId: string, topicId: string) {
-  const topic = await prisma.topic.findUnique({ where: { id: topicId }, include: { subject: true } });
+  const topic = await getTopicWithSubject(topicId);
   if (!topic) {
     throw new HttpError(404, "Konu bulunamadı");
   }
@@ -66,12 +49,18 @@ export async function submitCheck(userId: string, checkId: string, input: Submit
     throw new HttpError(409, "Bu kontrol zaten tamamlanmış");
   }
 
-  const prediction = await predictPriority({
+  const displayLabel = getDisplayTopicLabel(check.topic, check.topic.subject);
+
+  const result = await scoreAndRecommend({
+    userId,
+    topicId: check.topicId,
+    topicName: displayLabel,
+    type: "REVISION",
     opportunity: check.opportunity,
-    attempt_count: input.attemptCount,
-    ms_first_response: input.msFirstResponse,
-    overlap_time: input.overlapTimeMs,
-    hint_count: input.hintCount,
+    attemptCount: input.attemptCount,
+    hintCount: input.hintCount,
+    msFirstResponse: input.msFirstResponse,
+    overlapTimeMs: input.overlapTimeMs,
   });
 
   await prisma.topicCheck.update({
@@ -82,32 +71,13 @@ export async function submitCheck(userId: string, checkId: string, input: Submit
       msFirstResponse: input.msFirstResponse,
       overlapTimeMs: input.overlapTimeMs,
       selfGradedCorrect: input.selfGradedCorrect,
-      correctProbability: prediction?.correct_probability,
-      priority: prediction?.priority,
+      correctProbability: result.correctProbability,
+      priority: result.priority,
       submittedAt: new Date(),
     },
   });
 
-  const nextReview = prediction ? await computeNextReview(check.topicId, prediction.priority) : undefined;
-  await prisma.topic.update({
-    where: { id: check.topicId },
-    data: { lastStudied: new Date(), ...(nextReview ? { nextReview } : {}) },
-  });
+  await markTopicReviewed(check.topicId, result.priority);
 
-  if (!prediction) {
-    return { mlAvailable: false, correctProbability: null, priority: null, recommendation: null };
-  }
-
-  const displayLabel = getDisplayTopicLabel(check.topic, check.topic.subject);
-  const { title, content } = RECOMMENDATION_TEXT[prediction.priority](displayLabel);
-  const recommendation = await prisma.aIRecommendation.create({
-    data: { userId, topicId: check.topicId, title, content, type: "REVISION", priority: prediction.priority },
-  });
-
-  return {
-    mlAvailable: true,
-    correctProbability: prediction.correct_probability,
-    priority: prediction.priority,
-    recommendation,
-  };
+  return result;
 }

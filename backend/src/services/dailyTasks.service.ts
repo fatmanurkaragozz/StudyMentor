@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
+import { requireTopicInSubject } from "./topics.service.js";
 
 function toDateOnly(dateStr: string): Date {
   return new Date(`${dateStr}T00:00:00.000Z`);
@@ -10,10 +11,7 @@ function toDateKey(date: Date): string {
 }
 
 export async function createTask(userId: string, input: { subjectId: string; topicId: string; date: string }) {
-  const topic = await prisma.topic.findUnique({ where: { id: input.topicId }, include: { subject: true } });
-  if (!topic || topic.subjectId !== input.subjectId) {
-    throw new HttpError(400, "Geçersiz ders/konu");
-  }
+  const topic = await requireTopicInSubject(input.topicId, input.subjectId);
 
   const task = await prisma.dailyTask.create({
     data: { userId, subjectId: input.subjectId, topicId: input.topicId, date: toDateOnly(input.date) },

@@ -1,7 +1,32 @@
+import type { ExamCategory } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 
 const CUSTOM_TOPIC_NAME = "Genel";
+
+// ExamTracking (exams.service.ts) bir sinava ders eklerken bu derslerin gercekten
+// var olup olmadigini kontrol etmek icin cagirir - yetki kontrolu (kimin
+// kullanabilecegi) ExamTracking'in kendi isi, burada sadece ham veri donuyor.
+export async function getSubjectsByIds(subjectIds: string[]) {
+  return prisma.subject.findMany({ where: { id: { in: subjectIds } } });
+}
+
+// Merkezi sinav kataloguna (KPSS/YOKDIL/ALES vb.) ait ders/konu listesini dondurur.
+// Exam tablosuna hic dokunmuyor - kavramsal olarak ExamTracking'in degil,
+// Curriculum'un (biz) is'i, o yuzden burada yasiyor.
+export async function getExamCatalog(category: ExamCategory) {
+  const subjects = await prisma.subject.findMany({
+    where: { examCategory: category },
+    include: { topics: true },
+    orderBy: { name: "asc" },
+  });
+
+  return subjects.map((subject) => ({
+    subjectId: subject.id,
+    subjectName: subject.name,
+    topics: subject.topics.map((topic) => ({ id: topic.id, name: topic.name })),
+  }));
+}
 
 export async function createOrGetCustomSubject(userId: string, name: string) {
   const subject = await prisma.subject.upsert({
