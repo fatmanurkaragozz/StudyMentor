@@ -1,5 +1,71 @@
+import type { PriorityLevel } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
+
+const CUSTOM_TOPIC_PLACEHOLDER = "Genel";
+
+// Kullanıcıya özel "uğraş" kayıtlarında Topic her zaman "Genel" adıyla otomatik
+// oluşturulur (bkz. subjects.service.ts) - bu durumda kullanıcıya konu adı yerine
+// asıl anlamlı olan ders/uğraş adını göstermek gerekir.
+export function getDisplayTopicLabel(topic: { name: string }, subject: { name: string }): string {
+  return topic.name === CUSTOM_TOPIC_PLACEHOLDER ? subject.name : topic.name;
+}
+
+// Kullanıcının kendi ifadesiyle: yüksek öncelik ~2 günde bir, orta ~4 günde bir, düşük ~haftada bir tekrar.
+const REVIEW_INTERVAL_DAYS: Record<PriorityLevel, number> = {
+  YUKSEK: 2,
+  ORTA: 4,
+  DUSUK: 7,
+};
+
+// Bu konu bir sınava bağlıysa (ExamSubject üzerinden) ve hesaplanan tekrar tarihi sınav tarihini
+// geçiyorsa, sınavdan sonrasını önermenin anlamı olmadığı için tarih sınav gününe kısıtlanır.
+async function computeNextReview(topicId: string, priority: PriorityLevel): Promise<Date> {
+  const intervalDays = REVIEW_INTERVAL_DAYS[priority];
+  const candidate = new Date();
+  candidate.setUTCDate(candidate.getUTCDate() + intervalDays);
+
+  const examLinks = await prisma.examSubject.findMany({
+    where: { subject: { topics: { some: { id: topicId } } }, exam: { date: { gte: new Date() } } },
+    include: { exam: true },
+  });
+
+  const nearestExamDate = examLinks.reduce<Date | null>((earliest, link) => {
+    if (!earliest || link.exam.date < earliest) return link.exam.date;
+    return earliest;
+  }, null);
+
+  if (nearestExamDate && nearestExamDate < candidate) {
+    return nearestExamDate;
+  }
+  return candidate;
+}
+
+// AICoach bir oncelik hesapladiktan sonra cagirir - bir konunun "calisildi" ve
+// (varsa) bir sonraki tekrar tarihinin ne oldugu Curriculum'un sorumlulugunda.
+export async function markTopicReviewed(topicId: string, priority: PriorityLevel | null): Promise<void> {
+  const nextReview = priority ? await computeNextReview(topicId, priority) : undefined;
+  await prisma.topic.update({
+    where: { id: topicId },
+    data: { lastStudied: new Date(), ...(nextReview ? { nextReview } : {}) },
+  });
+}
+
+// Konuyu dersiyle birlikte getirir - baska modullerin (LearningEngine) Topic
+// tablosuna dogrudan erismesi yerine bu public arayuzu kullanmasi icin.
+export async function getTopicWithSubject(topicId: string) {
+  return prisma.topic.findUnique({ where: { id: topicId }, include: { subject: true } });
+}
+
+// Konu var mi VE verilen derse mi ait, tek seferde dogrular - StudySession/DailyTask
+// olusturmadan once ayni dogrulamayi tekrar tekrar yazmamak icin.
+export async function requireTopicInSubject(topicId: string, subjectId: string) {
+  const topic = await getTopicWithSubject(topicId);
+  if (!topic || topic.subjectId !== subjectId) {
+    throw new HttpError(400, "Geçersiz ders/konu");
+  }
+  return topic;
+}
 
 export async function listTopicsForUser(userId: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });

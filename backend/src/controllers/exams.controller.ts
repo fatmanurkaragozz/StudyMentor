@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { createExamSchema, examCatalogParamsSchema, updateExamSchema } from "../validation/schemas.js";
-import { createExam, listExams, getExamCatalog, updateExam, deleteExam } from "../services/exams.service.js";
+import { createExam, listExams, updateExam, deleteExam } from "../services/exams.service.js";
+import { getExamCatalog } from "../services/subjects.service.js";
 
 export async function postExam(req: Request, res: Response) {
   const input = createExamSchema.parse(req.body);

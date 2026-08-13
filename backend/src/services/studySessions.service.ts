@@ -1,8 +1,6 @@
 import { prisma } from "../config/prisma.js";
-import { HttpError } from "../utils/httpError.js";
-import { predictPriority } from "./mlClient.service.js";
-import { getDisplayTopicLabel } from "../utils/topicLabel.js";
-import { computeNextReview } from "../utils/spacedRepetition.js";
+import { getDisplayTopicLabel, markTopicReviewed, requireTopicInSubject } from "./topics.service.js";
+import { scoreAndRecommend } from "./recommendations.service.js";
 
 interface CreateStudySessionInput {
   subjectId: string;
@@ -47,10 +45,7 @@ const DEFAULT_MS_FIRST_RESPONSE = 15000;
 const DEFAULT_OVERLAP_TIME_MS = 27000;
 
 export async function createStudySession(userId: string, input: CreateStudySessionInput) {
-  const topic = await prisma.topic.findUnique({ where: { id: input.topicId }, include: { subject: true } });
-  if (!topic || topic.subjectId !== input.subjectId) {
-    throw new HttpError(400, "Geçersiz ders/konu");
-  }
+  const topic = await requireTopicInSubject(input.topicId, input.subjectId);
 
   const studySession = await prisma.studySession.create({
     data: {
@@ -69,44 +64,23 @@ export async function createStudySession(userId: string, input: CreateStudySessi
   const opportunity = priorChecks + priorSessions; // bu oturum zaten sayildi, +1 gerekmiyor
 
   const { attemptCount, hintCount } = STRUGGLE_BY_DIFFICULTY[input.difficulty];
-
-  const prediction = await predictPriority({
-    opportunity: Math.max(1, opportunity),
-    attempt_count: attemptCount,
-    ms_first_response: DEFAULT_MS_FIRST_RESPONSE,
-    overlap_time: DEFAULT_OVERLAP_TIME_MS,
-    hint_count: hintCount,
-  });
-
-  const nextReview = prediction ? await computeNextReview(input.topicId, prediction.priority) : undefined;
-  await prisma.topic.update({
-    where: { id: input.topicId },
-    data: { lastStudied: new Date(), ...(nextReview ? { nextReview } : {}) },
-  });
-
-  if (!prediction) {
-    return { studySession, mlAvailable: false, correctProbability: null, priority: null, recommendation: null };
-  }
-
   const displayLabel = getDisplayTopicLabel(topic, topic.subject);
-  const recommendation = await prisma.aIRecommendation.create({
-    data: {
-      userId,
-      topicId: input.topicId,
-      title: `${displayLabel} için Öneri`,
-      content: `Son çalışma verine göre ${displayLabel} konusunun önceliği: ${prediction.priority}.`,
-      type: "STUDY_PRIORITY",
-      priority: prediction.priority,
-    },
+
+  const result = await scoreAndRecommend({
+    userId,
+    topicId: input.topicId,
+    topicName: displayLabel,
+    type: "STUDY_PRIORITY",
+    opportunity: Math.max(1, opportunity),
+    attemptCount,
+    hintCount,
+    msFirstResponse: DEFAULT_MS_FIRST_RESPONSE,
+    overlapTimeMs: DEFAULT_OVERLAP_TIME_MS,
   });
 
-  return {
-    studySession,
-    mlAvailable: true,
-    correctProbability: prediction.correct_probability,
-    priority: prediction.priority,
-    recommendation,
-  };
+  await markTopicReviewed(input.topicId, result.priority);
+
+  return { studySession, ...result };
 }
 
 export async function listStudySessions(userId: string) {

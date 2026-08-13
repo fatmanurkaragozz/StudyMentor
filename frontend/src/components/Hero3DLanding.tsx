@@ -72,7 +72,7 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col selection:bg-amber-500 selection:text-white transition-colors duration-300 bg-gradient-to-b from-sky-50 via-cyan-50 to-teal-100/50 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950/40">
+    <div className="min-h-screen relative overflow-hidden flex flex-col selection:bg-amber-500 selection:text-white transition-colors duration-300 bg-gradient-to-b from-sky-100 via-cyan-100 to-teal-100 dark:from-slate-950 dark:via-cyan-950/60 dark:to-slate-950">
       {/* Deniz atmosferi - yumuşak ışık yansımaları */}
       <div className="absolute top-10 right-[10%] w-72 h-72 rounded-full bg-cyan-400/10 dark:bg-cyan-400/5 blur-3xl pointer-events-none select-none" />
       <div className="absolute bottom-24 left-[6%] w-80 h-80 rounded-full bg-teal-400/10 dark:bg-teal-500/5 blur-3xl pointer-events-none select-none" />
@@ -82,7 +82,7 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
 
       <header className="relative z-30 h-20 px-6 sm:px-12 flex items-center justify-between max-w-7xl mx-auto w-full shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 via-rose-600 to-amber-500 flex items-center justify-center shadow-lg glow-amber">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-yellow-500 to-amber-600 flex items-center justify-center shadow-lg glow-amber">
             <Compass className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -109,7 +109,7 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
 
           <button
             onClick={openRegister}
-            className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white shadow-lg glow-amber transition-all transform hover:-translate-y-0.5"
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-white shadow-lg glow-amber transition-all transform hover:-translate-y-0.5"
           >
             Ücretsiz Kayıt Ol
           </button>
@@ -119,10 +119,10 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
       {/* 3D Hero Viewport */}
       <div className="relative w-full min-h-[640px] flex-1 overflow-hidden">
         {/* Dev arka plan yazıları - en geride, sade ve sabit bir watermark */}
-        <h2 className="absolute z-0 top-[8%] left-[5%] sm:left-[7%] whitespace-nowrap text-8xl sm:text-[10rem] lg:text-[13rem] font-black tracking-tight bg-gradient-to-r from-amber-600 via-rose-600 to-amber-500 bg-clip-text text-transparent opacity-45 pointer-events-none select-none">
+        <h2 className="absolute z-0 top-[8%] left-[5%] sm:left-[7%] whitespace-nowrap text-8xl sm:text-[10rem] lg:text-[13rem] font-black tracking-tight bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 bg-clip-text text-transparent opacity-45 pointer-events-none select-none">
           STUDY
         </h2>
-        <h2 className="absolute z-0 bottom-[6%] right-[5%] sm:right-[7%] whitespace-nowrap text-8xl sm:text-[10rem] lg:text-[13rem] font-black tracking-tight bg-gradient-to-r from-slate-900 via-indigo-800 to-amber-600 bg-clip-text text-transparent opacity-45 pointer-events-none select-none">
+        <h2 className="absolute z-0 bottom-[6%] right-[5%] sm:right-[7%] whitespace-nowrap text-8xl sm:text-[10rem] lg:text-[13rem] font-black tracking-tight bg-gradient-to-r from-slate-900 via-sky-800 to-amber-500 bg-clip-text text-transparent opacity-45 pointer-events-none select-none">
           MENTOR
         </h2>
 
@@ -140,8 +140,10 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
           )}
         </div>
 
-        {/* Akıcı geçiş - hero alanından ana içeriğe yumuşak geçiş */}
-        <div className="absolute inset-x-0 bottom-0 h-24 z-30 bg-gradient-to-b from-transparent to-sky-50 dark:to-slate-950 pointer-events-none select-none" />
+        {/* Akıcı geçiş - hero alanından ana içeriğe yumuşak geçiş. Hedef renk, sarmalayıcı
+            gradyanın bu noktadaki gerçek tonuyla eşleşiyor (cyan-100/cyan-950) - sky-50/slate-950'ye
+            direkt atlarsa "dikiş" hissi oluşuyordu. */}
+        <div className="absolute inset-x-0 bottom-0 h-24 z-30 bg-gradient-to-b from-transparent to-cyan-100 dark:to-cyan-950/60 pointer-events-none select-none" />
       </div>
 
       <main className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 py-12 w-full">
@@ -199,7 +201,7 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
           </div>
 
           <div className="lg:col-span-1 flex flex-col items-center justify-center space-y-4 py-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-rose-500 text-white flex items-center justify-center shadow-lg font-black text-xs">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-500 text-white flex items-center justify-center shadow-lg font-black text-xs">
               VS
             </div>
 
@@ -208,8 +210,8 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
                 <ArrowLeft className="w-4 h-4 animate-pulse" />
                 <span>Öğrenci</span>
               </div>
-              <div className="h-12 w-0.5 bg-gradient-to-b from-amber-500 to-emerald-500 rounded-full"></div>
-              <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+              <div className="h-12 w-0.5 bg-gradient-to-b from-amber-500 to-cyan-500 rounded-full"></div>
+              <div className="flex items-center gap-1 text-cyan-600 dark:text-cyan-400">
                 <span>Gelişim</span>
                 <ArrowRight className="w-4 h-4 animate-pulse" />
               </div>
@@ -221,17 +223,17 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
             onMouseLeave={() => setHoveredMode(null)}
             className={`lg:col-span-3 glass-panel p-6 sm:p-8 rounded-3xl border transition-all duration-300 text-left flex flex-col justify-between space-y-6 relative overflow-hidden group ${
               hoveredMode === 'LEARNER'
-                ? 'border-emerald-500 scale-[1.02] shadow-2xl glow-sage'
+                ? 'border-cyan-500 scale-[1.02] shadow-2xl glow-cyan'
                 : 'border-slate-300 dark:border-slate-800'
             }`}
           >
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
                 <Briefcase className="w-7 h-7" />
               </div>
 
               <div>
-                <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">
+                <div className="text-[11px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider mb-1">
                   Beceri &amp; Proje Odaklı
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">💼 İş Hayatım ve Gelişim</h3>
@@ -242,15 +244,15 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
 
               <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-cyan-500 shrink-0" />
                   <span>Proje &amp; Beceriler İlerleme Paneli</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-cyan-500 shrink-0" />
                   <span>Alışkanlık Zinciri (Habit Tracker Matrix)</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-cyan-500 shrink-0" />
                   <span>AI Sentiment Skorlu Günlük &amp; Duygu Değerlendirmesi</span>
                 </li>
               </ul>
@@ -258,7 +260,7 @@ export const Hero3DLanding: FC<Hero3DLandingProps> = ({ onEnterApp }) => {
 
             <button
               onClick={() => handleSelectModeAndEnter('LIFELONG_LEARNER')}
-              className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all"
+              className="w-full py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all"
             >
               <span>Bu Modu Keşfet</span>
               <ArrowRight className="w-4 h-4" />
