@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AppProvider, useApp } from './context/AppContext';
-import { Hero3DLanding } from './components/Hero3DLanding';
+import { LandingPage } from './components/LandingPage';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
@@ -72,7 +72,7 @@ export function AppContent() {
   }
 
   if (showLanding) {
-    return <Hero3DLanding onEnterApp={() => setShowLanding(false)} />;
+    return <LandingPage onEnterApp={() => setShowLanding(false)} />;
   }
 
   return <MainLayout onGoToLanding={() => setShowLanding(true)} onLogout={handleLogout} />;

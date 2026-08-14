@@ -89,42 +89,13 @@ html:not(.dark) .glass-card:hover {
   transform: translateY(-2px);
 }
 
-/* Açılış sayfası - deniz atmosferi dalga şeridi. Aynı SVG path yan yana iki kez
-   render edilip konteyner %200 genişlikte -> translateX(-50%) ile dikişsiz döngülenir. */
-@keyframes wave-drift {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.animate-wave-drift {
-  animation: wave-drift 22s linear infinite;
-}
-
-.animate-wave-drift-slow {
-  animation: wave-drift 34s linear infinite;
-}
-
-.animate-wave-drift-fast {
-  animation: wave-drift 15s linear infinite;
-}
-
-/* Su yüzeyinin hafif inip kalkması - yatay kaymayla birlikte ayrı bir sarmalayıcıda uygulanır */
-@keyframes wave-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(7px); }
-}
-
-.animate-wave-bob-slow {
-  animation: wave-bob 7s ease-in-out infinite;
-}
-
-.animate-wave-bob-fast {
-  animation: wave-bob 4s ease-in-out infinite;
-}
-
 /* Glowing Accents */
 .glow-indigo {
   box-shadow: 0 0 25px -3px rgba(99, 102, 241, 0.35);
+}
+
+.glow-violet {
+  box-shadow: 0 0 25px -3px rgba(124, 58, 237, 0.35);
 }
 
 .glow-emerald {
@@ -137,13 +108,6 @@ html:not(.dark) .glass-card:hover {
 
 .glow-sage {
   box-shadow: 0 0 25px -3px rgba(16, 185, 129, 0.35);
-}
-
-/* Giriş sayfasının okyanus temalı "Gelişim" kartı için - glow-emerald/glow-sage
-   diğer ekranlarda (StudyPlanner, Dashboard, vb.) kullanıldığından değiştirilmiyor,
-   bunun yerine yeni bir ton ekleniyor. */
-.glow-cyan {
-  box-shadow: 0 0 25px -3px rgba(6, 182, 212, 0.35);
 }
 
 /* Custom Scrollbar */
