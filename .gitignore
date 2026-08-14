@@ -59,3 +59,5 @@ env/
 
 # Trained ML model artifacts (regenerate via train.py)
 ml-service/models/
+
+.superpowers/
