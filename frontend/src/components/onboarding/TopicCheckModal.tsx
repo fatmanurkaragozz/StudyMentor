@@ -3,6 +3,7 @@ import { X, RotateCcw, CheckCircle2, XCircle, Loader2, AlertCircle, Sparkles, Co
 import { apiClient, type RecommendationResult } from '../../lib/apiClient';
 import { useApp } from '../../context/AppContext';
 import { getKaptanMessage } from '../../lib/kaptan';
+import { ReminderPrompt } from '../ReminderPrompt';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './priorityLabels';
 
 interface TopicCheckModalProps {
@@ -235,6 +236,10 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
                   );
                 })()}
               </div>
+            )}
+
+            {result.proposedReminder && (
+              <ReminderPrompt topicId={topicId} initialIntervalDays={result.proposedReminder.intervalDays} />
             )}
 
             <button

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { apiClient, type SubjectWithTopics, type RecommendationResult, type DailyTaskRow } from '../lib/apiClient';
+import { apiClient, type SubjectWithTopics, type RecommendationResult, type DailyTaskRow, type MySubject } from '../lib/apiClient';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
 import { getKaptanSessionMessage } from '../lib/kaptan';
+import { ReminderPrompt } from './ReminderPrompt';
 import {
   Play,
   Pause,
@@ -43,6 +44,13 @@ export const StudyPlanner: React.FC = () => {
   const [selectedTopicId, setSelectedTopicId] = useState('');
   const [pursuitName, setPursuitName] = useState('');
 
+  // Gelisim modu icin kendi ugraslarim - getTopics() ile KARISTIRMIYORUZ, cunku o
+  // uc nokta LIFELONG_LEARNER icin de seed.ts'teki global ornek dersleri ("Yazilim
+  // Gelistirme" vb.) donuyor. /subjects/mine ise sadece bu kullanicinin kendi
+  // ekledigi ugraslari donuyor (ayni MyCourses.tsx'in kullandigi uc nokta).
+  const [myPursuits, setMyPursuits] = useState<MySubject[]>([]);
+  const [loadingPursuits, setLoadingPursuits] = useState(true);
+
   // Form states for log modal
   const [difficulty, setDifficulty] = useState<number>(3);
   const [productivity, setProductivity] = useState<number>(5);
@@ -73,6 +81,16 @@ export const StudyPlanner: React.FC = () => {
       })
       .catch(err => setLoadError(err instanceof Error ? err.message : 'Dersler yüklenemedi'))
       .finally(() => setLoadingSubjects(false));
+  }, [isStudent]);
+
+  useEffect(() => {
+    if (isStudent) return;
+    setLoadingPursuits(true);
+    apiClient
+      .getMySubjects()
+      .then(setMyPursuits)
+      .catch(err => setLoadError(err instanceof Error ? err.message : 'Uğraşlar yüklenemedi'))
+      .finally(() => setLoadingPursuits(false));
   }, [isStudent]);
 
   const loadTasks = () => {
@@ -235,6 +253,11 @@ export const StudyPlanner: React.FC = () => {
       if (selectedSubjectId === subjectId) {
         setSelectedSubjectId(data[0]?.subjectId ?? '');
         setSelectedTopicId(data[0]?.topics[0]?.id ?? '');
+      }
+      if (!isStudent) {
+        const mine = await apiClient.getMySubjects();
+        setMyPursuits(mine);
+        if (pursuitName === subjectName) setPursuitName('');
       }
       loadTasks();
     } catch (err) {
@@ -531,6 +554,63 @@ export const StudyPlanner: React.FC = () => {
             </div>
           )}
 
+          {!isStudent && (
+            <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                <span>Uğraşlarım</span>
+              </h3>
+
+              {loadingPursuits && (
+                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Uğraşlar yükleniyor...</span>
+                </div>
+              )}
+
+              {loadError && (
+                <div className="flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{loadError}</span>
+                </div>
+              )}
+
+              {!loadingPursuits && myPursuits.length === 0 && (
+                <div className="text-xs text-slate-500 dark:text-slate-500">
+                  Henüz bir uğraş eklemedin - yukarıya yazıp oturum kaydettiğinde burada listelenecek.
+                </div>
+              )}
+
+              <div className="space-y-2">
+                {myPursuits.map(item => (
+                  <div
+                    key={item.subjectId}
+                    onClick={() => setPursuitName(item.subjectName)}
+                    className={`w-full text-left p-3 rounded-xl border text-xs font-medium transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                      pursuitName === item.subjectName
+                        ? 'bg-emerald-600/20 border-emerald-500/50 text-slate-900 dark:text-slate-100'
+                        : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                    }`}
+                  >
+                    <div className="font-semibold text-slate-800 dark:text-slate-200">{item.subjectName}</div>
+                    <button
+                      type="button"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleDeleteSubject(item.subjectId, item.subjectName);
+                      }}
+                      disabled={deletingSubjectId === item.subjectId}
+                      title="Uğraşı Sil"
+                      className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-500/10 disabled:opacity-40 shrink-0 transition-all"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="glass-panel p-4 rounded-xl border border-amber-500/30 bg-amber-50 dark:bg-amber-950/10 space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-400">
               <Sparkles className="w-4 h-4" />
@@ -707,6 +787,13 @@ export const StudyPlanner: React.FC = () => {
                     </div>
                   );
                 })()}
+
+                {submitResult.proposedReminder && (
+                  <ReminderPrompt
+                    topicId={selectedTopicId}
+                    initialIntervalDays={submitResult.proposedReminder.intervalDays}
+                  />
+                )}
 
                 <button
                   onClick={handleCloseModal}
