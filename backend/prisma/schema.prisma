@@ -97,6 +97,7 @@ model User {
   topicChecks          TopicCheck[]
   scheduleSlots        ScheduleSlot[]
   dailyTasks           DailyTask[]
+  topicReminders       TopicReminder[]
 }
 
 model Subject {
@@ -147,6 +148,25 @@ model Topic {
   checks          TopicCheck[]
   recommendations AIRecommendation[]
   dailyTasks      DailyTask[]
+  reminders       TopicReminder[]
+}
+
+// Kullanıcıya özel tekrarlayan hatırlatma aboneliği - "N günde bir bu konuyu tekrar et"
+// önerisini kullanıcı kabul edince oluşur. Topic.nextReview'in aksine (o alan paylaşılan
+// Topic satırında duruyor, kullanıcıya özel değil) bu tablo bilerek userId+topicId ile
+// kullanıcıya özel tutuluyor.
+model TopicReminder {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId        String
+  topic          Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  intervalDays   Int
+  nextReminderAt DateTime
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, topicId])
 }
 
 // Uygulama içi "mini kontrol" (soru-cevap) etkileşimi - ML servisine gönderilen

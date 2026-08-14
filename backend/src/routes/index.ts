@@ -12,6 +12,7 @@ import { examsRouter } from "./exams.routes.js";
 import { habitsRouter } from "./habits.routes.js";
 import { journalsRouter } from "./journals.routes.js";
 import { dailyTasksRouter } from "./dailyTasks.routes.js";
+import { topicRemindersRouter } from "./topicReminders.routes.js";
 
 export const router = Router();
 
@@ -28,3 +29,4 @@ router.use(examsRouter);
 router.use(habitsRouter);
 router.use(journalsRouter);
 router.use(dailyTasksRouter);
+router.use(topicRemindersRouter);

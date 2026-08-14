@@ -1,6 +1,7 @@
 import { prisma } from "../config/prisma.js";
 import { getDisplayTopicLabel, markTopicReviewed, requireTopicInSubject } from "./topics.service.js";
 import { scoreAndRecommend } from "./recommendations.service.js";
+import { advanceReminderIfActive, proposeReminder } from "./topicReminders.service.js";
 
 interface CreateStudySessionInput {
   subjectId: string;
@@ -79,8 +80,12 @@ export async function createStudySession(userId: string, input: CreateStudySessi
   });
 
   await markTopicReviewed(input.topicId, result.priority);
+  // Bu konuyu gercekten calisti, aktif bir hatirlatma varsa donguyu ilerlet;
+  // yoksa (ya da zaten aktifse) yeni bir oneri sunulabilir mi diye bak.
+  await advanceReminderIfActive(userId, input.topicId);
+  const proposedReminder = await proposeReminder(userId, input.topicId, result.priority);
 
-  return { studySession, ...result };
+  return { studySession, ...result, proposedReminder };
 }
 
 export async function listStudySessions(userId: string) {

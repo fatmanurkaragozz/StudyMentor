@@ -12,7 +12,9 @@ export function getDisplayTopicLabel(topic: { name: string }, subject: { name: s
 }
 
 // Kullanıcının kendi ifadesiyle: yüksek öncelik ~2 günde bir, orta ~4 günde bir, düşük ~haftada bir tekrar.
-const REVIEW_INTERVAL_DAYS: Record<PriorityLevel, number> = {
+// Export edilmiş durumda - topicReminders.service.ts da ayni "öncelik -> gün" eşlemesini
+// kullansın diye (tek doğruluk kaynağı, iki yerde tekrar edilmesin).
+export const REVIEW_INTERVAL_DAYS: Record<PriorityLevel, number> = {
   YUKSEK: 2,
   ORTA: 4,
   DUSUK: 7,
