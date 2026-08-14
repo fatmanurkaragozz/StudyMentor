@@ -109,6 +109,16 @@ export interface RecommendationResult {
   correctProbability: number | null;
   priority: PriorityLevel | null;
   recommendation: { id: string; title: string; content: string } | null;
+  proposedReminder: { intervalDays: number } | null;
+}
+
+export interface DueTopicReminder {
+  topicId: string;
+  subjectId: string;
+  topicName: string;
+  subjectName: string;
+  intervalDays: number;
+  nextReminderAt: string;
 }
 
 export interface RecommendationRow {
@@ -333,4 +343,12 @@ export const apiClient = {
     }),
 
   deleteDailyTask: (taskId: string) => request<{ message: string }>(`/daily-tasks/${taskId}`, { method: "DELETE" }),
+
+  respondToTopicReminder: (topicId: string, intervalDays: number, accept: boolean) =>
+    request<{ message: string }>("/topic-reminders", {
+      method: "POST",
+      body: JSON.stringify({ topicId, intervalDays, accept }),
+    }),
+
+  getDueTopicReminders: () => request<DueTopicReminder[]>("/topic-reminders/due"),
 };

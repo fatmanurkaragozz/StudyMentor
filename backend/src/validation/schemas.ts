@@ -117,6 +117,12 @@ export const createStudySessionSchema = z.object({
   notes: z.string().optional(),
 });
 
+export const respondToReminderSchema = z.object({
+  topicId: z.string().min(1),
+  intervalDays: z.number().int().min(1).max(60),
+  accept: z.boolean(),
+});
+
 export const createHabitSchema = z.object({
   name: z.string().min(1).max(80),
 });

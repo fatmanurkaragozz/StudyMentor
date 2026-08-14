@@ -19,7 +19,8 @@ import {
   Repeat,
   PlusCircle,
   AlertCircle,
-  CalendarClock
+  CalendarClock,
+  Bell
 } from 'lucide-react';
 
 interface DueTopic {
@@ -28,6 +29,9 @@ interface DueTopic {
   topicId: string;
   topicName: string;
   nextReview: string;
+  // 'reminder' = kullanicinin kendi kabul ettigi kisisel hatirlatma (TopicReminder),
+  // 'ml' = modelin oncelik hesabina gore onerdigi genel tekrar tarihi (Topic.nextReview).
+  source: 'ml' | 'reminder';
 }
 
 interface SubjectProgress {
@@ -101,16 +105,35 @@ export const Dashboard: React.FC = () => {
 
     const endOfToday = new Date();
     endOfToday.setHours(23, 59, 59, 999);
-    apiClient
-      .getTopics()
-      .then(subjectsWithTopics => {
-        const due = subjectsWithTopics
+    Promise.all([apiClient.getTopics(), apiClient.getDueTopicReminders()])
+      .then(([subjectsWithTopics, dueReminders]) => {
+        // Kisisel hatirlatmasi olan bir konu, ML'in genel nextReview'inde de tekrar
+        // gorunmesin diye once o topicId'leri cikariyoruz - ayni konu iki kez listelenmez.
+        const reminderTopicIds = new Set(dueReminders.map(r => r.topicId));
+        const mlDue: DueTopic[] = subjectsWithTopics
           .flatMap(s =>
             s.topics
-              .filter(t => t.nextReview && new Date(t.nextReview) <= endOfToday)
-              .map(t => ({ subjectId: s.subjectId, subjectName: s.subjectName, topicId: t.id, topicName: t.name, nextReview: t.nextReview as string }))
-          )
-          .sort((a, b) => new Date(a.nextReview).getTime() - new Date(b.nextReview).getTime());
+              .filter(t => t.nextReview && new Date(t.nextReview) <= endOfToday && !reminderTopicIds.has(t.id))
+              .map(t => ({
+                subjectId: s.subjectId,
+                subjectName: s.subjectName,
+                topicId: t.id,
+                topicName: t.name,
+                nextReview: t.nextReview as string,
+                source: 'ml' as const,
+              }))
+          );
+        const reminderDue: DueTopic[] = dueReminders.map(r => ({
+          subjectId: r.subjectId,
+          subjectName: r.subjectName,
+          topicId: r.topicId,
+          topicName: r.topicName,
+          nextReview: r.nextReminderAt,
+          source: 'reminder' as const,
+        }));
+        const due = [...mlDue, ...reminderDue].sort(
+          (a, b) => new Date(a.nextReview).getTime() - new Date(b.nextReview).getTime()
+        );
         setDueTopics(due);
 
         const progress = subjectsWithTopics.map(s => {
@@ -409,7 +432,15 @@ export const Dashboard: React.FC = () => {
                   className="flex items-center justify-between p-3 rounded-xl border border-rose-500/20 bg-rose-500/5 text-xs"
                 >
                   <div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200">{topic.topicName}</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <span>{topic.topicName}</span>
+                      {topic.source === 'reminder' && (
+                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-[9px] font-bold uppercase tracking-wide">
+                          <Bell className="w-2.5 h-2.5" />
+                          <span>Kişisel Hatırlatma</span>
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-slate-500 dark:text-slate-400">{topic.subjectName}</div>
                   </div>
                   {added ? (

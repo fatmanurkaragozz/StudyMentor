@@ -2,6 +2,7 @@ import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 import { getDisplayTopicLabel, getTopicWithSubject, markTopicReviewed } from "./topics.service.js";
 import { scoreAndRecommend } from "./recommendations.service.js";
+import { advanceReminderIfActive, proposeReminder } from "./topicReminders.service.js";
 
 interface SubmitCheckInput {
   attemptCount: number;
@@ -78,6 +79,8 @@ export async function submitCheck(userId: string, checkId: string, input: Submit
   });
 
   await markTopicReviewed(check.topicId, result.priority);
+  await advanceReminderIfActive(userId, check.topicId);
+  const proposedReminder = await proposeReminder(userId, check.topicId, result.priority);
 
-  return result;
+  return { ...result, proposedReminder };
 }
