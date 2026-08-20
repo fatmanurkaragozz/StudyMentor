@@ -15,9 +15,9 @@ interface AuthModalProps {
 type View = 'FORM' | 'VERIFY_EMAIL' | 'FORGOT_EMAIL' | 'FORGOT_RESET' | 'FORGOT_DONE';
 
 const inputClass =
-  'w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-amber-500 transition-all';
+  'w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark transition-all';
 const plainInputClass =
-  'w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-amber-500 transition-all';
+  'w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark transition-all';
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChange, pendingProfile, onSuccess }) => {
   const [name, setName] = useState('');
@@ -151,7 +151,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="glass-panel max-w-md w-full p-6 sm:p-8 rounded-3xl border border-amber-500/20 text-slate-900 dark:text-slate-100 shadow-2xl relative space-y-6">
+      <div className="glass-panel max-w-md w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 rounded-3xl border border-brand-pink-dark/20 text-slate-900 dark:text-slate-100 shadow-2xl relative space-y-6">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded-full bg-slate-200/60 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-800 transition-all"
@@ -177,7 +177,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
                 type="button"
                 onClick={() => { resetMessages(); onModeChange('LOGIN'); }}
                 className={`py-2 text-xs font-semibold rounded-xl transition-all ${
-                  mode === 'LOGIN' ? 'bg-amber-600 text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  mode === 'LOGIN' ? 'bg-brand-pink-dark text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
                 Giriş Yap
@@ -186,7 +186,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
                 type="button"
                 onClick={() => { resetMessages(); onModeChange('REGISTER'); }}
                 className={`py-2 text-xs font-semibold rounded-xl transition-all ${
-                  mode === 'REGISTER' ? 'bg-amber-600 text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  mode === 'REGISTER' ? 'bg-brand-pink-dark text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
                 Kayıt Ol
@@ -240,7 +240,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
                     <button
                       type="button"
                       onClick={() => { resetMessages(); setView('FORGOT_EMAIL'); }}
-                      className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 hover:underline"
+                      className="text-[10px] font-semibold text-brand-pink-dark dark:text-brand-pink-light hover:underline"
                     >
                       Şifremi unuttum
                     </button>
@@ -262,7 +262,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg glow-amber flex items-center justify-center gap-2 transition-all mt-2"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-pink-dark to-brand-mint-dark hover:opacity-90 disabled:opacity-50 text-white font-bold text-xs shadow-lg glow-ai flex items-center justify-center gap-2 transition-all mt-2"
               >
                 <span>{loading ? 'Bağlanıyor...' : mode === 'LOGIN' ? 'Giriş Yap ve Başla' : 'Hesabımı Oluştur'}</span>
                 {!loading && <ArrowRight className="w-4 h-4" />}
@@ -274,7 +274,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
         {view === 'VERIFY_EMAIL' && (
           <div className="space-y-5">
             <div className="text-center space-y-1">
-              <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-brand-pink-dark/15 border border-brand-pink-dark/30 text-brand-pink-dark dark:text-brand-pink-light flex items-center justify-center">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">E-postanı Doğrula</h2>
@@ -290,7 +290,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
               </div>
             )}
             {infoMessage && (
-              <div className="flex items-center gap-2 text-[11px] text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2 text-[11px] text-brand-mint-dark dark:text-brand-mint bg-brand-mint/10 border border-brand-mint/30 rounded-xl px-3 py-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{infoMessage}</span>
               </div>
@@ -310,7 +310,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
               <button
                 type="submit"
                 disabled={loading || code.length !== 6}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg glow-amber transition-all"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-pink-dark to-brand-mint-dark hover:opacity-90 disabled:opacity-50 text-white font-bold text-xs shadow-lg glow-ai transition-all"
               >
                 {loading ? 'Doğrulanıyor...' : 'Doğrula'}
               </button>
@@ -329,7 +329,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
         {view === 'FORGOT_EMAIL' && (
           <div className="space-y-5">
             <div className="text-center space-y-1">
-              <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-brand-pink-dark/15 border border-brand-pink-dark/30 text-brand-pink-dark dark:text-brand-pink-light flex items-center justify-center">
                 <KeyRound className="w-6 h-6" />
               </div>
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Şifremi Unuttum</h2>
@@ -358,7 +358,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg glow-amber transition-all"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-pink-dark to-brand-mint-dark hover:opacity-90 disabled:opacity-50 text-white font-bold text-xs shadow-lg glow-ai transition-all"
               >
                 {loading ? 'Gönderiliyor...' : 'Kod Gönder'}
               </button>
@@ -415,7 +415,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
               <button
                 type="submit"
                 disabled={loading || code.length !== 6}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg glow-amber transition-all"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-pink-dark to-brand-mint-dark hover:opacity-90 disabled:opacity-50 text-white font-bold text-xs shadow-lg glow-ai transition-all"
               >
                 {loading ? 'Kaydediliyor...' : 'Şifreyi Sıfırla'}
               </button>
@@ -425,14 +425,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
 
         {view === 'FORGOT_DONE' && (
           <div className="space-y-5 text-center">
-            <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-brand-mint/15 border border-brand-mint/30 text-brand-mint-dark dark:text-brand-mint flex items-center justify-center">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Şifren Güncellendi</h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">Artık yeni şifrenle giriş yapabilirsin.</p>
             <button
               onClick={backToLogin}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg glow-amber transition-all"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-pink-dark to-brand-mint-dark hover:opacity-90 text-white font-bold text-xs shadow-lg glow-ai transition-all"
             >
               Giriş Yap
             </button>

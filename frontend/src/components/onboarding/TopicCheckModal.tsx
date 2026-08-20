@@ -82,7 +82,7 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex items-center justify-center p-4">
-      <div className="glass-panel max-w-md w-full p-6 rounded-3xl border border-amber-500/20 text-slate-900 dark:text-slate-100 shadow-2xl relative space-y-5">
+      <div className="glass-panel max-w-md w-full max-h-[90vh] overflow-y-auto p-6 rounded-3xl border border-brand-pink-dark/20 text-slate-900 dark:text-slate-100 shadow-2xl relative space-y-5">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded-full bg-slate-200/60 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-800 transition-all"
@@ -91,7 +91,7 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
         </button>
 
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500 dark:text-amber-400">{subjectName}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-brand-pink-dark dark:text-brand-pink-light">{subjectName}</span>
           <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{topicName}</h3>
         </div>
 
@@ -139,7 +139,7 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
             <button
               type="button"
               onClick={handleFinish}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg glow-amber transition-all"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-pink-dark to-brand-mint-dark hover:opacity-90 text-white font-bold text-xs shadow-lg glow-ai transition-all"
             >
               Bitir
             </button>
@@ -153,7 +153,7 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
               <button
                 type="button"
                 onClick={() => handleSelfGrade(true)}
-                className="py-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 font-semibold text-xs flex items-center justify-center gap-2 hover:bg-emerald-500/25 transition-all"
+                className="py-3 rounded-xl bg-brand-mint/15 border border-brand-mint/40 text-brand-mint-dark dark:text-brand-mint font-semibold text-xs flex items-center justify-center gap-2 hover:bg-brand-mint/25 transition-all"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Doğru Yaptım</span>
@@ -214,7 +214,7 @@ export const TopicCheckModal: React.FC<TopicCheckModalProps> = ({ topicId, topic
 
             {result.recommendation && (
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 px-4 py-3 space-y-1.5">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-500 dark:text-purple-400">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-brand-gold-dark dark:text-brand-gold">
                   <Compass className="w-3.5 h-3.5" />
                   <span>Kaptan</span>
                 </div>

@@ -1,6 +1,25 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-brand-indigo: #5B4BFF;
+  --color-brand-indigo-hover: #4A3AE8;
+  --color-brand-navy: #15182F;
+  --color-brand-violet: #8B7CFF;
+  --color-brand-violet-hover: #7A69F0;
+  --color-brand-pink-light: #F4A9C6;
+  --color-brand-pink-dark: #C2255C;
+  --color-brand-gold: #FFC857;
+  --color-brand-gold-dark: #B8791F;
+  --color-brand-mint: #54D6B2;
+  --color-brand-mint-dark: #16916C;
+  --color-brand-cloud: #F7F8FC;
+  --color-brand-ivory: #FAF7F1;
+  --color-brand-ivory-deep: #F1EAE0;
+  --color-brand-ink: #171A2B;
+  --color-brand-slate: #68708A;
+}
+
 @layer base {
   :root {
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -60,7 +79,7 @@
 }
 
 .dark .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.4);
+  border-color: rgba(91, 75, 255, 0.4);
   box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.4);
   transform: translateY(-2px);
 }
@@ -84,47 +103,22 @@ html:not(.dark) .glass-card {
 }
 
 html:not(.dark) .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: 0 12px 24px -4px rgba(99, 102, 241, 0.1);
+  border-color: rgba(91, 75, 255, 0.3);
+  box-shadow: 0 12px 24px -4px rgba(91, 75, 255, 0.1);
   transform: translateY(-2px);
-}
-
-/* Açılış sayfası - deniz atmosferi dalga şeridi. Aynı SVG path yan yana iki kez
-   render edilip konteyner %200 genişlikte -> translateX(-50%) ile dikişsiz döngülenir. */
-@keyframes wave-drift {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.animate-wave-drift {
-  animation: wave-drift 22s linear infinite;
-}
-
-.animate-wave-drift-slow {
-  animation: wave-drift 34s linear infinite;
-}
-
-.animate-wave-drift-fast {
-  animation: wave-drift 15s linear infinite;
-}
-
-/* Su yüzeyinin hafif inip kalkması - yatay kaymayla birlikte ayrı bir sarmalayıcıda uygulanır */
-@keyframes wave-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(7px); }
-}
-
-.animate-wave-bob-slow {
-  animation: wave-bob 7s ease-in-out infinite;
-}
-
-.animate-wave-bob-fast {
-  animation: wave-bob 4s ease-in-out infinite;
 }
 
 /* Glowing Accents */
 .glow-indigo {
-  box-shadow: 0 0 25px -3px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 0 25px -3px rgba(91, 75, 255, 0.35);
+}
+
+.glow-violet {
+  box-shadow: 0 0 25px -3px rgba(139, 124, 255, 0.35);
+}
+
+.glow-ai {
+  box-shadow: 0 0 30px -4px rgba(194, 37, 92, 0.35), 0 0 20px -6px rgba(255, 200, 87, 0.25);
 }
 
 .glow-emerald {
@@ -139,11 +133,70 @@ html:not(.dark) .glass-card:hover {
   box-shadow: 0 0 25px -3px rgba(16, 185, 129, 0.35);
 }
 
-/* Giriş sayfasının okyanus temalı "Gelişim" kartı için - glow-emerald/glow-sage
-   diğer ekranlarda (StudyPlanner, Dashboard, vb.) kullanıldığından değiştirilmiyor,
-   bunun yerine yeni bir ton ekleniyor. */
-.glow-cyan {
-  box-shadow: 0 0 25px -3px rgba(6, 182, 212, 0.35);
+.glow-pink {
+  box-shadow: 0 0 25px -3px rgba(194, 37, 92, 0.35);
+}
+
+.glow-mint {
+  box-shadow: 0 0 25px -3px rgba(22, 145, 108, 0.35);
+}
+
+/* Mobil tarayıcılarda adres çubuğu daralmasından etkilenmeyen viewport yüksekliği */
+.h-hero-viewport {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Aurora arka plan hareketi */
+@keyframes aurora-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(24px, -20px) scale(1.1); }
+}
+
+.animate-aurora {
+  animation: aurora-drift 14s ease-in-out infinite;
+}
+
+/* Mod kartları arasındaki neon çizginin kayarken beliren çizim animasyonu */
+@keyframes neon-line-draw {
+  from { transform: scaleY(0); opacity: 0; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+.animate-neon-line {
+  animation: neon-line-draw 1.2s ease-out forwards;
+}
+
+/* Hero altındaki geçiş bölgesinde nabız gibi atan marka ışığı */
+@keyframes hero-bottom-pulse {
+  0%, 100% { opacity: 0.3; transform: scaleX(0.9); }
+  50% { opacity: 0.65; transform: scaleX(1); }
+}
+
+.animate-hero-pulse {
+  animation: hero-bottom-pulse 5s ease-in-out infinite;
+}
+
+/* AI dalga formları - kesintisiz kayan arka plan bandı */
+@keyframes wave-flow {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-wave-flow {
+  animation: wave-flow 25s linear infinite;
+}
+
+/* Yıldız haritası noktalarının hafifçe parlayıp sönmesi */
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+
+.animate-star-twinkle {
+  animation: star-twinkle 3s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 /* Custom Scrollbar */

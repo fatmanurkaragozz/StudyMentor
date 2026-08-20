@@ -3,6 +3,8 @@ import { BookOpen, Plus, Loader2, AlertCircle, Sparkles, Trash2 } from 'lucide-r
 import { apiClient, type MySubject } from '../lib/apiClient';
 import { useApp } from '../context/AppContext';
 import { TopicCheckModal } from './onboarding/TopicCheckModal';
+import { MiniDecorScene } from './hero3d/decor/MiniDecorScene';
+import { PottedPlant } from './hero3d/decor/PottedPlant';
 
 export const MyCourses: React.FC = () => {
   const { user } = useApp();
@@ -86,7 +88,9 @@ export const MyCourses: React.FC = () => {
   return (
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
       <div>
-        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border bg-indigo-500/10 border-indigo-500/30 text-indigo-300">
+        <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border ${
+          isStudent ? 'bg-brand-pink-dark/10 border-brand-pink-dark/30 text-brand-pink-dark dark:text-brand-pink-light' : 'bg-brand-mint-dark/10 border-brand-mint-dark/30 text-brand-mint-dark dark:text-brand-mint'
+        }`}>
           {isStudent ? '🎓 Kendi Ders Listem' : '💼 Kendi Uğraş Listem'}
         </span>
         <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">{isStudent ? 'Derslerim' : 'Uğraşlarım'}</h2>
@@ -97,18 +101,22 @@ export const MyCourses: React.FC = () => {
         </p>
       </div>
 
-      <form onSubmit={handleAddCourse} className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+      <form onSubmit={handleAddCourse} className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center gap-3">
         <input
           type="text"
           placeholder={isStudent ? 'Örn: Veri Tabanları Yönetimi' : 'Örn: Gitar Öğrenme, Kişisel Blog Projesi'}
           value={newCourseName}
           onChange={e => setNewCourseName(e.target.value)}
-          className="flex-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-sm text-slate-900 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+          className={`flex-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-sm text-slate-900 dark:text-slate-200 focus:outline-none ${isStudent ? 'focus:border-brand-pink-dark' : 'focus:border-brand-mint-dark'}`}
         />
         <button
           type="submit"
           disabled={addingCourse || !newCourseName.trim()}
-          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold text-xs shadow-md glow-indigo flex items-center gap-2 shrink-0 transition-all"
+          className={`w-full sm:w-auto px-4 py-2.5 rounded-xl disabled:opacity-50 text-white font-semibold text-xs shadow-md flex items-center justify-center gap-2 shrink-0 transition-all ${
+            isStudent
+              ? 'bg-gradient-to-r from-brand-pink-light to-brand-pink-dark hover:opacity-90 glow-pink'
+              : 'bg-gradient-to-r from-brand-mint to-brand-mint-dark hover:opacity-90 glow-mint'
+          }`}
         >
           <Plus className="w-4 h-4" />
           <span>{isStudent ? 'Ders Ekle' : 'Uğraş Ekle'}</span>
@@ -130,7 +138,10 @@ export const MyCourses: React.FC = () => {
       )}
 
       {!loading && subjects.length === 0 && !error && (
-        <div className="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+        <div className="relative glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+          <MiniDecorScene className="absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-20" cameraPosition={[0, 0.4, 2.4]}>
+            <PottedPlant position={[0, -0.1, 0]} scale={1.3} />
+          </MiniDecorScene>
           {isStudent
             ? 'Henüz ders eklemedin. Yukarıdaki formdan ilk dersini ekleyerek başla.'
             : 'Henüz uğraş eklemedin. Yukarıdaki formdan ilk uğraşını ekleyerek başla.'}
@@ -142,7 +153,7 @@ export const MyCourses: React.FC = () => {
           <div key={subject.subjectId} className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                <BookOpen className={`w-4 h-4 ${isStudent ? 'text-brand-pink-dark dark:text-brand-pink-light' : 'text-brand-mint-dark dark:text-brand-mint'}`} />
                 <span>{subject.subjectName}</span>
               </h3>
               <button
@@ -163,7 +174,7 @@ export const MyCourses: React.FC = () => {
                     key={topic.id}
                     type="button"
                     onClick={() => setCheckTopic({ id: topic.id, name: topic.name, subjectName: subject.subjectName })}
-                    className="group flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500/50 hover:text-amber-600 dark:hover:text-amber-300 transition-all"
+                    className="group flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-brand-gold-dark/50 hover:text-brand-gold-dark dark:hover:text-brand-gold transition-all"
                   >
                     <span>{topic.name}</span>
                     <Sparkles className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -184,7 +195,7 @@ export const MyCourses: React.FC = () => {
                     handleAddTopic(subject.subjectId);
                   }
                 }}
-                className="flex-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                className={`flex-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none ${isStudent ? 'focus:border-brand-pink-dark' : 'focus:border-brand-mint-dark'}`}
               />
               <button
                 type="button"

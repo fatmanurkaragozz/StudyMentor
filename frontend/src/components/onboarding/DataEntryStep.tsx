@@ -91,7 +91,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="glass-panel max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 rounded-3xl border border-amber-500/20 text-slate-900 dark:text-slate-100 shadow-2xl relative space-y-6">
+      <div className="glass-panel max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 rounded-3xl border border-brand-pink-dark/20 text-slate-900 dark:text-slate-100 shadow-2xl relative space-y-6">
         <button
           onClick={onFinish}
           className="absolute top-4 right-4 p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded-full bg-slate-200/60 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-800 transition-all"
@@ -133,7 +133,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
                     <select
                       value={selectedSubjectId}
                       onChange={e => handleSubjectChange(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-amber-500"
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark"
                     >
                       {subjects.map(s => (
                         <option key={s.subjectId} value={s.subjectId}>{s.subjectName}</option>
@@ -146,7 +146,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
                     <select
                       value={selectedTopicId}
                       onChange={e => setSelectedTopicId(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-amber-500"
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark"
                     >
                       {selectedSubject?.topics.map(t => (
                         <option key={t.id} value={t.id}>{t.name}</option>
@@ -162,7 +162,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
                     placeholder="Örn: Python Öğreniyorum, Gitar Pratiği"
                     value={pursuitName}
                     onChange={e => setPursuitName(e.target.value)}
-                    className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark"
                   />
                 </div>
               )}
@@ -175,7 +175,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
                   max={480}
                   value={duration}
                   onChange={e => setDuration(Math.max(1, Number(e.target.value)))}
-                  className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-amber-500"
+                  className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark"
                 />
               </div>
 
@@ -188,7 +188,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
                       key={star}
                       onClick={() => setDifficulty(star)}
                       className={`p-2 rounded-lg border transition-all ${
-                        difficulty >= star ? 'bg-amber-500/20 border-amber-500/50 text-amber-500 dark:text-amber-400' : 'bg-slate-100 dark:bg-slate-950 border-slate-300 dark:border-slate-800 text-slate-400 dark:text-slate-600'
+                        difficulty >= star ? 'bg-brand-pink-dark/20 border-brand-pink-dark/50 text-brand-pink-dark dark:text-brand-pink-light' : 'bg-slate-100 dark:bg-slate-950 border-slate-300 dark:border-slate-800 text-slate-400 dark:text-slate-600'
                       }`}
                     >
                       <Star className="w-4 h-4 fill-current" />
@@ -206,7 +206,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
                       key={star}
                       onClick={() => setProductivity(star)}
                       className={`p-2 rounded-lg border transition-all ${
-                        productivity >= star ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-500 dark:text-indigo-400' : 'bg-slate-100 dark:bg-slate-950 border-slate-300 dark:border-slate-800 text-slate-400 dark:text-slate-600'
+                        productivity >= star ? 'bg-brand-mint/20 border-brand-mint/50 text-brand-mint-dark dark:text-brand-mint' : 'bg-slate-100 dark:bg-slate-950 border-slate-300 dark:border-slate-800 text-slate-400 dark:text-slate-600'
                       }`}
                     >
                       <Star className="w-4 h-4 fill-current" />
@@ -220,7 +220,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
                 <textarea
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-amber-500 h-16 resize-none"
+                  className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark h-16 resize-none"
                 />
               </div>
 
@@ -249,7 +249,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
               <button
                 type="submit"
                 disabled={submitting || !canSubmit}
-                className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold shadow-lg glow-indigo transition-all"
+                className="w-full py-2.5 rounded-xl bg-brand-pink-dark hover:bg-brand-pink-light disabled:opacity-50 text-white font-semibold shadow-lg glow-ai transition-all"
               >
                 {submitting ? 'Kaydediliyor...' : 'Kaydet'}
               </button>
@@ -260,7 +260,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
               <div className="space-y-4">
                 <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <ListChecks className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                    <ListChecks className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light" />
                     <span>Mini Kontrol Yap</span>
                   </h3>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -273,7 +273,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
                           key={t.id}
                           type="button"
                           onClick={() => setCheckTopic({ id: t.id, name: t.name, subjectName: s.subjectName })}
-                          className="w-full text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:border-amber-500/40 transition-all"
+                          className="w-full text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:border-brand-pink-dark/40 transition-all"
                         >
                           <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">{t.name}</div>
                           <div className="text-[10px] text-slate-500 mt-0.5">{s.subjectName}</div>
@@ -290,7 +290,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
         <button
           type="button"
           onClick={onFinish}
-          className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg glow-amber flex items-center justify-center gap-2 transition-all"
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-pink-dark to-brand-mint-dark hover:opacity-90 text-white font-bold text-xs shadow-lg glow-ai flex items-center justify-center gap-2 transition-all"
         >
           <span>Uygulamaya Gir</span>
           <ArrowRight className="w-4 h-4" />

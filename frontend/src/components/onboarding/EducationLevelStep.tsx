@@ -20,7 +20,7 @@ const LEVEL_OPTIONS: LevelOption[] = [
     title: 'Ortaokul',
     description: 'LGS Hazırlık',
     icon: <School className="w-6 h-6" />,
-    accent: 'amber',
+    accent: 'pink',
     grades: [5, 6, 7, 8],
   },
   {
@@ -29,7 +29,7 @@ const LEVEL_OPTIONS: LevelOption[] = [
     title: 'Lise',
     description: 'YKS Hazırlık',
     icon: <GraduationCap className="w-6 h-6" />,
-    accent: 'amber',
+    accent: 'pink',
     grades: [9, 10, 11, 12],
   },
   {
@@ -38,7 +38,7 @@ const LEVEL_OPTIONS: LevelOption[] = [
     title: 'Üniversite',
     description: 'Vize / Final',
     icon: <Landmark className="w-6 h-6" />,
-    accent: 'amber',
+    accent: 'pink',
     grades: [1, 2, 3, 4],
   },
   {
@@ -47,7 +47,7 @@ const LEVEL_OPTIONS: LevelOption[] = [
     title: 'İş Hayatım ve Gelişim',
     description: 'Çalışanlar & Yetişkinler İçin',
     icon: <Briefcase className="w-6 h-6" />,
-    accent: 'emerald',
+    accent: 'mint',
     grades: undefined,
   },
 ];
@@ -63,7 +63,7 @@ export const EducationLevelStep: React.FC<EducationLevelStepProps> = ({ onClose,
   const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
 
   const options = presetMode ? LEVEL_OPTIONS.filter(o => o.mode === presetMode) : LEVEL_OPTIONS;
-  const gridColsClass = options.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4';
+  const gridColsClass = options.length === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-4';
   const selectedOption = options.find(o => o.level === selectedLevel) ?? null;
   const needsGrade = !!selectedOption?.grades;
   const canContinue = !!selectedOption && (!needsGrade || selectedGrade !== null);
@@ -84,7 +84,7 @@ export const EducationLevelStep: React.FC<EducationLevelStepProps> = ({ onClose,
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="glass-panel max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-amber-500/20 text-slate-900 dark:text-slate-100 shadow-2xl relative space-y-6">
+      <div className="glass-panel max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-brand-pink-dark/20 text-slate-900 dark:text-slate-100 shadow-2xl relative space-y-6">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded-full bg-slate-200/60 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-800 transition-all"
@@ -103,9 +103,9 @@ export const EducationLevelStep: React.FC<EducationLevelStepProps> = ({ onClose,
           {options.map(option => {
             const isSelected = selectedLevel === option.level;
             const activeClasses =
-              option.accent === 'amber'
-                ? 'bg-amber-500/20 border-amber-500 text-amber-200'
-                : 'bg-emerald-500/20 border-emerald-500 text-emerald-200';
+              option.accent === 'pink'
+                ? 'bg-brand-pink-dark/20 border-brand-pink-dark text-brand-pink-light'
+                : 'bg-brand-mint/20 border-brand-mint text-brand-mint';
             return (
               <button
                 key={option.level}
@@ -115,7 +115,7 @@ export const EducationLevelStep: React.FC<EducationLevelStepProps> = ({ onClose,
                   isSelected ? activeClasses : 'bg-slate-100 dark:bg-slate-950 border-slate-300 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-700'
                 }`}
               >
-                <div className={option.accent === 'amber' ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-500 dark:text-emerald-400'}>{option.icon}</div>
+                <div className={option.accent === 'pink' ? 'text-brand-pink-dark dark:text-brand-pink-light' : 'text-brand-mint-dark dark:text-brand-mint'}>{option.icon}</div>
                 <div>
                   <div className="font-bold text-slate-800 dark:text-slate-200 text-sm">{option.title}</div>
                   <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{option.description}</div>
@@ -138,7 +138,7 @@ export const EducationLevelStep: React.FC<EducationLevelStepProps> = ({ onClose,
                   onClick={() => setSelectedGrade(grade)}
                   className={`py-2.5 rounded-xl border text-sm font-bold transition-all ${
                     selectedGrade === grade
-                      ? 'bg-amber-600 border-amber-500 text-white'
+                      ? 'bg-brand-pink-dark border-brand-pink-dark text-white'
                       : 'bg-slate-100 dark:bg-slate-950 border-slate-300 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-700'
                   }`}
                 >
@@ -153,7 +153,7 @@ export const EducationLevelStep: React.FC<EducationLevelStepProps> = ({ onClose,
           type="button"
           disabled={!canContinue}
           onClick={handleContinue}
-          className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs shadow-lg glow-amber flex items-center justify-center gap-2 transition-all"
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-pink-dark to-brand-mint-dark hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs shadow-lg glow-ai flex items-center justify-center gap-2 transition-all"
         >
           <span>Devam Et</span>
           <ArrowRight className="w-4 h-4" />

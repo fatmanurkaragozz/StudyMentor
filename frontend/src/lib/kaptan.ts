@@ -22,8 +22,8 @@ type Variant = (firstName: string, topic: string) => { title: string; content: s
 const TEMPLATES: Record<PriorityLevel, Variant[]> = {
   YUKSEK: [
     (f, t) => ({
-      title: "Kaptan'dan Acil Çağrı 🚨",
-      content: `${f}, ${t} sularında rotan tehlikeli şekilde kayıyor! Dümeni hemen bu tarafa kır, yakın zamanda tekrar etmelisin.`,
+      title: "Kaptan'dan Acil Uyarı",
+      content: `${f}, ${t} sularında rotan tehlikeli şekilde kayıyor. Dümeni hemen bu tarafa kır, yakın zamanda tekrar etmelisin.`,
     }),
     (f, t) => ({
       title: 'Kaptan Köprüden Sesleniyor',
@@ -50,8 +50,8 @@ const TEMPLATES: Record<PriorityLevel, Variant[]> = {
   ],
   DUSUK: [
     (f, t) => ({
-      title: "Kaptan'dan Tebrikler ⚓",
-      content: `Aferin ${f}! ${t} sularında gemin dümdüz gidiyor. Şimdilik bu rotaya devam, düşük öncelikli.`,
+      title: "Kaptan'dan Tebrikler",
+      content: `Aferin ${f}, ${t} sularında gemin dümdüz gidiyor. Şimdilik bu rotaya devam, düşük öncelikli.`,
     }),
     (f, t) => ({
       title: 'Kaptan Gülümsüyor',
@@ -122,21 +122,6 @@ export function getKaptanMessage(input: KaptanMessageInput): { title: string; co
   return variant(firstName, topic);
 }
 
-const GREETINGS: string[] = [
-  'Selam, ben Kaptan! Bugün hangi sularda ilerliyoruz?',
-  'Rotanı çizmeye hazır mısın? Kaptan seninle.',
-  'Güverteye hoş geldin! Bugün nasıl hissediyorsun?',
-  'Ben Kaptan — dümeni birlikte tutalım mı?',
-  'Yeni bir sefere çıkmaya var mısın? Kaptan burada.',
-  'Pusulanı ayarlayalım, bugün nereye gidiyoruz?',
-  'Selam denizci! Bugün nasıl gidiyor?',
-  'Kaptan konuşuyor: küçük adımlar büyük rota farkı yaratır.',
-];
-
-export function getRandomGreeting(): string {
-  return GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
-}
-
 // --- Oturum sonu geri bildirimi (zorluk + verimlilik) icin Kaptan mesaji ---
 // getKaptanMessage yalnizca ML onceligine gore konusur; bu, kullanicinin oturum
 // bitince kendi bildirdigi zorluk/verimlilik algisina gore konusur - ML kapali
@@ -192,7 +177,7 @@ const SESSION_TEMPLATES: Record<DifficultyBucket, Record<ProductivityBucket, Var
     YUKSEK_VERIM: [
       (f, t) => ({
         title: "Kaptan'dan Alkış",
-        content: `${f}, ${t} hem kolaydı hem de tam gaz ilerledin! Bu tempoyla biraz daha zorlu sulara açılmayı düşünebiliriz.`,
+        content: `${f}, ${t} hem kolaydı hem de tam gaz ilerledin. Bu tempoyla biraz daha zorlu sulara açılmayı düşünebiliriz.`,
       }),
       (f, t) => ({
         title: 'Kaptan Gülümsüyor',
@@ -255,8 +240,8 @@ const SESSION_TEMPLATES: Record<DifficultyBucket, Record<ProductivityBucket, Var
     ],
     YUKSEK_VERIM: [
       (f, t) => ({
-        title: "Kaptan'dan Büyük Alkış 🎉",
-        content: `${f}, ${t} zorlu bir rotaydı ve sen bu kadar dinç kaldın — bu gerçekten etkileyici! Bugün kendine güzel bir mola hak ettin.`,
+        title: "Kaptan'dan Büyük Takdir",
+        content: `${f}, ${t} zorlu bir rotaydı ve sen bu kadar dinç kaldın — bu gerçekten etkileyici. Bugün kendine güzel bir mola hak ettin.`,
       }),
       (f, t) => ({
         title: 'Kaptan Gururlu',

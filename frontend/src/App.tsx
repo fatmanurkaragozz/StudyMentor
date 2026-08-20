@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AppProvider, useApp } from './context/AppContext';
-import { Hero3DLanding } from './components/Hero3DLanding';
+import { LandingPage } from './components/LandingPage';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
+import { BottomTabBar } from './components/BottomTabBar';
 import { Dashboard } from './components/Dashboard';
 import { StudyPlanner } from './components/StudyPlanner';
 import { RealCalendar } from './components/RealCalendar';
@@ -18,7 +19,7 @@ const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> 
   const { activeTab } = useApp();
 
   return (
-    <div className="flex min-h-screen bg-[#faf8f5] dark:bg-[#121417] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-amber-500 selection:text-white transition-colors duration-300">
+    <div className="flex min-h-screen bg-[#faf8f5] dark:bg-[#121417] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-brand-pink-dark selection:text-white transition-colors duration-300">
       {/* Sidebar */}
       <Sidebar onGoToLanding={onGoToLanding} />
 
@@ -26,7 +27,7 @@ const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> 
       <div className="flex-1 flex flex-col min-w-0">
         <Header />
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'courses' && <MyCourses />}
           {activeTab === 'planner' && <StudyPlanner />}
@@ -36,6 +37,8 @@ const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> 
           {activeTab === 'profile' && <ProfilePage onLogout={onLogout} />}
         </main>
       </div>
+
+      <BottomTabBar />
     </div>
   );
 };
@@ -72,7 +75,7 @@ export function AppContent() {
   }
 
   if (showLanding) {
-    return <Hero3DLanding onEnterApp={() => setShowLanding(false)} />;
+    return <LandingPage onEnterApp={() => setShowLanding(false)} />;
   }
 
   return <MainLayout onGoToLanding={() => setShowLanding(true)} onLogout={handleLogout} />;

@@ -1,26 +1,32 @@
 import { Suspense } from 'react';
 import type { FC } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { ScrollControls } from '@react-three/drei';
 import { HeroLights } from './lighting';
-import { Mascot } from './Mascot';
-import { MantaRay } from './MantaRay';
-import { OceanShaderBackground } from './OceanShaderBackground';
+import { AmbientBackdrop } from './AmbientBackdrop';
+import { DataNetwork } from './DataNetwork';
+import { DeskScene } from './DeskScene';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
-interface HeroCanvasProps {
-  reducedMotion: boolean;
-}
-
-const HeroCanvas: FC<HeroCanvasProps> = ({ reducedMotion }) => (
-  <div className="absolute inset-0">
-    <Canvas camera={{ position: [0, 1, 9], fov: 40 }} dpr={[1, 2]} gl={{ alpha: true, antialias: true }}>
+const HeroCanvas: FC = () => {
+  const isMobile = useIsMobile();
+  return (
+    <Canvas
+      camera={{ position: [0, 2.2, 7.4], fov: 42 }}
+      onCreated={({ camera }) => camera.lookAt(-1.6, 0.2, 0)}
+      dpr={isMobile ? [1, 1.25] : [1, 2]}
+      gl={{ alpha: true, antialias: !isMobile }}
+    >
       <Suspense fallback={null}>
-        <HeroLights />
-        <OceanShaderBackground reducedMotion={reducedMotion} />
-        <Mascot reducedMotion={reducedMotion} />
-        <MantaRay reducedMotion={reducedMotion} />
+        <ScrollControls pages={1} damping={0.2}>
+          <HeroLights />
+          <AmbientBackdrop />
+          <DataNetwork />
+          <DeskScene />
+        </ScrollControls>
       </Suspense>
     </Canvas>
-  </div>
-);
+  );
+};
 
 export default HeroCanvas;

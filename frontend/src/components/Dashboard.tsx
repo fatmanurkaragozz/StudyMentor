@@ -43,12 +43,12 @@ interface SubjectProgress {
 }
 
 const PROGRESS_COLORS = [
-  'from-blue-500 to-indigo-600',
-  'from-cyan-500 to-blue-600',
-  'from-purple-500 to-indigo-600',
-  'from-emerald-500 to-teal-600',
-  'from-amber-500 to-orange-600',
-  'from-pink-500 to-rose-600',
+  'from-brand-pink-light to-brand-pink-dark',
+  'from-brand-mint to-brand-mint-dark',
+  'from-brand-gold to-brand-gold-dark',
+  'from-brand-violet to-brand-violet-hover',
+  'from-brand-pink-dark to-brand-violet',
+  'from-brand-mint-dark to-brand-gold-dark',
 ];
 
 const todayLabel = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -195,14 +195,14 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl glass-panel p-6 border border-indigo-500/20">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className={`relative overflow-hidden rounded-2xl glass-panel p-6 border ${isStudent ? 'border-brand-pink-dark/20' : 'border-brand-mint-dark/20'}`}>
+        <div className={`absolute right-0 top-0 w-96 h-96 rounded-full blur-3xl pointer-events-none ${isStudent ? 'bg-brand-pink-dark/10' : 'bg-brand-mint-dark/10'}`}></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${isStudent
-                  ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-700 dark:text-indigo-300'
-                  : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300'
+                  ? 'bg-brand-pink-dark/10 border-brand-pink-dark/30 text-brand-pink-dark dark:text-brand-pink-light'
+                  : 'bg-brand-mint-dark/10 border-brand-mint-dark/30 text-brand-mint-dark dark:text-brand-mint'
                 }`}>
                 {isStudent ? '🎓 Öğrenci Modu' : '💼 Kişisel Gelişim & Kariyer Modu'}
               </span>
@@ -222,8 +222,8 @@ export const Dashboard: React.FC = () => {
             <button
               onClick={() => setActiveTab('planner')}
               className={`px-4 py-2.5 rounded-xl font-semibold text-xs text-white transition-all flex items-center gap-2 shadow-lg ${isStudent
-                  ? 'bg-indigo-600 hover:bg-indigo-500 glow-indigo'
-                  : 'bg-emerald-600 hover:bg-emerald-500 glow-emerald'
+                  ? 'bg-gradient-to-r from-brand-pink-light to-brand-pink-dark hover:opacity-90 glow-pink'
+                  : 'bg-gradient-to-r from-brand-mint to-brand-mint-dark hover:opacity-90 glow-mint'
                 }`}
             >
               <Play className="w-4 h-4 fill-white" />
@@ -239,12 +239,12 @@ export const Dashboard: React.FC = () => {
         <div className="glass-card p-4 rounded-xl relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Toplam Odak Süresi</span>
-            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isStudent ? 'bg-brand-pink-dark/10 text-brand-pink-dark dark:text-brand-pink-light' : 'bg-brand-mint-dark/10 text-brand-mint-dark dark:text-brand-mint'}`}>
               <Clock className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{totalHours} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">Saat</span></div>
-          <div className="mt-2 text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
+          <div className="mt-2 text-[11px] text-brand-mint-dark dark:text-brand-mint flex items-center gap-1 font-medium">
             <TrendingUp className="w-3 h-3" />
             <span>{sessions.length} kayıtlı oturum</span>
           </div>
@@ -254,7 +254,7 @@ export const Dashboard: React.FC = () => {
         <div className="glass-card p-4 rounded-xl">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Verimlilik Skoru</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-brand-gold-dark/10 text-brand-gold-dark dark:text-brand-gold flex items-center justify-center">
               <Zap className="w-4 h-4" />
             </div>
           </div>
@@ -268,12 +268,12 @@ export const Dashboard: React.FC = () => {
         <div className="glass-card p-4 rounded-xl">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Alışkanlık Zinciri (Streak)</span>
-            <div className="w-8 h-8 rounded-lg bg-pink-500/10 text-pink-600 dark:text-pink-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-brand-pink-dark/10 text-brand-pink-dark dark:text-brand-pink-light flex items-center justify-center">
               <Flame className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{activeHabitStreak} <span className="text-sm font-normal text-slate-500 dark:text-slate-400">Gün</span></div>
-          <div className="mt-2 text-[11px] text-pink-600 dark:text-pink-400 font-medium">
+          <div className="mt-2 text-[11px] text-brand-pink-dark dark:text-brand-pink-light font-medium">
             <span>Zinciri kırma! Düzenli rutini koruyorsun.</span>
           </div>
         </div>
@@ -284,28 +284,28 @@ export const Dashboard: React.FC = () => {
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
               {isStudent ? 'Yaklaşan Sınav Hedefi' : 'Yaklaşan Hedef'}
             </span>
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-brand-gold-dark/10 text-brand-gold-dark dark:text-brand-gold flex items-center justify-center">
               <Target className="w-4 h-4" />
             </div>
           </div>
           <div className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
             {upcomingExam?.name || (isStudent ? 'Henüz sınav eklenmedi' : 'Henüz hedef eklenmedi')}
           </div>
-          <div className="mt-2 text-[11px] text-cyan-600 dark:text-cyan-400 font-medium">
+          <div className="mt-2 text-[11px] text-brand-gold-dark dark:text-brand-gold font-medium">
             <span>{upcomingExam?.targetScore != null ? `Hedef Puan/Skor: ${upcomingExam.targetScore}` : "Takvim'den ekleyebilirsin"}</span>
           </div>
         </div>
       </div>
 
       {/* Kaptan (AI Koç) Banner */}
-      <div className="glass-panel rounded-2xl p-5 border border-purple-500/30 relative overflow-hidden">
+      <div className="glass-panel rounded-2xl p-5 border border-brand-violet/30 relative overflow-hidden">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 glow-purple">
+          <div className="w-12 h-12 rounded-xl bg-brand-violet/20 border border-brand-violet/30 text-brand-violet-hover dark:text-brand-violet flex items-center justify-center shrink-0 glow-violet">
             <Compass className="w-6 h-6" />
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30">
+              <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-brand-violet/20 text-brand-violet-hover dark:text-brand-violet border border-brand-violet/30">
                 Kaptan
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">Senin AI Rehberin</span>
@@ -333,7 +333,7 @@ export const Dashboard: React.FC = () => {
                         subjectName: latestRecommendation.subjectName ?? '',
                       })
                     }
-                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors"
+                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-violet-hover dark:text-brand-violet hover:opacity-80 transition-opacity"
                   >
                     <span>Kontrol Et</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -350,7 +350,7 @@ export const Dashboard: React.FC = () => {
                 </p>
                 <button
                   onClick={() => setActiveTab('courses')}
-                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors"
+                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-violet-hover dark:text-brand-violet hover:opacity-80 transition-opacity"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>{isStudent ? 'Derslerime Git' : 'Uğraşlarıma Git'}</span>
@@ -375,11 +375,11 @@ export const Dashboard: React.FC = () => {
 
       {/* Sınav Geri Sayımı */}
       {upcomingExam && (
-        <div className="glass-panel p-5 rounded-2xl border border-amber-500/30 bg-amber-50 dark:bg-amber-950/10">
+        <div className="glass-panel p-5 rounded-2xl border border-brand-gold-dark/30 bg-brand-gold/5 dark:bg-brand-gold-dark/10">
           <div className="flex items-center justify-between gap-4">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <CalendarClock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <CalendarClock className="w-4 h-4 text-brand-gold-dark dark:text-brand-gold" />
                 <span>{upcomingExam.name}'e Geri Sayım</span>
               </h3>
               {dueForExamCount > 0 && (
@@ -389,7 +389,7 @@ export const Dashboard: React.FC = () => {
               )}
             </div>
             <div className="text-right shrink-0">
-              <div className="text-3xl font-black text-amber-600 dark:text-amber-400 leading-none">{daysToExam}</div>
+              <div className="text-3xl font-black text-brand-gold-dark dark:text-brand-gold leading-none">{daysToExam}</div>
               <div className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">gün kaldı</div>
             </div>
           </div>
@@ -435,7 +435,7 @@ export const Dashboard: React.FC = () => {
                     <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                       <span>{topic.topicName}</span>
                       {topic.source === 'reminder' && (
-                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-[9px] font-bold uppercase tracking-wide">
+                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-brand-pink-dark/15 border border-brand-pink-dark/30 text-brand-pink-dark dark:text-brand-pink-light text-[9px] font-bold uppercase tracking-wide">
                           <Bell className="w-2.5 h-2.5" />
                           <span>Kişisel Hatırlatma</span>
                         </span>
@@ -444,7 +444,7 @@ export const Dashboard: React.FC = () => {
                     <div className="text-[10px] text-slate-500 dark:text-slate-400">{topic.subjectName}</div>
                   </div>
                   {added ? (
-                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">
+                    <span className="flex items-center gap-1 text-brand-mint-dark dark:text-brand-mint font-semibold text-[10px]">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Bugüne Eklendi</span>
                     </span>
@@ -471,12 +471,12 @@ export const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                <BookOpen className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light" />
                 <span>{isStudent ? 'Aktif Müfredat Dersleri & İlerleme' : 'Aktif Beceriler & Proje Takibi'}</span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Konu bazlı gerçek çalışma ilerlemen</p>
             </div>
-            <button onClick={() => setActiveTab('courses')} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
+            <button onClick={() => setActiveTab('courses')} className="text-xs text-brand-pink-dark dark:text-brand-pink-light hover:underline">
               Tümünü Gör
             </button>
           </div>
@@ -503,7 +503,7 @@ export const Dashboard: React.FC = () => {
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
                       {item.studiedTopics}/{item.totalTopics} konu
                     </span>
-                    <span className="font-bold text-indigo-600 dark:text-indigo-400">{item.progress}%</span>
+                    <span className="font-bold text-brand-pink-dark dark:text-brand-pink-light">{item.progress}%</span>
                   </div>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
@@ -521,7 +521,7 @@ export const Dashboard: React.FC = () => {
         <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-brand-mint-dark dark:text-brand-mint" />
               <span>Son Oturum Kayıtları</span>
             </h3>
             <span className="text-[11px] text-slate-500 dark:text-slate-400">{sessions.length} Kayıt</span>
@@ -545,7 +545,7 @@ export const Dashboard: React.FC = () => {
                   <span className="font-semibold text-slate-800 dark:text-slate-200 line-clamp-1">{session.topicName}</span>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 whitespace-nowrap">{session.durationMinutes} dk</span>
                 </div>
-                <div className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">{session.subjectName}</div>
+                <div className="text-[11px] text-brand-pink-dark dark:text-brand-pink-light font-medium">{session.subjectName}</div>
                 <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-500 pt-1">
                   <span>Verim: {'⭐'.repeat(session.productivity)}</span>
                   <span>{new Date(session.createdAt).toLocaleDateString('tr-TR')}</span>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Flame, BookOpen, Plus, Check, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { apiClient, type HabitRow, type JournalRow } from '../lib/apiClient';
+import { MiniDecorScene } from './hero3d/decor/MiniDecorScene';
+import { HangingIvyPlanter } from './hero3d/decor/HangingIvyPlanter';
 
 const MOODS = ['🚀', '😊', '😐', '😔', '😴'] as const;
 
@@ -18,6 +20,7 @@ export const GrowthHub: React.FC = () => {
   const past5Days = getPast5Days();
 
   const [habits, setHabits] = useState<HabitRow[]>([]);
+  const bestStreak = Math.max(...habits.map(h => h.streakDays), 0);
   const [loadingHabits, setLoadingHabits] = useState(true);
   const [habitError, setHabitError] = useState<string | null>(null);
 
@@ -97,7 +100,7 @@ export const GrowthHub: React.FC = () => {
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div>
-        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border bg-pink-500/10 border-pink-500/30 text-pink-700 dark:text-pink-300">
+        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border bg-brand-pink-dark/10 border-brand-pink-dark/30 text-brand-pink-dark dark:text-brand-pink-light">
           🌱 Growth Hub & Personal Analytics
         </span>
         <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">
@@ -110,15 +113,20 @@ export const GrowthHub: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Habit Tracker Section */}
-        <div className="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="relative glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+          {bestStreak >= 3 && (
+            <MiniDecorScene className="absolute -top-5 right-2 w-24 h-16" cameraPosition={[0, 0, 2.6]}>
+              <HangingIvyPlanter position={[0, 0.3, 0]} scale={1.3} />
+            </MiniDecorScene>
+          )}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <Flame className="w-4 h-4 text-pink-600 dark:text-pink-500" />
+              <Flame className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light" />
               <span>Günlük Alışkanlık Zinciri (Habits)</span>
             </h3>
             <button
               onClick={() => setShowAddHabit(true)}
-              className="text-xs text-pink-600 dark:text-pink-400 hover:text-pink-500 dark:hover:text-pink-300 flex items-center gap-1 font-semibold"
+              className="text-xs text-brand-pink-dark dark:text-brand-pink-light hover:opacity-80 flex items-center gap-1 font-semibold"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Alışkanlık Ekle</span>
@@ -148,8 +156,8 @@ export const GrowthHub: React.FC = () => {
               <div key={habit.id} className="p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-xl space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-slate-800 dark:text-slate-200">{habit.name}</span>
-                  <div className="flex items-center gap-1 text-pink-600 dark:text-pink-400 font-bold text-[11px]">
-                    <Flame className="w-3.5 h-3.5 fill-pink-500" />
+                  <div className="flex items-center gap-1 text-brand-pink-dark dark:text-brand-pink-light font-bold text-[11px]">
+                    <Flame className="w-3.5 h-3.5 fill-brand-pink-dark" />
                     <span>{habit.streakDays} Gün Streak</span>
                   </div>
                 </div>
@@ -164,7 +172,7 @@ export const GrowthHub: React.FC = () => {
                         onClick={() => handleToggleDay(habit.id, dayStr)}
                         className={`w-9 h-9 rounded-lg border flex items-center justify-center transition-all ${
                           isDone
-                            ? 'bg-pink-600 border-pink-500 text-white shadow-md glow-purple'
+                            ? 'bg-brand-pink-dark border-brand-pink-dark text-white shadow-md glow-pink'
                             : 'bg-slate-100 dark:bg-slate-950 border-slate-300 dark:border-slate-800 text-slate-400 dark:text-slate-600 hover:border-slate-400 dark:hover:border-slate-700'
                         }`}
                       >
@@ -181,7 +189,7 @@ export const GrowthHub: React.FC = () => {
         {/* Journal & Mood Section */}
         <div className="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <BookOpen className="w-4 h-4 text-brand-violet-hover dark:text-brand-violet" />
             <span>Günlük Yazma & AI Duygu Analizi</span>
           </h3>
 
@@ -196,7 +204,7 @@ export const GrowthHub: React.FC = () => {
                     onClick={() => setSelectedMood(emoji)}
                     className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center border transition-all ${
                       selectedMood === emoji
-                        ? 'bg-purple-600/30 border-purple-500 scale-110 shadow-md'
+                        ? 'bg-brand-violet/30 border-brand-violet scale-110 shadow-md'
                         : 'bg-slate-100 dark:bg-slate-950 border-slate-300 dark:border-slate-800 opacity-60 hover:opacity-100'
                     }`}
                   >
@@ -212,7 +220,7 @@ export const GrowthHub: React.FC = () => {
                 placeholder="Bugün seni ne motive etti? Hangi konularda ilerleme kaydettin?.."
                 value={journalContent}
                 onChange={e => setJournalContent(e.target.value)}
-                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-purple-500 h-24 resize-none"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-violet h-24 resize-none"
                 required
               />
             </div>
@@ -227,7 +235,7 @@ export const GrowthHub: React.FC = () => {
             <button
               type="submit"
               disabled={savingJournal}
-              className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-semibold shadow-lg glow-purple flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl bg-brand-violet hover:bg-brand-violet-hover disabled:opacity-50 text-white font-semibold shadow-lg glow-violet flex items-center justify-center gap-2"
             >
               <Sparkles className="w-4 h-4" />
               <span>{savingJournal ? 'Kaydediliyor...' : 'Günlüğü Kaydet & AI Sentiment Analizi Yap'}</span>
@@ -259,7 +267,7 @@ export const GrowthHub: React.FC = () => {
                     </span>
                   </div>
                   {entry.sentimentScore !== null && (
-                    <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                    <div className="flex items-center gap-1 text-[11px] font-bold text-brand-mint-dark dark:text-brand-mint bg-brand-mint-dark/10 border border-brand-mint-dark/20 px-2 py-0.5 rounded">
                       <span>AI Sentiment: {entry.sentimentScore}</span>
                     </div>
                   )}
@@ -284,7 +292,7 @@ export const GrowthHub: React.FC = () => {
                   placeholder="Örn: 2 Litre Su İçme, 30dk İngilizce"
                   value={newHabitName}
                   onChange={e => setNewHabitName(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-pink-500"
+                  className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark"
                   required
                 />
               </div>
@@ -300,7 +308,7 @@ export const GrowthHub: React.FC = () => {
                 <button
                   type="submit"
                   disabled={addingHabit}
-                  className="px-5 py-2.5 rounded-xl bg-pink-600 hover:bg-pink-500 disabled:opacity-50 text-white font-semibold shadow-lg"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-pink-light to-brand-pink-dark hover:opacity-90 disabled:opacity-50 text-white font-semibold shadow-lg"
                 >
                   {addingHabit ? 'Kaydediliyor...' : 'Alışkanlığı Kaydet'}
                 </button>
