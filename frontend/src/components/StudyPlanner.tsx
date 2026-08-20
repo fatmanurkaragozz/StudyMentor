@@ -274,8 +274,8 @@ export const StudyPlanner: React.FC = () => {
         <div>
           <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border ${
             isStudent
-              ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-700 dark:text-indigo-300'
-              : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300'
+              ? 'bg-brand-pink-dark/10 border-brand-pink-dark/30 text-brand-pink-dark dark:text-brand-pink-light'
+              : 'bg-brand-mint-dark/10 border-brand-mint-dark/30 text-brand-mint-dark dark:text-brand-mint'
           }`}>
             {isStudent ? '🎓 Ders & Konu Odaklanması' : '💼 Proje & Beceriler Zamanlayıcısı'}
           </span>
@@ -292,7 +292,7 @@ export const StudyPlanner: React.FC = () => {
       <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 shrink-0">
-            <ListTodo className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+            <ListTodo className={`w-4 h-4 ${isStudent ? 'text-brand-pink-dark dark:text-brand-pink-light' : 'text-brand-mint-dark dark:text-brand-mint'}`} />
             <span>Bugün Ne Çalışacağım?</span>
           </h3>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -301,7 +301,7 @@ export const StudyPlanner: React.FC = () => {
                 <select
                   value={selectedSubjectId}
                   onChange={e => handleSelectSubject(e.target.value)}
-                  className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
+                  className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-brand-pink-dark"
                 >
                   {subjects.map(s => (
                     <option key={s.subjectId} value={s.subjectId}>{s.subjectName}</option>
@@ -310,7 +310,7 @@ export const StudyPlanner: React.FC = () => {
                 <select
                   value={selectedTopicId}
                   onChange={e => setSelectedTopicId(e.target.value)}
-                  className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
+                  className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-brand-pink-dark"
                 >
                   {selectedSubject?.topics.map(t => (
                     <option key={t.id} value={t.id}>{t.name}</option>
@@ -323,13 +323,15 @@ export const StudyPlanner: React.FC = () => {
                 placeholder="Örn: Python Öğreniyorum, Gitar Pratiği"
                 value={pursuitName}
                 onChange={e => setPursuitName(e.target.value)}
-                className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-emerald-500"
+                className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-brand-mint-dark"
               />
             )}
             <button
               onClick={handleAddTask}
               disabled={addingTask || (isStudent ? !selectedTopicId : !pursuitName.trim())}
-              className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 shrink-0"
+              className={`px-3 py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 shrink-0 ${
+                isStudent ? 'bg-brand-pink-dark hover:opacity-90' : 'bg-brand-mint-dark hover:opacity-90'
+              }`}
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Bugüne Ekle</span>
@@ -358,7 +360,7 @@ export const StudyPlanner: React.FC = () => {
                 key={task.id}
                 className={`flex items-center justify-between p-3 rounded-xl border text-xs ${
                   task.status === 'DONE'
-                    ? 'bg-emerald-500/10 border-emerald-500/30'
+                    ? 'bg-brand-mint-dark/10 border-brand-mint-dark/30'
                     : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800'
                 }`}
               >
@@ -367,7 +369,7 @@ export const StudyPlanner: React.FC = () => {
                   <div className="text-[10px] text-slate-500 dark:text-slate-400">{task.topicName}</div>
                 </div>
                 {task.status === 'DONE' ? (
-                  <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">
+                  <span className="flex items-center gap-1 text-brand-mint-dark dark:text-brand-mint font-semibold text-[10px]">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Tamamlandı</span>
                   </span>
@@ -375,7 +377,9 @@ export const StudyPlanner: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleStartTaskSession(task)}
-                      className="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-[10px]"
+                      className={`px-2.5 py-1.5 rounded-lg text-white font-semibold text-[10px] ${
+                        isStudent ? 'bg-brand-pink-dark hover:opacity-90' : 'bg-brand-mint-dark hover:opacity-90'
+                      }`}
                     >
                       Oturum Başlat
                     </button>
@@ -402,7 +406,7 @@ export const StudyPlanner: React.FC = () => {
               onClick={() => switchMode('POMODORO')}
               className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 timerMode === 'POMODORO'
-                  ? (isStudent ? 'bg-indigo-600 text-white' : 'bg-emerald-600 text-white')
+                  ? (isStudent ? 'bg-brand-pink-dark text-white' : 'bg-brand-mint-dark text-white')
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
@@ -411,7 +415,7 @@ export const StudyPlanner: React.FC = () => {
             <button
               onClick={() => switchMode('SHORT_BREAK')}
               className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                timerMode === 'SHORT_BREAK' ? 'bg-cyan-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                timerMode === 'SHORT_BREAK' ? 'bg-brand-gold-dark text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               Kısa Mola (5dk)
@@ -419,7 +423,7 @@ export const StudyPlanner: React.FC = () => {
             <button
               onClick={() => switchMode('LONG_BREAK')}
               className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                timerMode === 'LONG_BREAK' ? 'bg-purple-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                timerMode === 'LONG_BREAK' ? 'bg-brand-violet text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               Uzun Mola (15dk)
@@ -427,7 +431,11 @@ export const StudyPlanner: React.FC = () => {
           </div>
 
           {activeTaskId && (
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 border border-indigo-500/30 rounded-lg px-3 py-1.5">
+            <div className={`flex items-center gap-1.5 text-[11px] font-semibold rounded-lg px-3 py-1.5 border ${
+              isStudent
+                ? 'text-brand-pink-dark dark:text-brand-pink-light bg-brand-pink-dark/10 border-brand-pink-dark/30'
+                : 'text-brand-mint-dark dark:text-brand-mint bg-brand-mint-dark/10 border-brand-mint-dark/30'
+            }`}>
               <ListTodo className="w-3.5 h-3.5" />
               <span>
                 Şu an çalışıyorsun: {selectedSubject?.subjectName ?? ''}
@@ -446,13 +454,13 @@ export const StudyPlanner: React.FC = () => {
               value={durations[timerMode === 'CUSTOM' ? 'POMODORO' : timerMode]}
               disabled={isRunning}
               onChange={e => handleDurationChange(Number(e.target.value))}
-              className="w-16 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-2 py-1 text-center text-slate-900 dark:text-slate-200 disabled:opacity-50 focus:outline-none focus:border-indigo-500"
+              className="w-16 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-2 py-1 text-center text-slate-900 dark:text-slate-200 disabled:opacity-50 focus:outline-none focus:border-brand-pink-dark"
             />
           </div>
 
           {/* Big Time Display */}
           <div className="relative my-4">
-            <div className="text-7xl md:text-8xl font-black text-slate-900 dark:text-slate-100 tracking-wider font-mono">
+            <div className="text-5xl sm:text-6xl md:text-8xl font-black text-slate-900 dark:text-slate-100 tracking-wider font-mono">
               {formatTime(secondsLeft)}
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
@@ -466,10 +474,10 @@ export const StudyPlanner: React.FC = () => {
               onClick={() => setIsRunning(!isRunning)}
               className={`w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-xl transition-all transform active:scale-95 ${
                 isRunning
-                  ? 'bg-amber-600 hover:bg-amber-500'
+                  ? 'bg-brand-gold-dark hover:opacity-90'
                   : isStudent
-                    ? 'bg-indigo-600 hover:bg-indigo-500 glow-indigo'
-                    : 'bg-emerald-600 hover:bg-emerald-500 glow-emerald'
+                    ? 'bg-gradient-to-r from-brand-pink-light to-brand-pink-dark hover:opacity-90 glow-pink'
+                    : 'bg-gradient-to-r from-brand-mint to-brand-mint-dark hover:opacity-90 glow-mint'
               }`}
             >
               {isRunning ? <Pause className="w-6 h-6 fill-white" /> : <Play className="w-6 h-6 fill-white ml-0.5" />}
@@ -490,7 +498,7 @@ export const StudyPlanner: React.FC = () => {
                 setActiveTaskId(null);
                 setShowCompleteModal(true);
               }}
-              className="px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-semibold text-xs hover:bg-emerald-500/20 transition-all flex items-center gap-2"
+              className="px-4 py-3 rounded-xl bg-brand-mint-dark/10 border border-brand-mint-dark/30 text-brand-mint-dark dark:text-brand-mint font-semibold text-xs hover:bg-brand-mint-dark/20 transition-all flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Oturumu Kaydet</span>
@@ -503,7 +511,7 @@ export const StudyPlanner: React.FC = () => {
           {isStudent && (
             <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <SlidersHorizontal className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                <SlidersHorizontal className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light" />
                 <span>Ders / Konu Seçimi</span>
               </h3>
 
@@ -528,7 +536,7 @@ export const StudyPlanner: React.FC = () => {
                     onClick={() => handleSelectSubject(item.subjectId)}
                     className={`w-full text-left p-3 rounded-xl border text-xs font-medium transition-all cursor-pointer flex items-center justify-between gap-2 ${
                       selectedSubjectId === item.subjectId
-                        ? 'bg-indigo-600/20 border-indigo-500/50 text-slate-900 dark:text-slate-100'
+                        ? 'bg-brand-pink-dark/20 border-brand-pink-dark/50 text-slate-900 dark:text-slate-100'
                         : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                     }`}
                   >
@@ -557,7 +565,7 @@ export const StudyPlanner: React.FC = () => {
           {!isStudent && (
             <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <SlidersHorizontal className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                <SlidersHorizontal className="w-4 h-4 text-brand-mint-dark dark:text-brand-mint" />
                 <span>Uğraşlarım</span>
               </h3>
 
@@ -588,7 +596,7 @@ export const StudyPlanner: React.FC = () => {
                     onClick={() => setPursuitName(item.subjectName)}
                     className={`w-full text-left p-3 rounded-xl border text-xs font-medium transition-all cursor-pointer flex items-center justify-between gap-2 ${
                       pursuitName === item.subjectName
-                        ? 'bg-emerald-600/20 border-emerald-500/50 text-slate-900 dark:text-slate-100'
+                        ? 'bg-brand-mint-dark/20 border-brand-mint-dark/50 text-slate-900 dark:text-slate-100'
                         : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                     }`}
                   >
@@ -611,8 +619,8 @@ export const StudyPlanner: React.FC = () => {
             </div>
           )}
 
-          <div className="glass-panel p-4 rounded-xl border border-amber-500/30 bg-amber-50 dark:bg-amber-950/10 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-400">
+          <div className="glass-panel p-4 rounded-xl border border-brand-gold-dark/30 bg-brand-gold/5 dark:bg-brand-gold-dark/10 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-brand-gold-dark dark:text-brand-gold">
               <Sparkles className="w-4 h-4" />
               <span>ML Algoritma Hatırlatması</span>
             </div>
@@ -630,7 +638,7 @@ export const StudyPlanner: React.FC = () => {
         <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="glass-panel max-w-md w-full p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
             <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+              <CheckCircle2 className="w-5 h-5 text-brand-mint-dark dark:text-brand-mint" />
               <span>Çalışma Oturumunu Kaydet</span>
             </h3>
 
@@ -643,7 +651,7 @@ export const StudyPlanner: React.FC = () => {
                       <select
                         value={selectedSubjectId}
                         onChange={e => handleSelectSubject(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark"
                       >
                         {subjects.map(s => (
                           <option key={s.subjectId} value={s.subjectId}>{s.subjectName}</option>
@@ -656,7 +664,7 @@ export const StudyPlanner: React.FC = () => {
                       <select
                         value={selectedTopicId}
                         onChange={e => setSelectedTopicId(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark"
                       >
                         {selectedSubject?.topics.map(t => (
                           <option key={t.id} value={t.id}>{t.name}</option>
@@ -672,7 +680,7 @@ export const StudyPlanner: React.FC = () => {
                       placeholder="Örn: Python Öğreniyorum, Gitar Pratiği"
                       value={pursuitName}
                       onChange={e => setPursuitName(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-indigo-500"
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-mint-dark"
                     />
                   </div>
                 )}
@@ -688,7 +696,7 @@ export const StudyPlanner: React.FC = () => {
                         onClick={() => setDifficulty(star)}
                         className={`p-2 rounded-lg border transition-all ${
                           difficulty >= star
-                            ? 'bg-amber-500/20 border-amber-500/50 text-amber-600 dark:text-amber-400'
+                            ? 'bg-brand-gold-dark/20 border-brand-gold-dark/50 text-brand-gold-dark dark:text-brand-gold'
                             : 'bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 text-slate-400 dark:text-slate-600'
                         }`}
                       >
@@ -709,7 +717,9 @@ export const StudyPlanner: React.FC = () => {
                         onClick={() => setProductivity(star)}
                         className={`p-2 rounded-lg border transition-all ${
                           productivity >= star
-                            ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-600 dark:text-indigo-400'
+                            ? isStudent
+                              ? 'bg-brand-pink-dark/20 border-brand-pink-dark/50 text-brand-pink-dark dark:text-brand-pink-light'
+                              : 'bg-brand-mint-dark/20 border-brand-mint-dark/50 text-brand-mint-dark dark:text-brand-mint'
                             : 'bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 text-slate-400 dark:text-slate-600'
                         }`}
                       >
@@ -725,7 +735,7 @@ export const StudyPlanner: React.FC = () => {
                     placeholder="Eksik kalan kısımlar veya sonraki tekrar için notlar..."
                     value={notes}
                     onChange={e => setNotes(e.target.value)}
-                    className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-indigo-500 h-20 resize-none"
+                    className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark h-20 resize-none"
                   />
                 </div>
 
@@ -747,7 +757,11 @@ export const StudyPlanner: React.FC = () => {
                   <button
                     type="submit"
                     disabled={submitting || !canSubmit}
-                    className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold shadow-lg glow-indigo"
+                    className={`px-5 py-2.5 rounded-xl disabled:opacity-50 text-white font-semibold shadow-lg ${
+                      isStudent
+                        ? 'bg-gradient-to-r from-brand-pink-light to-brand-pink-dark hover:opacity-90 glow-pink'
+                        : 'bg-gradient-to-r from-brand-mint to-brand-mint-dark hover:opacity-90 glow-mint'
+                    }`}
                   >
                     {submitting ? 'Kaydediliyor...' : 'Veritabanına Kaydet'}
                   </button>
@@ -778,7 +792,7 @@ export const StudyPlanner: React.FC = () => {
                   });
                   return (
                     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 px-4 py-3 space-y-1.5">
-                      <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-500 dark:text-purple-400">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-brand-violet-hover dark:text-brand-violet">
                         <Compass className="w-3.5 h-3.5" />
                         <span>Kaptan</span>
                       </div>
@@ -797,7 +811,11 @@ export const StudyPlanner: React.FC = () => {
 
                 <button
                   onClick={handleCloseModal}
-                  className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg glow-indigo"
+                  className={`w-full py-2.5 rounded-xl text-white font-semibold shadow-lg ${
+                    isStudent
+                      ? 'bg-gradient-to-r from-brand-pink-light to-brand-pink-dark hover:opacity-90 glow-pink'
+                      : 'bg-gradient-to-r from-brand-mint to-brand-mint-dark hover:opacity-90 glow-mint'
+                  }`}
                 >
                   Kapat
                 </button>

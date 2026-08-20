@@ -7,8 +7,8 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const ACCENT_HOVER_CLASSES: Record<CardAccent, string> = {
-  indigo: 'hover:border-indigo-500 hover:shadow-xl',
-  violet: 'hover:border-violet-500 hover:shadow-xl',
+  indigo: 'hover:border-brand-pink-dark hover:shadow-xl',
+  violet: 'hover:border-brand-mint-dark hover:shadow-xl',
   none: '',
 };
 

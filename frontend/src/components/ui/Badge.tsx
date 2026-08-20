@@ -7,8 +7,8 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
-  indigo: 'text-indigo-600 dark:text-indigo-400',
-  violet: 'text-violet-600 dark:text-violet-400',
+  indigo: 'text-brand-pink-dark dark:text-brand-pink-light',
+  violet: 'text-brand-mint-dark dark:text-brand-mint',
   neutral: 'text-slate-500 dark:text-slate-400',
 };
 
