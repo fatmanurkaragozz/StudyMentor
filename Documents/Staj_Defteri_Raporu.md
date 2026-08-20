@@ -359,3 +359,57 @@ Bugün en çok şunu öğrendim: hem kodda hem tasarımda "bütünlük" dediğim
 - Bugün ML servisini yeniden başlatırken PowerShell'de yaşanan bir `uvicorn`/venv aktivasyon sorununu da çözdük - venv'i hiç aktive etmeden doğrudan `.venv\Scripts\python.exe -m uvicorn` çağırmak en sağlam çözüm oldu.
 
 Bugün en çok "Uğraşlarım" panelinde aklıma gelen ilk çözümün (`getTopics()`) aslında sessizce yanlış olacağını fark etmem güzeldi - seed verisini kontrol etmeden ilerleseydim, kullanıcı kendi uğraşları arasında hiç eklemediği "Yazılım Geliştirme" gibi genel dersler görecekti. Küçük bir "önce kontrol et" alışkanlığının gerçek bir hatayı nasıl önlediğini gördüm.
+
+---
+
+📅 20. Gün: 14 Ağustos 2026 (Cuma)
+
+**O gün neler yaptım:**
+
+- **Açılış Sayfası İçin Yepyeni Bir Vizyon:** Referans bir görsel (stilize 3D-render bir mentor karakteri) paylaşarak açılış sayfasını baştan tasarlama fikrini konuştuk: solda boydan bir mentor karakteri, sağda harf-harf yazılan karşılama metni, ortada tam genişlikte 3D masa sahnesi (scroll ile lamba ışığının yavaş yavaş yanması), altta masadan ayrılan nesnelerle Öğrenci/Gelişim moduna yönlendiren bir sahne — hepsi tek bir sinematik, scroll'a bağlı deneyim olarak kurgulandı.
+- **Aynı Günün Erken Saatlerinde Zaten Küçük Bir Versiyon Yazılmış Olduğunun Fark Edilmesi:** Brainstorming'e başlarken, aynı oturumda daha önce (masa+lamba+el+kalem'den oluşan, zaman-bazlı oynayan, çok daha küçük kapsamlı) bir tasarım dokümanı ve uygulama planının zaten yazılmış ama hiç uygulanmamış olduğunu keşfettim. Yeni tasarım bunun yerine geçti (supersede) — hiçbir kod kaybı olmadı, sadece doküman güncelliğini yitirdi.
+- **Kritik Tasarım Kararları:** Sorulu-cevaplı bir süreçle üç büyük karar netleşti: (1) mentor karakteri gerçek 3D mesh yerine AI-üretimi 2D görsel + CSS parallax katmanlarıyla "3D his" verecek (referans görselin kendisi de 2D bir AI görseli olduğu için gerçek 3D mesh'in bu kaliteye asla ulaşamayacağı gerekçe gösterildi), (2) bölümler arası geçiş zamanlayıcı yerine tamamen scroll'a bağlı (scrubbing) olacak, (3) scroll'a bağlı 3D sahne mimarisi için elle scroll-matematiği yazmak yerine `@react-three/drei`'nin resmi `ScrollControls` API'si kullanılacak.
+- **Kapsamlı Tasarım + Uygulama Planı:** Onaylanan tasarım tam bir spec dokümanına dönüştürülüp kendi kendine gözden geçirildi (bir yerde plan-seviyesi bir sayının spec'e sızdığı fark edilip düzeltildi). Ardından bunun üzerine, sıfır bağlam varsayımıyla yazılmış, her adımda gerçek kod içeren 13 görevlik bir uygulama planı hazırlandı (yeni 3D bileşenler, scroll-güdümlü kamera/ışık mantığı, WebGL-yok/hareket-azaltılmış senaryolar için birleşik statik yedek, eski zaman-bazlı hook'un temizlenmesi).
+- **Subagent-Driven Development ile Uygulamaya Geçiş:** Plan onaylandıktan sonra, her görevi ayrı bir "uygulayıcı" ajana yaptırıp ayrı bir "inceleyici" ajana denetleten bir sürece geçildi. İzole bir git worktree kurmak yerine mevcut feature branch'te devam etme kararı alındı (zaten main değil, tam bu iş için açılmış bir dal).
+- **İlk Görevler ve Beklenmedik İki Sorun:** Bağımlılıkların eklenmesi (Task 1) ve küçük bir görünürlük hook'unun yazılması (Task 3) sorunsuz geçti. Ama iki görev ilginç sürprizler çıkardı: (1) mentor karakter görselini üretme görevinde (Task 2), ortamda gerekli AI görsel üretim anahtarının (`GEMINI_API_KEY`) hiç tanımlı olmadığı ortaya çıktı — üstüne bir de o görevi çalıştıran ajanın çalışması sırasında ilgisiz bir dosyanın (`ml-service/app/main.py`) silinip proje kökünde açıklanamayan bir kopyasının belirdiği fark edildi; içerikleri karşılaştırılıp veri kaybı olmadığı doğrulandıktan sonra git'ten geri yüklenip temizlendi. (2) Bir 3D ışıklandırma bileşeni yazan görevde (Task 4) build tip hatası verdi; ajanın "eksik tsconfig ayarı" teşhisini olduğu gibi kabul etmek yerine `node_modules` içindeki `@react-three/fiber` kaynağına inilip gerçek sebep bulundu — JSX eleman tiplerinin bir modül genişletmesiyle geldiği ve bunun tetiklenmesi için o paketten en az bir dosyanın tip-only import yapması gerektiği ortaya çıktı; tek satırlık kesin bir düzeltmeyle çözüldü.
+
+Bugün en çok, bir subagent'ın kendi teşhisini olduğu gibi kabul etmek yerine kaynağa inip gerçek sebebi bulmanın farkını gördüm — "tsconfig eksik" gibi makul duran bir açıklama bile, gerçek node_modules koduna bakınca çok daha spesifik ve doğru bir açıklamaya (modül genişletmesinin tetiklenmemesi) dönüştü. Ayrıca ml-service dosyasının silinip yerine bir kopyasının çıkması, bir ajanın çalışması sırasında beklenmedik yan etkiler olabileceğini ve bunları görmezden gelmeden, karşılaştırıp doğrulayarak ilerlemek gerektiğini bir kez daha hatırlattı.
+
+---
+
+📅 21. Gün: 17 Ağustos 2026 (Pazartesi)
+
+**O gün neler yaptım:**
+
+Cuma günü onaylanan 13 görevlik plana subagent'lar aracılığıyla devam ettim; bugünün odağı sahnenin gerçek 3D bileşenlerini yazmaktı.
+
+- **Sahnenin İskeleti:** `HeroCanvas.tsx` içinde `@react-three/fiber`'ın `Canvas`'ı ile `@react-three/drei`'nin `ScrollControls`'u birleştirilerek scroll'a bağlı sahnenin temeli kuruldu; `useIsMobile` hook'uyla mobilde DPR ve antialiasing düşürülerek performans gözetildi.
+- **Sahne Katmanları:** `AmbientBackdrop.tsx` (arka plan atmosferi), `DataNetwork.tsx` (öğrenme/veri temasını çağrıştıran bağlantılı ağ yapısı) ve `DeskScene.tsx` (masa sahnesinin kendisi) ayrı, tek işten sorumlu bileşenler olarak yazıldı.
+- **Masa Üstü Dekor Objeleri:** `decor/` altında `PottedPlant.tsx`, `HangingIvyPlanter.tsx` ve nesnelere hafif, sürekli bir sallanma kazandıran ortak bir `IdleSway.tsx` yardımcı bileşeni eklendi; hepsi `MiniDecorScene.tsx` altında birleştirildi.
+
+Bugün en çok, planı önceden 13 net göreve bölmüş olmanın işe gerçekten oturunca ne kadar işime yaradığını hissettim — hangi bileşeni nereye yazacağımı düşünmek yerine doğrudan uygulamaya geçebildim.
+
+---
+
+📅 22. Gün: 18 Ağustos 2026 (Salı)
+
+**O gün neler yaptım:**
+
+- **WebGL Desteği ve Erişilebilirlik Yedeği:** `LandingPage.tsx`'e, tarayıcının WebGL desteğini (`canvas.getContext('webgl2'/'webgl')`) ve kullanıcının `prefers-reduced-motion` tercihini kontrol eden bir mantık eklendi — ikisinden biri sağlanmıyorsa yeni 3D sahne yerine eski statik `DeskHeroAnimation` gösteriliyor. 3D sahne ayrıca `lazy()` ile yükleniyor, böylece WebGL desteklemeyen ya da hareketi azaltmak isteyen kullanıcılar gereksiz yere Three.js paketini indirmiyor.
+- **Scroll'a Duyarlı Işıklandırma:** `hero3d/lighting.tsx` yeniden yazıldı — ışıklar artık sabit değil, `useScroll().offset` üzerinden scroll ilerlemesine göre `useFrame` içinde yoğunluğu artırılıp azaltılıyor.
+- **Yıldız Haritası Arka Planı:** Yeni `StarMap.tsx` bileşeni yazıldı — sabit koordinatlı bir nokta seti, aralarındaki mesafe bir eşiği geçmeyen noktaları çizgiyle birleştirip "constellation" hissi veren bir SVG üretiyor; başlık metninin oturduğu orta-üst bölge bilinçli olarak boş bırakıldı ki çizgiler metnin üzerinden geçmesin.
+- **Yeni CSS Animasyon Kütüphanesi:** `index.css`'e `aurora-drift`, `hero-bottom-pulse`, `wave-flow`, `star-twinkle` ve `neon-line-draw` keyframe'leri eklendi; hepsi `reducedMotion` bayrağına göre koşullu olarak uygulanıyor.
+
+Bugün en çok, "gerçek 3D" ile "gerçek kullanıcı" arasında bir denge kurmayı öğrendim — WebGL yoksa ya da kullanıcı hareketi azaltmak istiyorsa sahnenin tamamen devre dışı kalması gerektiğini baştan tasarlamak, sonradan yamamaktan çok daha sağlam bir çözüm oldu.
+
+---
+
+📅 23. Gün: 19 Ağustos 2026 (Çarşamba)
+
+**O gün neler yaptım:**
+
+- **Tam Kapsamlı Marka Renk Sistemi:** `index.css`'e `@theme` bloğuyla `brand-pink`, `brand-mint`, `brand-gold`, `brand-violet`, `brand-indigo`, `brand-ivory` gibi isimli bir renk paleti tanımlandı; ardından Dashboard, Header, Sidebar, AIInsights, AuthModal, GrowthHub, MyCourses, ProfilePage, StudyPlanner, onboarding ekranları ve `ui/Badge`/`ui/Button`/`ui/Card` dahil neredeyse tüm arayüz, Tailwind'in varsayılan renkleri (`indigo-600`, `emerald-500`, `pink-500`...) yerine bu isimli token'ları kullanacak şekilde güncellendi. Öğrenci modu artık tutarlı şekilde pembe, Gelişim modu ise mint yeşili ile temsil ediliyor.
+- **Mobil Alt Sekme Çubuğu:** Yeni `BottomTabBar.tsx` ve paylaşılan `navItems.ts` (`getNavItems`) eklendi — Sidebar ile BottomTabBar artık aynı menü tanımını kullanıyor, iki yerde elle senkron tutmaya gerek kalmadı. `Sidebar` mobilde tamamen gizlenip (`hidden md:flex`) yerini bu alt çubuğa bırakıyor.
+- **Diğer Mobil Düzeltmeler:** Yeni `useIsMobile.ts` hook'u eklendi; `Header.tsx`'e mobilde açılır/kapanır bir arama kutusu eklendi; ana içerik alanına alt çubuğun altında kalmaması için `pb-20 md:pb-0` boşluğu verildi.
+
+Bugün fark ettiğim şey şu oldu: bir özelliği masaüstünde bitirmiş olmak, mobilde de çalıştığı anlamına gelmiyor — Sidebar'ın mobilde nasıl davranacağını hiç düşünmemiştik, ve menü listesini iki ayrı yerde elle senkron tutmaya çalışmak yerine baştan ortak bir kaynağa (`navItems.ts`) taşımak, ileride ikisinin birbirinden sapmasını da engelledi.
