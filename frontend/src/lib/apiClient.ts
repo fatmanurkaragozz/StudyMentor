@@ -50,6 +50,7 @@ export interface BackendUser {
   role: 'STUDENT' | 'ADMIN';
   educationLevel: EducationLevel;
   grade: number | null;
+  examCategory: ExamCategory | null;
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
@@ -65,6 +66,7 @@ const TARGET_GOALS: Record<EducationLevel, string> = {
   HIGH_SCHOOL: 'YKS Hazırlık',
   UNIVERSITY: 'Üniversite Akademik Başarısı',
   LIFELONG_LEARNER: 'Kişisel ve Kariyer Gelişimi',
+  EXAM_PREP: 'Bağımsız Sınav Hazırlığı',
 };
 
 export function toUserProfile(backendUser: BackendUser): UserProfile {
@@ -235,6 +237,7 @@ export const apiClient = {
     lastName: string;
     educationLevel: EducationLevel;
     grade?: number;
+    examCategory?: ExamCategory;
   }) => request<AuthResponse>("/auth/register", { method: "POST", body: JSON.stringify(body) }),
 
   login: (body: { email: string; password: string }) =>
@@ -254,12 +257,12 @@ export const apiClient = {
 
   getMe: () => request<BackendUser>("/users/me"),
 
-  getTopics: () => request<SubjectWithTopics[]>("/topics"),
+  getTopics: (mode: UserMode) => request<SubjectWithTopics[]>(`/topics?mode=${mode}`),
 
-  createCustomSubject: (body: { name: string }) =>
+  createCustomSubject: (body: { name: string; mode: UserMode }) =>
     request<{ subjectId: string; topicId: string }>("/subjects/custom", { method: "POST", body: JSON.stringify(body) }),
 
-  getMySubjects: () => request<MySubject[]>("/subjects/mine"),
+  getMySubjects: (mode: UserMode) => request<MySubject[]>(`/subjects/mine?mode=${mode}`),
 
   addTopic: (subjectId: string, name: string) =>
     request<{ topicId: string; topicName: string }>(`/subjects/${subjectId}/topics`, {
@@ -268,6 +271,21 @@ export const apiClient = {
     }),
 
   deleteSubject: (subjectId: string) => request<{ message: string }>(`/subjects/${subjectId}`, { method: "DELETE" }),
+
+  renameSubject: (subjectId: string, name: string) =>
+    request<{ subjectId: string; subjectName: string }>(`/subjects/${subjectId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ name }),
+    }),
+
+  renameTopic: (subjectId: string, topicId: string, name: string) =>
+    request<{ topicId: string; topicName: string }>(`/subjects/${subjectId}/topics/${topicId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ name }),
+    }),
+
+  deleteTopic: (subjectId: string, topicId: string) =>
+    request<{ message: string }>(`/subjects/${subjectId}/topics/${topicId}`, { method: "DELETE" }),
 
   getSchedule: () => request<ScheduleSlotDto[]>("/schedule"),
 
