@@ -145,19 +145,23 @@ export interface MySubject {
   topics: MyTopic[];
 }
 
+export type InsightFeedback = 'LIKE' | 'DISLIKE';
+
 export interface SubjectHistoryEntry {
   subjectId: string;
   subjectName: string;
   displayMode: 'TIME' | 'TOPICS';
   time: { totalMinutes: number; sessionCount: number; avgDifficulty: number; avgProductivity: number; lastStudiedAt: string } | null;
   topics: { topicId: string; topicName: string; lastCheckedAt: string; priority: PriorityLevel | null }[] | null;
-  insight: { content: string; updatedAt: string } | null;
+  insight: { content: string; updatedAt: string; feedback: InsightFeedback | null; feedbackReason: string | null } | null;
 }
 
 export interface SubjectInsightResult {
   aiAvailable: boolean;
   content: string | null;
   updatedAt: string | null;
+  feedback: InsightFeedback | null;
+  feedbackReason: string | null;
 }
 
 export interface ScheduleSlotDto {
@@ -371,4 +375,10 @@ export const apiClient = {
 
   generateSubjectInsight: (subjectId: string, mode: UserMode) =>
     request<SubjectInsightResult>(`/subjects/${subjectId}/insight?mode=${mode}`, { method: "POST" }),
+
+  submitInsightFeedback: (subjectId: string, feedback: InsightFeedback, reason?: string) =>
+    request<SubjectInsightResult>(`/subjects/${subjectId}/insight/feedback`, {
+      method: "POST",
+      body: JSON.stringify({ feedback, reason }),
+    }),
 };

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { apiClient, type RecommendationRow, type SubjectHistoryEntry } from '../lib/apiClient';
+import { apiClient, type RecommendationRow, type SubjectHistoryEntry, type InsightFeedback } from '../lib/apiClient';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
 import { TopicCheckModal } from './onboarding/TopicCheckModal';
 import { getSubjectHistoryFallbackComment } from '../lib/kaptan';
-import { Sparkles, BrainCircuit, Calendar, ArrowUpRight, Loader2, Compass, Clock, ListChecks } from 'lucide-react';
+import { Sparkles, BrainCircuit, Calendar, ArrowUpRight, Loader2, Compass, Clock, ListChecks, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { StarMap } from './StarMap';
 
 const TYPE_LABELS: Record<string, string> = {
@@ -26,6 +26,10 @@ export const AIInsights: React.FC = () => {
   // Gemini'e ulasilamayan (kredi/anahtar yok, hata) ders/uğraşlar - bunlar icin baska bir
   // ucretli modele GECILMEZ, sadece kaptan.ts'in ucretsiz sablon yorumuna dusulur.
   const [fallbackIds, setFallbackIds] = useState<Set<string>>(new Set());
+
+  const [submittingFeedbackId, setSubmittingFeedbackId] = useState<string | null>(null);
+  const [reasonDraftId, setReasonDraftId] = useState<string | null>(null);
+  const [reasonDraft, setReasonDraft] = useState('');
 
   const loadRecommendations = () => {
     apiClient
@@ -57,7 +61,7 @@ export const AIInsights: React.FC = () => {
                 ...entry,
                 insight:
                   result.aiAvailable && result.content && result.updatedAt
-                    ? { content: result.content, updatedAt: result.updatedAt }
+                    ? { content: result.content, updatedAt: result.updatedAt, feedback: result.feedback, feedbackReason: result.feedbackReason }
                     : entry.insight,
               }
             : entry,
@@ -69,8 +73,39 @@ export const AIInsights: React.FC = () => {
         // ucretsiz sablon yorumuna dusulur.
         setFallbackIds(prev => new Set(prev).add(subjectId));
       }
+      // Yeni bir yorum uretildi - varsa acik kalmis "neden" kutusunu kapat.
+      if (reasonDraftId === subjectId) {
+        setReasonDraftId(null);
+        setReasonDraft('');
+      }
     } finally {
       setGeneratingId(null);
+    }
+  };
+
+  const handleFeedback = async (subjectId: string, feedback: InsightFeedback, reason?: string) => {
+    setSubmittingFeedbackId(subjectId);
+    try {
+      const result = await apiClient.submitInsightFeedback(subjectId, feedback, reason);
+      setHistory(prev =>
+        prev.map(entry =>
+          entry.subjectId === subjectId && entry.insight
+            ? { ...entry, insight: { ...entry.insight, feedback: result.feedback, feedbackReason: result.feedbackReason } }
+            : entry,
+        ),
+      );
+      if (feedback === 'DISLIKE') {
+        setReasonDraftId(subjectId);
+        setReasonDraft(reason ?? '');
+      } else {
+        setReasonDraftId(null);
+        setReasonDraft('');
+      }
+    } catch {
+      // Sessizce yut - geri bildirim ikincil bir aksiyon, kullaniciyi bir hata mesajiyla
+      // rahatsiz etmeye gerek yok, sadece buton eski durumunda kalir.
+    } finally {
+      setSubmittingFeedbackId(null);
     }
   };
 
@@ -240,6 +275,62 @@ export const AIInsights: React.FC = () => {
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                       {entry.insight?.content ?? fallback?.content}
                     </p>
+
+                    {/* Geri bildirim - sadece gercek (Gemini) yoruma eklenir, ucretsiz sablon
+                        yedeginin arkasinda bir DB satiri olmadigi icin fallback'te gosterilmez. */}
+                    {entry.insight && (
+                      <div className="pt-1 space-y-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleFeedback(entry.subjectId, 'LIKE')}
+                            disabled={submittingFeedbackId === entry.subjectId}
+                            title="Bu yorumu beğendim"
+                            className={`p-1.5 rounded-lg transition-all disabled:opacity-40 ${
+                              entry.insight.feedback === 'LIKE'
+                                ? 'bg-brand-mint-dark/15 text-brand-mint-dark dark:text-brand-mint'
+                                : 'text-slate-400 dark:text-slate-500 hover:text-brand-mint-dark dark:hover:text-brand-mint hover:bg-brand-mint-dark/10'
+                            }`}
+                          >
+                            <ThumbsUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleFeedback(entry.subjectId, 'DISLIKE')}
+                            disabled={submittingFeedbackId === entry.subjectId}
+                            title="Bu yorumu beğenmedim"
+                            className={`p-1.5 rounded-lg transition-all disabled:opacity-40 ${
+                              entry.insight.feedback === 'DISLIKE'
+                                ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
+                                : 'text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10'
+                            }`}
+                          >
+                            <ThumbsDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {reasonDraftId === entry.subjectId && (
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="text"
+                              value={reasonDraft}
+                              onChange={e => setReasonDraft(e.target.value)}
+                              placeholder="Neden beğenmedin? (opsiyonel)"
+                              maxLength={200}
+                              className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-[11px] text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-violet"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleFeedback(entry.subjectId, 'DISLIKE', reasonDraft.trim() || undefined)}
+                              disabled={submittingFeedbackId === entry.subjectId}
+                              className="px-2.5 py-1 rounded-lg bg-brand-violet/10 border border-brand-violet/30 text-brand-violet-hover dark:text-brand-violet text-[11px] font-semibold hover:bg-brand-violet/20 disabled:opacity-40 transition-all"
+                            >
+                              Gönder
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 
