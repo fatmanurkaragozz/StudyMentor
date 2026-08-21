@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { modeQuerySchema } from "../validation/schemas.js";
+import { modeQuerySchema, submitInsightFeedbackSchema } from "../validation/schemas.js";
 import { getSubjectStatsList } from "../services/subjectHistory.service.js";
-import { getCachedInsights, generateSubjectInsight } from "../services/subjectInsight.service.js";
+import { getCachedInsights, generateSubjectInsight, submitInsightFeedback } from "../services/subjectInsight.service.js";
 
 export async function getSubjectHistory(req: Request, res: Response) {
   const { mode } = modeQuerySchema.parse(req.query);
@@ -21,5 +21,11 @@ export async function getSubjectHistory(req: Request, res: Response) {
 export async function postSubjectInsight(req: Request<{ subjectId: string }>, res: Response) {
   const { mode } = modeQuerySchema.parse(req.query);
   const result = await generateSubjectInsight(req.userId as string, req.params.subjectId, mode === "STUDENT");
+  res.json(result);
+}
+
+export async function postSubjectInsightFeedback(req: Request<{ subjectId: string }>, res: Response) {
+  const input = submitInsightFeedbackSchema.parse(req.body);
+  const result = await submitInsightFeedback(req.userId as string, req.params.subjectId, input.feedback, input.reason);
   res.json(result);
 }
