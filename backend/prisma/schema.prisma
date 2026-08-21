@@ -18,6 +18,14 @@ enum EducationLevel {
   HIGH_SCHOOL     // YKS
   UNIVERSITY      // Vize/Final
   LIFELONG_LEARNER // Kişisel Gelişim & Kariyer / Genel Çalışma
+  EXAM_PREP       // Okul/üniversite bağı olmadan bağımsız sınav hazırlığı (AGS/KPSS/ALES/DGS/YDS/YÖKDİL vb.)
+}
+
+// Sidebar/ProfilePage'deki Öğrenci↔Gelişim önizleme geçişinin (AppContext.setUserMode) client-side
+// karşılığı - Subject.mode kullanıcıya özel derslerin hangi modda eklendiğini işaretlemek için var.
+enum UserMode {
+  STUDENT
+  LIFELONG_LEARNER
 }
 
 enum TopicStatus {
@@ -73,7 +81,8 @@ model User {
   lastName       String
   role           Role           @default(STUDENT)
   educationLevel EducationLevel
-  grade          Int?           // Kaçıncı sınıf/yıl (LIFELONG_LEARNER için null)
+  grade          Int?           // Kaçıncı sınıf/yıl (LIFELONG_LEARNER/EXAM_PREP için null)
+  examCategory   ExamCategory?  // Sadece educationLevel EXAM_PREP ise anlamlı - hangi sınava hazırlandığı
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
@@ -98,6 +107,7 @@ model User {
   scheduleSlots        ScheduleSlot[]
   dailyTasks           DailyTask[]
   topicReminders       TopicReminder[]
+  subjectInsights      SubjectInsight[]
 }
 
 model Subject {
@@ -107,16 +117,33 @@ model Subject {
   examCategory   ExamCategory?   // Dolu ise KPSS/YÖKDİL/ALES gibi merkezi bir sınav kataloğuna ait genel ders
   userId         String?         // Kullanıcıya özel tanımlandıysa
   user           User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode           UserMode?       // Sadece kullanıcıya özel (userId dolu) derslerde anlamlı - hangi modda (Öğrenci/Gelişim) eklendiğini işaretler; genel/seed dersler için her zaman null
   createdAt      DateTime        @default(now())
 
   // İlişkiler
-  topics        Topic[]
-  studySessions StudySession[]
-  exams         ExamSubject[]
-  scheduleSlots ScheduleSlot[]
-  dailyTasks    DailyTask[]
+  topics          Topic[]
+  studySessions   StudySession[]
+  exams           ExamSubject[]
+  scheduleSlots   ScheduleSlot[]
+  dailyTasks      DailyTask[]
+  subjectInsights SubjectInsight[]
 
-  @@unique([name, userId])
+  @@unique([name, userId, mode])
+}
+
+// Ders/uğraş bazlı, Claude API ile üretilen AI yorumunun önbelleği - "AI Yorumu Al" butonuna
+// her basıldığında yeniden ücretli çağrı yapmamak için kullanıcı+ders başına tek satır tutulur.
+model SubjectInsight {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, subjectId])
 }
 
 // Öğrencinin haftalık ders programı - her hafta tekrar eden sabit çizelge (belirli bir tarihe değil, güne bağlı)
@@ -187,6 +214,8 @@ model TopicCheck {
   priority           PriorityLevel?
   startedAt          DateTime       @default(now())
   submittedAt        DateTime?
+
+  @@index([userId, submittedAt])
 }
 
 model StudySession {
@@ -205,6 +234,8 @@ model StudySession {
 
   // İlişkiler
   dailyTask       DailyTask?
+
+  @@index([userId, subjectId])
 }
 
 model Exam {
