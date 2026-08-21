@@ -26,6 +26,7 @@
   "author": "Fatma Nur Karagöz",
   "license": "MIT",
   "dependencies": {
+    "@google/genai": "^2.18.0",
     "@prisma/client": "^5.10.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

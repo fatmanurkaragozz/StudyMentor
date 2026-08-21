@@ -14,6 +14,8 @@ export const config = {
   jwtSecret: requireEnv("JWT_SECRET"),
   // Zorunlu degil: ML servisi kapaliyken backend'in ayaga kalkmasini engellememeli.
   mlServiceUrl: process.env.ML_SERVICE_URL ?? "http://localhost:8000",
+  // Zorunlu degil: yoksa AI yorumu ozelligi devre disi kalir, sunucu yine ayaga kalkar.
+  geminiApiKey: process.env.GEMINI_API_KEY,
   gmailUser: requireEnv("GMAIL_USER"),
   gmailAppPassword: requireEnv("GMAIL_APP_PASSWORD"),
 };
