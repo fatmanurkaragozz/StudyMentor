@@ -61,6 +61,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
           lastName,
           educationLevel: pendingProfile.educationLevel,
           grade: pendingProfile.grade,
+          examCategory: pendingProfile.examCategory,
         });
         setPendingEmail(email);
         setCode('');

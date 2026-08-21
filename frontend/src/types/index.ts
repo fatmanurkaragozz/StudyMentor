@@ -1,6 +1,6 @@
 export type UserMode = 'STUDENT' | 'LIFELONG_LEARNER';
 
-export type EducationLevel = 'MIDDLE_SCHOOL' | 'HIGH_SCHOOL' | 'UNIVERSITY' | 'LIFELONG_LEARNER';
+export type EducationLevel = 'MIDDLE_SCHOOL' | 'HIGH_SCHOOL' | 'UNIVERSITY' | 'LIFELONG_LEARNER' | 'EXAM_PREP';
 
 export interface UserProfile {
   id: string;

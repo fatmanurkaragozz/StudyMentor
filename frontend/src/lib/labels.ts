@@ -10,5 +10,7 @@ export function getEducationLabel(user: UserProfile): string {
       return `🎓 Üniversite${user.grade ? ` ${user.grade}. Sınıf` : ''}`;
     case 'LIFELONG_LEARNER':
       return '💼 İş Hayatım ve Gelişim';
+    case 'EXAM_PREP':
+      return '🎯 Bağımsız Sınav Hazırlığı';
   }
 }
