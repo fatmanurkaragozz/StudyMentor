@@ -145,6 +145,21 @@ export interface MySubject {
   topics: MyTopic[];
 }
 
+export interface SubjectHistoryEntry {
+  subjectId: string;
+  subjectName: string;
+  displayMode: 'TIME' | 'TOPICS';
+  time: { totalMinutes: number; sessionCount: number; avgDifficulty: number; avgProductivity: number; lastStudiedAt: string } | null;
+  topics: { topicId: string; topicName: string; lastCheckedAt: string; priority: PriorityLevel | null }[] | null;
+  insight: { content: string; updatedAt: string } | null;
+}
+
+export interface SubjectInsightResult {
+  aiAvailable: boolean;
+  content: string | null;
+  updatedAt: string | null;
+}
+
 export interface ScheduleSlotDto {
   id: string;
   subjectId: string;
@@ -351,4 +366,9 @@ export const apiClient = {
     }),
 
   getDueTopicReminders: () => request<DueTopicReminder[]>("/topic-reminders/due"),
+
+  getSubjectHistory: (mode: UserMode) => request<SubjectHistoryEntry[]>(`/subjects/history?mode=${mode}`),
+
+  generateSubjectInsight: (subjectId: string, mode: UserMode) =>
+    request<SubjectInsightResult>(`/subjects/${subjectId}/insight?mode=${mode}`, { method: "POST" }),
 };

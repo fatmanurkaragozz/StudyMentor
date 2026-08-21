@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { apiClient, type RecommendationRow, type StudySessionRow, type HabitRow, type ExamDto } from '../lib/apiClient';
 import { getKaptanMessage } from '../lib/kaptan';
-import { TopicCheckModal } from './onboarding/TopicCheckModal';
 import {
   Clock,
   Flame,
@@ -72,7 +71,6 @@ export const Dashboard: React.FC = () => {
 
   const [aiRecommendations, setAiRecommendations] = useState<RecommendationRow[]>([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(true);
-  const [checkTopic, setCheckTopic] = useState<{ id: string; name: string; subjectName: string } | null>(null);
 
   const [dueTopics, setDueTopics] = useState<DueTopic[]>([]);
   const [loadingDue, setLoadingDue] = useState(true);
@@ -314,7 +312,7 @@ export const Dashboard: React.FC = () => {
             {loadingRecommendations && (
               <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-2">
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Kaptan haritayı inceliyor...</span>
+                <span>Kaptan verilerine bakıyor...</span>
               </div>
             )}
 
@@ -326,16 +324,10 @@ export const Dashboard: React.FC = () => {
                 </p>
                 {latestRecommendation.topicId && (
                   <button
-                    onClick={() =>
-                      setCheckTopic({
-                        id: latestRecommendation.topicId as string,
-                        name: latestRecommendation.topicName ?? '',
-                        subjectName: latestRecommendation.subjectName ?? '',
-                      })
-                    }
+                    onClick={() => setActiveTab('insights')}
                     className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-violet-hover dark:text-brand-violet hover:opacity-80 transition-opacity"
                   >
-                    <span>Kontrol Et</span>
+                    <span>AI Analiz'e Git</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -344,9 +336,9 @@ export const Dashboard: React.FC = () => {
 
             {!loadingRecommendations && !latestRecommendation && (
               <>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Kaptan henüz haritanı göremiyor</h3>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Kaptan henüz sana dair bir şey bilmiyor</h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                  Bir konu seç ve ilk mini kontrolünü yap, Kaptan sana özel rotanı çizmeye başlasın.
+                  Bir konu seç ve ilk mini kontrolünü yap, Kaptan sana özel önerilerini oluşturmaya başlasın.
                 </p>
                 <button
                   onClick={() => setActiveTab('courses')}
@@ -360,18 +352,6 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {checkTopic && (
-        <TopicCheckModal
-          topicId={checkTopic.id}
-          topicName={checkTopic.name}
-          subjectName={checkTopic.subjectName}
-          onClose={() => {
-            setCheckTopic(null);
-            loadRecommendations();
-          }}
-        />
-      )}
 
       {/* Sınav Geri Sayımı */}
       {upcomingExam && (
