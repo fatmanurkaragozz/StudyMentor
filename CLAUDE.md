@@ -41,6 +41,12 @@ Requires `backend/.env` with `DATABASE_URL` and `DIRECT_URL` (Supabase Postgres,
 ### ML service (`ml-service/`)
 Python/FastAPI, with its own `.venv` and `requirements.txt`. `train.py` trains the model and writes `models/priority_model.joblib`; `app/main.py` serves predictions from it.
 
+**Starting it:** unlike frontend/backend, nothing starts this automatically — it must be run manually from `ml-service/`:
+```
+.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+```
+(or `powershell -File ml-service/start.ps1`). Must be run from `ml-service/`, not `ml-service/app/` — `app.main:app` relies on absolute imports rooted at `ml-service/`. Don't use `.venv\Scripts\Activate.ps1` first — PowerShell execution-policy issues have made venv activation unreliable on this machine; calling `.venv\Scripts\python.exe` directly sidesteps that. Backend gracefully degrades (`mlClient.service.ts`, 5s timeout) when this isn't running, so the app still works without it — but priority predictions/mini-check results won't be real.
+
 ## Architecture
 
 ### Frontend
