@@ -1,4 +1,4 @@
-import type { PriorityLevel } from "@prisma/client";
+import type { PriorityLevel, UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 
@@ -69,17 +69,24 @@ export async function requireTopicInSubject(topicId: string, subjectId: string) 
   return topic;
 }
 
-export async function listTopicsForUser(userId: string) {
+export async function listTopicsForUser(userId: string, mode: UserMode) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     throw new HttpError(404, "Kullanıcı bulunamadı");
   }
 
+  // EXAM_PREP (okul/üniversite bağı olmadan bağımsız sınav hazırlığı) kullanıcıları için küresel
+  // katalog, egitim seviyesi yerine hangi sınava (KPSS/AGS/ALES vb.) hazırlandıklarına göre gelir.
+  const globalCatalogFilter =
+    user.educationLevel === "EXAM_PREP" && user.examCategory
+      ? { examCategory: user.examCategory }
+      : { educationLevel: user.educationLevel };
+
   const subjects = await prisma.subject.findMany({
     where: {
       OR: [
-        { educationLevel: user.educationLevel },
-        { userId },
+        globalCatalogFilter,
+        { userId, mode },
         // Kullanıcının eklediği bir sınavın (KPSS/YÖKDİL/ALES) kataloğundan seçtiği dersler
         { exams: { some: { exam: { userId } } } },
       ],

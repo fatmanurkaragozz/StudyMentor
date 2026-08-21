@@ -1,4 +1,5 @@
-import type { ExamCategory } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import type { ExamCategory, UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 
@@ -28,11 +29,11 @@ export async function getExamCatalog(category: ExamCategory) {
   }));
 }
 
-export async function createOrGetCustomSubject(userId: string, name: string) {
+export async function createOrGetCustomSubject(userId: string, name: string, mode: UserMode) {
   const subject = await prisma.subject.upsert({
-    where: { name_userId: { name, userId } },
+    where: { name_userId_mode: { name, userId, mode } },
     update: {},
-    create: { name, userId, educationLevel: null },
+    create: { name, userId, educationLevel: null, mode },
   });
 
   let topic = await prisma.topic.findFirst({
@@ -47,9 +48,9 @@ export async function createOrGetCustomSubject(userId: string, name: string) {
   return { subjectId: subject.id, topicId: topic.id };
 }
 
-export async function listMySubjects(userId: string) {
+export async function listMySubjects(userId: string, mode: UserMode) {
   const subjects = await prisma.subject.findMany({
-    where: { userId },
+    where: { userId, mode },
     include: { topics: true },
     orderBy: { name: "asc" },
   });
@@ -80,4 +81,40 @@ export async function deleteSubject(userId: string, subjectId: string) {
     throw new HttpError(403, "Bu derse erişimin yok");
   }
   await prisma.subject.delete({ where: { id: subjectId } });
+}
+
+export async function renameSubject(userId: string, subjectId: string, name: string) {
+  const subject = await prisma.subject.findUnique({ where: { id: subjectId } });
+  if (!subject || subject.userId !== userId) {
+    throw new HttpError(403, "Bu derse erişimin yok");
+  }
+
+  try {
+    const updated = await prisma.subject.update({ where: { id: subjectId }, data: { name } });
+    return { subjectId: updated.id, subjectName: updated.name };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      throw new HttpError(409, "Bu isimde bir ders/uğraş zaten var");
+    }
+    throw error;
+  }
+}
+
+export async function renameTopic(userId: string, subjectId: string, topicId: string, name: string) {
+  const topic = await prisma.topic.findUnique({ where: { id: topicId }, include: { subject: true } });
+  if (!topic || topic.subjectId !== subjectId || topic.subject.userId !== userId) {
+    throw new HttpError(403, "Bu konuya erişimin yok");
+  }
+
+  const updated = await prisma.topic.update({ where: { id: topicId }, data: { name } });
+  return { topicId: updated.id, topicName: updated.name };
+}
+
+export async function deleteTopic(userId: string, subjectId: string, topicId: string) {
+  const topic = await prisma.topic.findUnique({ where: { id: topicId }, include: { subject: true } });
+  if (!topic || topic.subjectId !== subjectId || topic.subject.userId !== userId) {
+    throw new HttpError(403, "Bu konuya erişimin yok");
+  }
+
+  await prisma.topic.delete({ where: { id: topicId } });
 }
