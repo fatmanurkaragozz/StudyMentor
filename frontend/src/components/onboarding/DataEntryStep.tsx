@@ -33,7 +33,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
 
   useEffect(() => {
     apiClient
-      .getTopics()
+      .getTopics(user.mode)
       .then(data => {
         setSubjects(data);
         if (isStudent && data.length > 0) {
@@ -43,7 +43,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
       })
       .catch(err => setLoadError(err instanceof Error ? err.message : 'Konular yüklenemedi'))
       .finally(() => setLoading(false));
-  }, [isStudent]);
+  }, [isStudent, user.mode]);
 
   const selectedSubject = subjects.find(s => s.subjectId === selectedSubjectId) ?? null;
 
@@ -62,7 +62,7 @@ export const DataEntryStep: React.FC<DataEntryStepProps> = ({ onFinish }) => {
       let topicId = selectedTopicId;
 
       if (!isStudent) {
-        const created = await apiClient.createCustomSubject({ name: pursuitName.trim() });
+        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode: user.mode });
         subjectId = created.subjectId;
         topicId = created.topicId;
       }

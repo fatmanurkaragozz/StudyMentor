@@ -34,7 +34,7 @@ export async function updateProfile(userId: string, input: UpdateProfileInput) {
     where: { id: userId },
     data: {
       educationLevel: nextEducationLevel,
-      grade: nextEducationLevel === "LIFELONG_LEARNER" ? null : nextGrade,
+      grade: nextEducationLevel === "LIFELONG_LEARNER" || nextEducationLevel === "EXAM_PREP" ? null : nextGrade,
     },
   });
   return updated;

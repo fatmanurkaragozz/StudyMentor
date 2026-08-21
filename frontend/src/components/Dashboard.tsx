@@ -105,7 +105,7 @@ export const Dashboard: React.FC = () => {
 
     const endOfToday = new Date();
     endOfToday.setHours(23, 59, 59, 999);
-    Promise.all([apiClient.getTopics(), apiClient.getDueTopicReminders()])
+    Promise.all([apiClient.getTopics(user.mode), apiClient.getDueTopicReminders()])
       .then(([subjectsWithTopics, dueReminders]) => {
         // Kisisel hatirlatmasi olan bir konu, ML'in genel nextReview'inde de tekrar
         // gorunmesin diye once o topicId'leri cikariyoruz - ayni konu iki kez listelenmez.
@@ -154,7 +154,7 @@ export const Dashboard: React.FC = () => {
         setLoadingDue(false);
         setLoadingProgress(false);
       });
-  }, []);
+  }, [user.mode]);
 
   const handleAddDueToToday = async (topic: DueTopic) => {
     setDueError(null);

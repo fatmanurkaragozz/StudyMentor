@@ -1,15 +1,15 @@
 import type { EducationLevel } from "@prisma/client";
 
-const GRADE_RANGES: Record<Exclude<EducationLevel, "LIFELONG_LEARNER">, [number, number]> = {
+const GRADE_RANGES: Record<Exclude<EducationLevel, "LIFELONG_LEARNER" | "EXAM_PREP">, [number, number]> = {
   MIDDLE_SCHOOL: [5, 8],
   HIGH_SCHOOL: [9, 12],
   UNIVERSITY: [1, 4],
 };
 
-// LIFELONG_LEARNER'da sinif kavrami yok - grade her zaman null/undefined olmali.
+// LIFELONG_LEARNER ve EXAM_PREP'te sinif kavrami yok - grade her zaman null/undefined olmali.
 // Diger seviyelerde grade, o seviyenin gecerli araligi icinde olmali.
 export function isValidGrade(educationLevel: EducationLevel, grade: number | null | undefined): boolean {
-  if (educationLevel === "LIFELONG_LEARNER") {
+  if (educationLevel === "LIFELONG_LEARNER" || educationLevel === "EXAM_PREP") {
     return grade === null || grade === undefined;
   }
   if (grade === null || grade === undefined) {

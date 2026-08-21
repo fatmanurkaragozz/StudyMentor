@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Prisma } from "@prisma/client";
-import type { EducationLevel, User } from "@prisma/client";
+import type { EducationLevel, ExamCategory, User } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { config } from "../config/env.js";
 import { HttpError } from "../utils/httpError.js";
@@ -31,6 +31,7 @@ interface RegisterInput {
   lastName: string;
   educationLevel: EducationLevel;
   grade?: number;
+  examCategory?: ExamCategory;
 }
 
 export async function registerUser(input: RegisterInput) {
@@ -50,7 +51,8 @@ export async function registerUser(input: RegisterInput) {
         firstName: input.firstName,
         lastName: input.lastName,
         educationLevel: input.educationLevel,
-        grade: input.educationLevel === "LIFELONG_LEARNER" ? null : input.grade,
+        grade: input.educationLevel === "LIFELONG_LEARNER" || input.educationLevel === "EXAM_PREP" ? null : input.grade,
+        examCategory: input.educationLevel === "EXAM_PREP" ? input.examCategory : undefined,
         emailVerificationCode: verificationCode,
         emailVerificationExpiresAt: new Date(Date.now() + VERIFICATION_CODE_TTL_MS),
       },

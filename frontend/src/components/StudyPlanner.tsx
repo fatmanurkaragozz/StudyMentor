@@ -18,9 +18,12 @@ import {
   PlusCircle,
   Trash2,
   Compass,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 const todayKey = () => new Date().toISOString().split('T')[0];
+const SIDEBAR_PAGE_SIZE = 5;
 
 export const StudyPlanner: React.FC = () => {
   const { user } = useApp();
@@ -69,9 +72,12 @@ export const StudyPlanner: React.FC = () => {
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [deletingSubjectId, setDeletingSubjectId] = useState<string | null>(null);
 
+  // Yan panelde ders/uğraş listesi uzadıkça sayfa aşağı doğru uzamasın diye sayfalama.
+  const [sidebarPage, setSidebarPage] = useState(1);
+
   useEffect(() => {
     apiClient
-      .getTopics()
+      .getTopics(user.mode)
       .then(data => {
         setSubjects(data);
         if (isStudent && data.length > 0) {
@@ -81,17 +87,17 @@ export const StudyPlanner: React.FC = () => {
       })
       .catch(err => setLoadError(err instanceof Error ? err.message : 'Dersler yüklenemedi'))
       .finally(() => setLoadingSubjects(false));
-  }, [isStudent]);
+  }, [isStudent, user.mode]);
 
   useEffect(() => {
     if (isStudent) return;
     setLoadingPursuits(true);
     apiClient
-      .getMySubjects()
+      .getMySubjects(user.mode)
       .then(setMyPursuits)
       .catch(err => setLoadError(err instanceof Error ? err.message : 'Uğraşlar yüklenemedi'))
       .finally(() => setLoadingPursuits(false));
-  }, [isStudent]);
+  }, [isStudent, user.mode]);
 
   const loadTasks = () => {
     apiClient
@@ -142,6 +148,50 @@ export const StudyPlanner: React.FC = () => {
     ? selectedSubject?.topics.find(t => t.id === selectedTopicId)?.name ?? null
     : pursuitName.trim() || null;
 
+  const sidebarItems = isStudent ? subjects : myPursuits;
+  const sidebarTotalPages = Math.max(1, Math.ceil(sidebarItems.length / SIDEBAR_PAGE_SIZE));
+  useEffect(() => {
+    setSidebarPage(p => Math.min(p, sidebarTotalPages));
+  }, [sidebarTotalPages]);
+  const pagedSidebarItems = sidebarItems.slice((sidebarPage - 1) * SIDEBAR_PAGE_SIZE, sidebarPage * SIDEBAR_PAGE_SIZE);
+
+  const sidebarPagination = sidebarTotalPages > 1 ? (
+    <div className="flex items-center justify-center gap-1 pt-1">
+      <button
+        type="button"
+        onClick={() => setSidebarPage(p => Math.max(1, p - 1))}
+        disabled={sidebarPage === 1}
+        className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 transition-all"
+      >
+        <ChevronLeft className="w-3.5 h-3.5" />
+      </button>
+      {Array.from({ length: sidebarTotalPages }, (_, i) => i + 1).map(page => (
+        <button
+          key={page}
+          type="button"
+          onClick={() => setSidebarPage(page)}
+          className={`min-w-[26px] px-1.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+            page === sidebarPage
+              ? isStudent
+                ? 'bg-gradient-to-r from-brand-pink-light to-brand-pink-dark text-white'
+                : 'bg-gradient-to-r from-brand-mint to-brand-mint-dark text-white'
+              : 'bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
+          }`}
+        >
+          {page}
+        </button>
+      ))}
+      <button
+        type="button"
+        onClick={() => setSidebarPage(p => Math.min(sidebarTotalPages, p + 1))}
+        disabled={sidebarPage === sidebarTotalPages}
+        className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-slate-600 dark:text-slate-300 transition-all"
+      >
+        <ChevronRight className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  ) : null;
+
   const handleSelectSubject = (subjectId: string) => {
     setSelectedSubjectId(subjectId);
     const subject = subjects.find(s => s.subjectId === subjectId);
@@ -159,7 +209,7 @@ export const StudyPlanner: React.FC = () => {
       let topicId = selectedTopicId;
 
       if (!isStudent) {
-        const created = await apiClient.createCustomSubject({ name: pursuitName.trim() });
+        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode: user.mode });
         subjectId = created.subjectId;
         topicId = created.topicId;
       }
@@ -207,7 +257,7 @@ export const StudyPlanner: React.FC = () => {
 
       if (!isStudent) {
         if (!pursuitName.trim()) return;
-        const created = await apiClient.createCustomSubject({ name: pursuitName.trim() });
+        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode: user.mode });
         subjectId = created.subjectId;
         topicId = created.topicId;
       }
@@ -248,14 +298,14 @@ export const StudyPlanner: React.FC = () => {
     setLoadError(null);
     try {
       await apiClient.deleteSubject(subjectId);
-      const data = await apiClient.getTopics();
+      const data = await apiClient.getTopics(user.mode);
       setSubjects(data);
       if (selectedSubjectId === subjectId) {
         setSelectedSubjectId(data[0]?.subjectId ?? '');
         setSelectedTopicId(data[0]?.topics[0]?.id ?? '');
       }
       if (!isStudent) {
-        const mine = await apiClient.getMySubjects();
+        const mine = await apiClient.getMySubjects(user.mode);
         setMyPursuits(mine);
         if (pursuitName === subjectName) setPursuitName('');
       }
@@ -397,9 +447,9 @@ export const StudyPlanner: React.FC = () => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Main Timer Box */}
-        <div className="lg:col-span-2 glass-panel p-8 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center space-y-6 text-center">
+        <div className="lg:col-span-2 lg:sticky lg:top-6 glass-panel p-8 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center space-y-6 text-center">
           {/* Mode Tabs */}
           <div className="flex items-center gap-2 p-1.5 bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl">
             <button
@@ -530,7 +580,7 @@ export const StudyPlanner: React.FC = () => {
               )}
 
               <div className="space-y-2">
-                {subjects.map(item => (
+                {pagedSidebarItems.map(item => (
                   <div
                     key={item.subjectId}
                     onClick={() => handleSelectSubject(item.subjectId)}
@@ -559,6 +609,7 @@ export const StudyPlanner: React.FC = () => {
                   </div>
                 ))}
               </div>
+              {sidebarPagination}
             </div>
           )}
 
@@ -590,7 +641,7 @@ export const StudyPlanner: React.FC = () => {
               )}
 
               <div className="space-y-2">
-                {myPursuits.map(item => (
+                {pagedSidebarItems.map(item => (
                   <div
                     key={item.subjectId}
                     onClick={() => setPursuitName(item.subjectName)}
@@ -616,6 +667,7 @@ export const StudyPlanner: React.FC = () => {
                   </div>
                 ))}
               </div>
+              {sidebarPagination}
             </div>
           )}
 

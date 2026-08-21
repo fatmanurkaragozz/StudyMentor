@@ -67,7 +67,7 @@ export const RealCalendar: React.FC = () => {
 
   const loadAll = () => {
     setLoading(true);
-    Promise.all([apiClient.getMySubjects(), apiClient.getSchedule(), apiClient.getExams()])
+    Promise.all([apiClient.getMySubjects(user.mode), apiClient.getSchedule(), apiClient.getExams()])
       .then(([s, sch, ex]) => {
         setSubjects(s);
         setSchedule(sch);
@@ -79,7 +79,7 @@ export const RealCalendar: React.FC = () => {
 
   useEffect(() => {
     loadAll();
-  }, []);
+  }, [user.mode]);
 
   const handleDeleteExam = async (exam: ExamDto) => {
     const label = isStudent ? 'sınavı' : 'hedefi';
