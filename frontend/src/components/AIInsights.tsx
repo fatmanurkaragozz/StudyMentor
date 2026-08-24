@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { apiClient, type RecommendationRow } from '../lib/apiClient';
+import { apiClient, type RecommendationRow, type SubjectHistoryEntry, type InsightFeedback } from '../lib/apiClient';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
-import { Sparkles, BrainCircuit, Calendar, ExternalLink, ArrowRight, Loader2 } from 'lucide-react';
+import { TopicCheckModal } from './onboarding/TopicCheckModal';
+import { getSubjectHistoryFallbackComment } from '../lib/kaptan';
+import { Sparkles, BrainCircuit, Calendar, ArrowUpRight, Loader2, Compass, Clock, ListChecks, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { StarMap } from './StarMap';
 
 const TYPE_LABELS: Record<string, string> = {
@@ -11,18 +13,101 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export const AIInsights: React.FC = () => {
-  const { user, setActiveTab } = useApp();
+  const { user } = useApp();
   const isStudent = user.mode === 'STUDENT';
 
   const [recommendations, setRecommendations] = useState<RecommendationRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkTopic, setCheckTopic] = useState<{ id: string; name: string; subjectName: string } | null>(null);
 
-  useEffect(() => {
+  const [history, setHistory] = useState<SubjectHistoryEntry[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [generatingId, setGeneratingId] = useState<string | null>(null);
+  // Gemini'e ulasilamayan (kredi/anahtar yok, hata) ders/uğraşlar - bunlar icin baska bir
+  // ucretli modele GECILMEZ, sadece kaptan.ts'in ucretsiz sablon yorumuna dusulur.
+  const [fallbackIds, setFallbackIds] = useState<Set<string>>(new Set());
+
+  const [submittingFeedbackId, setSubmittingFeedbackId] = useState<string | null>(null);
+  const [reasonDraftId, setReasonDraftId] = useState<string | null>(null);
+  const [reasonDraft, setReasonDraft] = useState('');
+
+  const loadRecommendations = () => {
     apiClient
       .getRecommendations()
       .then(setRecommendations)
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadRecommendations();
   }, []);
+
+  useEffect(() => {
+    setLoadingHistory(true);
+    apiClient
+      .getSubjectHistory(user.mode)
+      .then(setHistory)
+      .finally(() => setLoadingHistory(false));
+  }, [user.mode]);
+
+  const handleGenerateInsight = async (subjectId: string) => {
+    setGeneratingId(subjectId);
+    try {
+      const result = await apiClient.generateSubjectInsight(subjectId, user.mode);
+      setHistory(prev =>
+        prev.map(entry =>
+          entry.subjectId === subjectId
+            ? {
+                ...entry,
+                insight:
+                  result.aiAvailable && result.content && result.updatedAt
+                    ? { content: result.content, updatedAt: result.updatedAt, feedback: result.feedback, feedbackReason: result.feedbackReason }
+                    : entry.insight,
+              }
+            : entry,
+        ),
+      );
+      if (!result.aiAvailable) {
+        // Gemini'e ulasilamadi (kredi/anahtar yok, hata) - baska bir ucretli modele
+        // GECILMEZ, sadece bu bayrak isaretlenir ve render sirasinda kaptan.ts'in
+        // ucretsiz sablon yorumuna dusulur.
+        setFallbackIds(prev => new Set(prev).add(subjectId));
+      }
+      // Yeni bir yorum uretildi - varsa acik kalmis "neden" kutusunu kapat.
+      if (reasonDraftId === subjectId) {
+        setReasonDraftId(null);
+        setReasonDraft('');
+      }
+    } finally {
+      setGeneratingId(null);
+    }
+  };
+
+  const handleFeedback = async (subjectId: string, feedback: InsightFeedback, reason?: string) => {
+    setSubmittingFeedbackId(subjectId);
+    try {
+      const result = await apiClient.submitInsightFeedback(subjectId, feedback, reason);
+      setHistory(prev =>
+        prev.map(entry =>
+          entry.subjectId === subjectId && entry.insight
+            ? { ...entry, insight: { ...entry.insight, feedback: result.feedback, feedbackReason: result.feedbackReason } }
+            : entry,
+        ),
+      );
+      if (feedback === 'DISLIKE') {
+        setReasonDraftId(subjectId);
+        setReasonDraft(reason ?? '');
+      } else {
+        setReasonDraftId(null);
+        setReasonDraft('');
+      }
+    } catch {
+      // Sessizce yut - geri bildirim ikincil bir aksiyon, kullaniciyi bir hata mesajiyla
+      // rahatsiz etmeye gerek yok, sadece buton eski durumunda kalir.
+    } finally {
+      setSubmittingFeedbackId(null);
+    }
+  };
 
   return (
     <div className="relative p-6 space-y-6 max-w-6xl mx-auto">
@@ -37,7 +122,7 @@ export const AIInsights: React.FC = () => {
           AI Koç Tavsiyeleri & Spaced Repetition Analizi
         </h2>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Random Forest ve Aralıklı Tekrar algoritmalarımızın çalışma oturumlarınızdan elde ettiği tahmin ve yönlendirmeler.
+          Random Forest ve Aralıklı Tekrar algoritmalarımızın çalışma oturumlarınızdan elde ettiği tahminler, ve Kaptan'ın ders/uğraş bazlı kişisel yorumları.
         </p>
       </div>
 
@@ -51,9 +136,9 @@ export const AIInsights: React.FC = () => {
 
       {!loading && recommendations.length === 0 && (
         <div className="relative glass-panel p-6 rounded-2xl border border-brand-violet/30 bg-white dark:bg-slate-900/80 text-center space-y-1">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Kaptan henüz haritanı göremiyor</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Kaptan henüz sana dair bir şey bilmiyor</h3>
           <p className="text-xs text-slate-700 dark:text-slate-300">
-            Bir konu seç ve ilk mini kontrolünü yap, Kaptan sana özel rotanı çizmeye başlasın.
+            Bir konu seç ve ilk mini kontrolünü yap, Kaptan sana özel önerilerini oluşturmaya başlasın.
           </p>
         </div>
       )}
@@ -91,11 +176,17 @@ export const AIInsights: React.FC = () => {
 
               {item.topicId && (
                 <button
-                  onClick={() => setActiveTab('dashboard')}
+                  onClick={() =>
+                    setCheckTopic({
+                      id: item.topicId as string,
+                      name: item.topicName ?? '',
+                      subjectName: item.subjectName ?? '',
+                    })
+                  }
                   className="ml-auto px-4 py-2 rounded-xl bg-brand-violet hover:bg-brand-violet-hover text-white font-semibold text-xs transition-all flex items-center gap-1.5 shadow-md glow-violet"
                 >
-                  <span>Dashboard'dan Kontrol Et</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Kontrol Et</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -103,31 +194,176 @@ export const AIInsights: React.FC = () => {
         ))}
       </div>
 
-      {/* Recommended External Resources Box */}
-      <div className="relative glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-brand-gold-dark dark:text-brand-gold" />
-          <span>{isStudent ? 'Sizin Seviyenize Özel Önerilen Ders Kaynakları' : 'Seviyenize Özel Önerilen Proje & Eğitim Kaynakları'}</span>
-        </h3>
+      {/* Çalışma Geçmişi */}
+      <div className="relative space-y-4">
+        <div>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-brand-violet-hover dark:text-brand-violet" />
+            <span>{isStudent ? 'Ders Bazlı Çalışma Geçmişin' : 'Uğraş Bazlı Çalışma Geçmişin'}</span>
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Her {isStudent ? 'ders' : 'uğraş'} için ne kadar odaklandığını (ya da hangi konuları çalıştığını) ve Kaptan'ın buna dair yorumunu burada gör.
+          </p>
+        </div>
+
+        {loadingHistory && (
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Geçmiş yükleniyor...</span>
+          </div>
+        )}
+
+        {!loadingHistory && history.length === 0 && (
+          <div className="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+            {isStudent ? 'Henüz kayıtlı bir çalışma geçmişin yok.' : 'Henüz kayıtlı bir uğraş geçmişin yok.'}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-800 dark:text-slate-200">{isStudent ? 'BTK Akademi - AYT Matematik Kampı' : 'BTK Akademi - Modern Python Microservices'}</span>
-              <ExternalLink className="w-3.5 h-3.5 text-brand-pink-dark dark:text-brand-pink-light" />
-            </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">Zorlandığınız konular üzerine algoritma tarafından eşleştirilmiş ücretsiz video eğitim seti.</p>
-          </div>
+          {history.map(entry => {
+            const showFallback = fallbackIds.has(entry.subjectId) && !entry.insight;
+            const fallback = showFallback ? getSubjectHistoryFallbackComment(entry, isStudent) : null;
 
-          <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-800 dark:text-slate-200">{isStudent ? 'YouTube - Türev Özel Soru Bankası Çözümleri' : 'FastAPI Official Async Patterns Guide'}</span>
-              <ExternalLink className="w-3.5 h-3.5 text-brand-pink-dark dark:text-brand-pink-light" />
-            </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">Pratik seviyenizi artırmak için AI tarafından önceliklendirilmiş rehber içerik.</p>
-          </div>
+            return (
+              <div key={entry.subjectId} className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">{entry.subjectName}</h4>
+
+                {entry.displayMode === 'TIME' && entry.time ? (
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-300">
+                    <div>
+                      <span className="text-slate-400 dark:text-slate-500">Toplam süre</span>
+                      <div className="font-bold text-slate-900 dark:text-slate-100">{(entry.time.totalMinutes / 60).toFixed(1)} sa</div>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 dark:text-slate-500">Oturum sayısı</span>
+                      <div className="font-bold text-slate-900 dark:text-slate-100">{entry.time.sessionCount}</div>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 dark:text-slate-500">Ort. verimlilik</span>
+                      <div className="font-bold text-slate-900 dark:text-slate-100">{'⭐'.repeat(Math.round(entry.time.avgProductivity))}</div>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 dark:text-slate-500">Son çalışma</span>
+                      <div className="font-bold text-slate-900 dark:text-slate-100">{new Date(entry.time.lastStudiedAt).toLocaleDateString('tr-TR')}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                      <ListChecks className="w-3.5 h-3.5" />
+                      <span>Henüz süreli oturum yok, mini kontrol yapılan konular:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(entry.topics ?? []).map(topic => (
+                        <span
+                          key={topic.topicId}
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${topic.priority ? PRIORITY_COLORS[topic.priority] : 'bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}
+                        >
+                          {topic.topicName}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {(entry.insight || fallback) && (
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 px-4 py-3 space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-brand-violet-hover dark:text-brand-violet">
+                      <Compass className="w-3.5 h-3.5" />
+                      <span>{entry.insight ? "Kaptan'ın Yorumu (Gemini AI)" : fallback?.title}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {entry.insight?.content ?? fallback?.content}
+                    </p>
+
+                    {/* Geri bildirim - sadece gercek (Gemini) yoruma eklenir, ucretsiz sablon
+                        yedeginin arkasinda bir DB satiri olmadigi icin fallback'te gosterilmez. */}
+                    {entry.insight && (
+                      <div className="pt-1 space-y-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleFeedback(entry.subjectId, 'LIKE')}
+                            disabled={submittingFeedbackId === entry.subjectId}
+                            title="Bu yorumu beğendim"
+                            className={`p-1.5 rounded-lg transition-all disabled:opacity-40 ${
+                              entry.insight.feedback === 'LIKE'
+                                ? 'bg-brand-mint-dark/15 text-brand-mint-dark dark:text-brand-mint'
+                                : 'text-slate-400 dark:text-slate-500 hover:text-brand-mint-dark dark:hover:text-brand-mint hover:bg-brand-mint-dark/10'
+                            }`}
+                          >
+                            <ThumbsUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleFeedback(entry.subjectId, 'DISLIKE')}
+                            disabled={submittingFeedbackId === entry.subjectId}
+                            title="Bu yorumu beğenmedim"
+                            className={`p-1.5 rounded-lg transition-all disabled:opacity-40 ${
+                              entry.insight.feedback === 'DISLIKE'
+                                ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
+                                : 'text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10'
+                            }`}
+                          >
+                            <ThumbsDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {reasonDraftId === entry.subjectId && (
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="text"
+                              value={reasonDraft}
+                              onChange={e => setReasonDraft(e.target.value)}
+                              placeholder="Neden beğenmedin? (opsiyonel)"
+                              maxLength={200}
+                              className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-[11px] text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-violet"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleFeedback(entry.subjectId, 'DISLIKE', reasonDraft.trim() || undefined)}
+                              disabled={submittingFeedbackId === entry.subjectId}
+                              className="px-2.5 py-1 rounded-lg bg-brand-violet/10 border border-brand-violet/30 text-brand-violet-hover dark:text-brand-violet text-[11px] font-semibold hover:bg-brand-violet/20 disabled:opacity-40 transition-all"
+                            >
+                              Gönder
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => handleGenerateInsight(entry.subjectId)}
+                  disabled={generatingId === entry.subjectId}
+                  className="w-full py-2 rounded-xl bg-brand-violet/10 border border-brand-violet/30 text-brand-violet-hover dark:text-brand-violet font-semibold text-[11px] hover:bg-brand-violet/20 disabled:opacity-50 transition-all flex items-center justify-center gap-1.5"
+                >
+                  {generatingId === entry.subjectId ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3.5 h-3.5" />
+                  )}
+                  <span>{entry.insight ? 'Yorumu Yenile' : 'AI Yorumu Al'}</span>
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
+
+      {checkTopic && (
+        <TopicCheckModal
+          topicId={checkTopic.id}
+          topicName={checkTopic.name}
+          subjectName={checkTopic.subjectName}
+          onClose={() => {
+            setCheckTopic(null);
+            loadRecommendations();
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -108,6 +108,11 @@ export const renameTopicSchema = z.object({
   name: z.string().min(1).max(80),
 });
 
+export const submitInsightFeedbackSchema = z.object({
+  feedback: z.enum(["LIKE", "DISLIKE"]),
+  reason: z.string().max(200).optional(),
+});
+
 export const createScheduleSlotSchema = z.object({
   subjectId: z.string().min(1),
   dayOfWeek: z.number().int().min(1).max(7),

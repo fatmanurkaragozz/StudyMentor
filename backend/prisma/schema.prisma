@@ -133,15 +133,24 @@ model Subject {
 
 // Ders/uğraş bazlı, Claude API ile üretilen AI yorumunun önbelleği - "AI Yorumu Al" butonuna
 // her basıldığında yeniden ücretli çağrı yapmamak için kullanıcı+ders başına tek satır tutulur.
+// Kullanicinin AI yorumuna verdigi tepki - bir sonraki uretimde Gemini'ye
+// duzeltici bir not olarak hatirlatilir (bkz. subjectInsight.service.ts).
+enum InsightFeedback {
+  LIKE
+  DISLIKE
+}
+
 model SubjectInsight {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subjectId String
-  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String           @id @default(uuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId      String
+  subject        Subject          @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  content        String
+  feedback       InsightFeedback?
+  feedbackReason String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@unique([userId, subjectId])
 }
