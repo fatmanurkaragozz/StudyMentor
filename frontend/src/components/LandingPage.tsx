@@ -290,7 +290,7 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
                 </Badge>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Öğrenci Modu</h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
-                  LGS, YKS, Üniversite vize/final sınavlarına yönelik ders takibi, deneme netleri ve akıllı tekrar hatırlatmaları.
+                  LGS, YKS ve üniversite vize/finaline hazırlananlar kadar; hiçbir okula ya da üniversiteye bağlı olmadan AGS, KPSS, ALES, DGS veya YDS gibi bir sınava bağımsız hazırlananlar için de: ders/konu takibi, deneme netleri ve akıllı tekrar hatırlatmaları. Okulun olsun ya da olmasın, hedefin bir sınavsa modun bu.
                 </p>
               </div>
 
@@ -306,6 +306,10 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
                   <span>Pomodoro Zamanlayıcısı ve Oturum Değerlendirme</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
+                  <span>Okula/Üniversiteye Bağlı Olmadan Bağımsız Sınav Hazırlığı</span>
                 </li>
               </ul>
             </div>
@@ -351,7 +355,7 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
                 </Badge>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">İş Hayatım ve Gelişim</h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
-                  Yazılım projeleri, dil öğrenimi, kişisel okumalar ve rutin alışkanlık takibi yapan yetişkinler ve çalışanlar için.
+                  Mesleğin ne olursa olsun — ya da hiçbir mesleğin olmasa bile: spor, İngilizce, tiyatro, müzik gibi kişisel uğraşların; yazılım/kişisel proje geliştirme; kişisel okumalar ve rutin alışkanlık takibi. Sınav ve okul ilişkisi olmayan her kişisel gelişim hedefi burada.
                 </p>
               </div>
 
