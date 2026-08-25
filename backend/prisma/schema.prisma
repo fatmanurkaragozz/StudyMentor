@@ -109,6 +109,23 @@ model User {
   topicReminders      TopicReminder[]
   subjectInsights     SubjectInsight[]
   subjectInsightLogs  SubjectInsightLog[]
+  refreshTokens       RefreshToken[]
+}
+
+// httpOnly cookie'de tutulan opak refresh token'ların sunucu taraflı kaydı - yetki
+// tamamen bu satırın varliğindan/revokedAt durumundan geliyor (JWT değil, her
+// kullanımda zaten DB'ye gidiliyor). tokenHash sha256 - ham değer asla saklanmaz.
+model RefreshToken {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash         String    @unique
+  expiresAt         DateTime
+  createdAt         DateTime  @default(now())
+  revokedAt         DateTime?
+  replacedByTokenId String?   @unique // rotation'da bu satırın yerini alan yeni satırı işaretler
+
+  @@index([userId])
 }
 
 model Subject {

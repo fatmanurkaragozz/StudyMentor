@@ -18,3 +18,14 @@ export const emailCodeLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "Çok fazla kod isteği gönderildi. Lütfen bir süre sonra tekrar dene." },
 });
+
+// /auth/refresh - login/register kadar sik denenen bir kaba-kuvvet hedefi degil,
+// normal oturum-surdurme trafigi (access token her sure doldugunda tetikleniyor),
+// o yuzden daha gevsek.
+export const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Çok fazla oturum yenileme denemesi. Lütfen birkaç dakika sonra tekrar dene." },
+});
