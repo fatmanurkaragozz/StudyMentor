@@ -21,6 +21,12 @@ const examCatalogCategories = [
 
 const examCategorySchema = z.enum([...examCatalogCategories, "OTHER"]);
 
+const userModeSchema = z.enum(["STUDENT", "LIFELONG_LEARNER"]);
+
+export const modeQuerySchema = z.object({
+  mode: userModeSchema,
+});
+
 // EducationLevel EXAM_PREP (okul/üniversite bağı olmadan bağımsız sınav hazırlığı) icin secilebilecek
 // sınav kategorileri - okula bağlı LGS/TYT/AYT/YDT ve legacy YOKDIL bu listede yok.
 const ADULT_EXAM_CATEGORIES = [
@@ -35,12 +41,6 @@ const ADULT_EXAM_CATEGORIES = [
   "YDS",
   "OTHER",
 ] as const;
-
-const userModeSchema = z.enum(["STUDENT", "LIFELONG_LEARNER"]);
-
-export const modeQuerySchema = z.object({
-  mode: userModeSchema,
-});
 
 export const registerSchema = z
   .object({
@@ -127,6 +127,7 @@ export const createExamSchema = z.object({
   targetScore: z.number().optional(),
   subjectIds: z.array(z.string().min(1)).min(1),
   examCategory: examCategorySchema.optional(),
+  mode: userModeSchema,
 });
 
 export const examCatalogParamsSchema = z.object({
@@ -171,6 +172,7 @@ export const respondToReminderSchema = z.object({
 
 export const createHabitSchema = z.object({
   name: z.string().min(1).max(80),
+  mode: userModeSchema,
 });
 
 export const toggleHabitLogSchema = z.object({
@@ -180,6 +182,7 @@ export const toggleHabitLogSchema = z.object({
 export const createJournalSchema = z.object({
   content: z.string().min(1),
   mood: z.string().min(1).max(4),
+  mode: userModeSchema,
 });
 
 export const createDailyTaskSchema = z.object({

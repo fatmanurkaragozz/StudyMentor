@@ -1,7 +1,9 @@
+import type { UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { getDisplayTopicLabel, markTopicReviewed, requireTopicInSubject } from "./topics.service.js";
 import { scoreAndRecommend } from "./recommendations.service.js";
 import { advanceReminderIfActive, proposeReminder } from "./topicReminders.service.js";
+import { isVisibleInMode } from "./subjectHistory.service.js";
 
 interface CreateStudySessionInput {
   subjectId: string;
@@ -88,21 +90,25 @@ export async function createStudySession(userId: string, input: CreateStudySessi
   return { studySession, ...result, proposedReminder };
 }
 
-export async function listStudySessions(userId: string) {
+export async function listStudySessions(userId: string, mode: UserMode) {
   const sessions = await prisma.studySession.findMany({
     where: { userId },
     include: { subject: true, topic: true },
     orderBy: { createdAt: "desc" },
   });
 
-  return sessions.map((s) => ({
-    id: s.id,
-    subjectName: s.subject.name,
-    topicName: s.topic.name,
-    durationMinutes: s.durationMinutes,
-    difficulty: s.difficulty,
-    productivity: s.productivity,
-    notes: s.notes,
-    createdAt: s.createdAt,
-  }));
+  // StudySession'un kendi mode alani yok - dersin/ugrasin ait oldugu Subject uzerinden
+  // (recommendations.service.ts ile ayni isVisibleInMode kurali) turetiliyor.
+  return sessions
+    .filter((s) => isVisibleInMode(s.subject, mode))
+    .map((s) => ({
+      id: s.id,
+      subjectName: s.subject.name,
+      topicName: s.topic.name,
+      durationMinutes: s.durationMinutes,
+      difficulty: s.difficulty,
+      productivity: s.productivity,
+      notes: s.notes,
+      createdAt: s.createdAt,
+    }));
 }

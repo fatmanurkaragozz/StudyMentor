@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { apiClient, type RecommendationRow, type SubjectHistoryEntry, type InsightFeedback } from '../lib/apiClient';
+import { apiClient, type SubjectHistoryEntry, type InsightFeedback } from '../lib/apiClient';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
 import { TopicCheckModal } from './onboarding/TopicCheckModal';
 import { getSubjectHistoryFallbackComment } from '../lib/kaptan';
+import { useRecommendations } from '../hooks/useRecommendations';
 import { Sparkles, BrainCircuit, Calendar, ArrowUpRight, Loader2, Compass, Clock, ListChecks, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { StarMap } from './StarMap';
 
@@ -16,8 +17,7 @@ export const AIInsights: React.FC = () => {
   const { user } = useApp();
   const isStudent = user.mode === 'STUDENT';
 
-  const [recommendations, setRecommendations] = useState<RecommendationRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { recommendations, loading, reload: loadRecommendations } = useRecommendations();
   const [checkTopic, setCheckTopic] = useState<{ id: string; name: string; subjectName: string } | null>(null);
 
   const [history, setHistory] = useState<SubjectHistoryEntry[]>([]);
@@ -31,16 +31,9 @@ export const AIInsights: React.FC = () => {
   const [reasonDraftId, setReasonDraftId] = useState<string | null>(null);
   const [reasonDraft, setReasonDraft] = useState('');
 
-  const loadRecommendations = () => {
-    apiClient
-      .getRecommendations()
-      .then(setRecommendations)
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    loadRecommendations();
-  }, []);
+  const [submittingRecFeedbackId, setSubmittingRecFeedbackId] = useState<string | null>(null);
+  const [recReasonDraftId, setRecReasonDraftId] = useState<string | null>(null);
+  const [recReasonDraft, setRecReasonDraft] = useState('');
 
   useEffect(() => {
     setLoadingHistory(true);
@@ -109,6 +102,25 @@ export const AIInsights: React.FC = () => {
     }
   };
 
+  const handleRecommendationFeedback = async (recommendationId: string, feedback: InsightFeedback, reason?: string) => {
+    setSubmittingRecFeedbackId(recommendationId);
+    try {
+      await apiClient.submitRecommendationFeedback(recommendationId, feedback, reason);
+      loadRecommendations();
+      if (feedback === 'DISLIKE') {
+        setRecReasonDraftId(recommendationId);
+        setRecReasonDraft(reason ?? '');
+      } else {
+        setRecReasonDraftId(null);
+        setRecReasonDraft('');
+      }
+    } catch {
+      // Sessizce yut - bkz. handleFeedback yukarıdaki aynı gerekçe.
+    } finally {
+      setSubmittingRecFeedbackId(null);
+    }
+  };
+
   return (
     <div className="relative p-6 space-y-6 max-w-6xl mx-auto">
       <StarMap lineColor="#8B7CFF" starColor="#c4b8ff" />
@@ -159,12 +171,61 @@ export const AIInsights: React.FC = () => {
 
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <BrainCircuit className="w-5 h-5 text-brand-violet-hover dark:text-brand-violet" />
-              <span>{item.title}</span>
+              <span>{item.kaptan.title}</span>
             </h3>
 
             <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-              {item.content}
+              {item.kaptan.content}
             </p>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleRecommendationFeedback(item.id, 'LIKE')}
+                disabled={submittingRecFeedbackId === item.id}
+                title="Bu öneriyi beğendim"
+                className={`p-1.5 rounded-lg transition-all disabled:opacity-40 ${
+                  item.feedback === 'LIKE'
+                    ? 'bg-brand-mint-dark/15 text-brand-mint-dark dark:text-brand-mint'
+                    : 'text-slate-400 dark:text-slate-500 hover:text-brand-mint-dark dark:hover:text-brand-mint hover:bg-brand-mint-dark/10'
+                }`}
+              >
+                <ThumbsUp className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRecommendationFeedback(item.id, 'DISLIKE')}
+                disabled={submittingRecFeedbackId === item.id}
+                title="Bu öneriyi beğenmedim"
+                className={`p-1.5 rounded-lg transition-all disabled:opacity-40 ${
+                  item.feedback === 'DISLIKE'
+                    ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
+                    : 'text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10'
+                }`}
+              >
+                <ThumbsDown className="w-3.5 h-3.5" />
+              </button>
+              {recReasonDraftId === item.id && (
+                <div className="flex-1 flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    value={recReasonDraft}
+                    onChange={e => setRecReasonDraft(e.target.value)}
+                    placeholder="Neden beğenmedin? (opsiyonel)"
+                    maxLength={200}
+                    className="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-[11px] text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-violet"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRecommendationFeedback(item.id, 'DISLIKE', recReasonDraft.trim() || undefined)}
+                    disabled={submittingRecFeedbackId === item.id}
+                    className="px-2.5 py-1 rounded-lg bg-brand-violet/10 border border-brand-violet/30 text-brand-violet-hover dark:text-brand-violet text-[11px] font-semibold hover:bg-brand-violet/20 disabled:opacity-40 transition-all"
+                  >
+                    Gönder
+                  </button>
+                </div>
+              )}
+            </div>
 
             <div className="pt-2 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
               {item.subjectName && (

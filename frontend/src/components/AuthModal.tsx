@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Mail, Lock, User, ArrowRight, AlertCircle, ShieldCheck, KeyRound, CheckCircle2 } from 'lucide-react';
-import { apiClient, setToken, ApiError, type BackendUser } from '../lib/apiClient';
+import { ApiError } from '../lib/apiClient';
+import { useAuth } from '../context/AuthContext';
 import type { PendingProfile } from './onboarding/types';
 
 interface AuthModalProps {
@@ -9,7 +10,7 @@ interface AuthModalProps {
   mode: 'LOGIN' | 'REGISTER';
   onModeChange: (mode: 'LOGIN' | 'REGISTER') => void;
   pendingProfile: PendingProfile | null;
-  onSuccess: (auth: { token: string; user: BackendUser }) => void;
+  onSuccess: () => void;
 }
 
 type View = 'FORM' | 'VERIFY_EMAIL' | 'FORGOT_EMAIL' | 'FORGOT_RESET' | 'FORGOT_DONE';
@@ -20,6 +21,7 @@ const plainInputClass =
   'w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark transition-all';
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChange, pendingProfile, onSuccess }) => {
+  const { login, register, verifyEmail, resendVerification, forgotPassword, resetPassword } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -54,7 +56,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
         const trimmedName = name.trim();
         const [firstName, ...rest] = trimmedName.split(' ');
         const lastName = rest.join(' ') || firstName;
-        await apiClient.register({
+        await register({
           email,
           password,
           firstName,
@@ -67,9 +69,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
         setCode('');
         setView('VERIFY_EMAIL');
       } else {
-        const result = await apiClient.login({ email, password });
-        setToken(result.token);
-        onSuccess(result);
+        await login(email, password);
+        onSuccess();
       }
     } catch (err) {
       if (err instanceof ApiError && err.status === 403) {
@@ -89,9 +90,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
     resetMessages();
     setLoading(true);
     try {
-      const result = await apiClient.verifyEmail({ email: pendingEmail, code });
-      setToken(result.token);
-      onSuccess(result);
+      await verifyEmail(pendingEmail, code);
+      onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Doğrulama başarısız oldu');
     } finally {
@@ -103,7 +103,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
     resetMessages();
     setLoading(true);
     try {
-      await apiClient.resendVerification({ email: pendingEmail });
+      await resendVerification(pendingEmail);
       setInfoMessage('Kod tekrar gönderildi.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Kod gönderilemedi');
@@ -117,7 +117,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
     resetMessages();
     setLoading(true);
     try {
-      await apiClient.forgotPassword({ email });
+      await forgotPassword(email);
       setPendingEmail(email);
       setCode('');
       setNewPassword('');
@@ -134,7 +134,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
     resetMessages();
     setLoading(true);
     try {
-      await apiClient.resetPassword({ email: pendingEmail, code, newPassword });
+      await resetPassword(pendingEmail, code, newPassword);
       setView('FORGOT_DONE');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Şifre sıfırlanamadı');

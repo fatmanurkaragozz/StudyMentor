@@ -63,6 +63,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
 
         <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-2">
           <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Platform Modu</div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Bu sadece arayüz önizlemesi - gerçek ders/uğraş verilerini değiştirmez.
+          </p>
           <div className="grid grid-cols-2 gap-2 p-1 bg-slate-200/80 dark:bg-slate-950 rounded-xl">
             <button
               onClick={() => setUserMode('STUDENT')}

@@ -1,4 +1,4 @@
-import type { ExamCategory } from "@prisma/client";
+import type { ExamCategory, UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 import { getSubjectsByIds } from "./subjects.service.js";
@@ -9,6 +9,7 @@ interface CreateExamInput {
   targetScore?: number;
   subjectIds: string[];
   examCategory?: ExamCategory;
+  mode: UserMode;
 }
 
 export async function createExam(userId: string, input: CreateExamInput) {
@@ -27,6 +28,7 @@ export async function createExam(userId: string, input: CreateExamInput) {
       date: new Date(input.date),
       targetScore: input.targetScore,
       examCategory: input.examCategory,
+      mode: input.mode,
       subjects: {
         create: input.subjectIds.map((subjectId) => ({ subjectId })),
       },
@@ -82,9 +84,9 @@ export async function deleteExam(userId: string, examId: string) {
   await prisma.exam.delete({ where: { id: examId } });
 }
 
-export async function listExams(userId: string) {
+export async function listExams(userId: string, mode: UserMode) {
   const exams = await prisma.exam.findMany({
-    where: { userId },
+    where: { userId, mode },
     include: { subjects: { include: { subject: true } } },
     orderBy: { date: "asc" },
   });

@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { createExamSchema, examCatalogParamsSchema, updateExamSchema } from "../validation/schemas.js";
+import { createExamSchema, examCatalogParamsSchema, modeQuerySchema, updateExamSchema } from "../validation/schemas.js";
 import { createExam, listExams, updateExam, deleteExam } from "../services/exams.service.js";
 import { getExamCatalog } from "../services/subjects.service.js";
 
@@ -10,7 +10,8 @@ export async function postExam(req: Request, res: Response) {
 }
 
 export async function getExams(req: Request, res: Response) {
-  const result = await listExams(req.userId as string);
+  const { mode } = modeQuerySchema.parse(req.query);
+  const result = await listExams(req.userId as string, mode);
   res.json(result);
 }
 

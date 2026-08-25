@@ -18,11 +18,16 @@ export async function startCheck(userId: string, topicId: string) {
     throw new HttpError(404, "Konu bulunamadı");
   }
 
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { educationLevel: true } });
+  if (!user) {
+    throw new HttpError(404, "Kullanıcı bulunamadı");
+  }
+
   const priorCheckCount = await prisma.topicCheck.count({ where: { userId, topicId } });
   const opportunity = priorCheckCount + 1;
 
   const check = await prisma.topicCheck.create({
-    data: { userId, topicId, opportunity },
+    data: { userId, topicId, opportunity, educationLevel: user.educationLevel },
   });
 
   const hint = topic.lastStudied

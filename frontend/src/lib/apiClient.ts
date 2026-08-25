@@ -1,42 +1,99 @@
 import type { EducationLevel, UserProfile, UserMode } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api";
-const TOKEN_KEY = "studymentor_token";
 
-export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+// Erisim tokeni artik localStorage'da degil, sadece bellekte tutuluyor (XSS'e karsi
+// localStorage'dan daha guvenli) - kalicilik httpOnly refresh cookie'sinden geliyor,
+// her sayfa yuklemesinde AuthContext bir kez /auth/refresh cagirip bunu yeniden kurar.
+let accessToken: string | null = null;
+
+export function getAccessToken(): string | null {
+  return accessToken;
 }
 
-export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
-}
-
-export function clearToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
+export function setAccessToken(token: string | null): void {
+  accessToken = token;
 }
 
 export class ApiError extends Error {
   status: number;
-  constructor(status: number, message: string) {
+  code?: string;
+  constructor(status: number, message: string, code?: string) {
     super(message);
     this.status = status;
+    this.code = code;
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken();
+interface AuthEventHandlers {
+  // Arka planda sessiz refresh denemesi de basarisiz olunca (refresh cookie de
+  // gecersiz/eksik) cagrilir - AuthContext bunu "oturum bitti" olarak isler.
+  onExpired: () => void;
+}
+let authEventHandlers: AuthEventHandlers | null = null;
+
+export function setAuthEventHandlers(handlers: AuthEventHandlers): void {
+  authEventHandlers = handlers;
+}
+
+interface RefreshResult {
+  accessToken: string;
+  accessTokenExpiresAt: string;
+  user: BackendUser;
+}
+
+// Ayni anda birden fazla cagiran (Dashboard'un birkac eszamanli GET'i AMA ayrica
+// AuthContext'in bootstrap effect'i - React StrictMode dev modunda mount effect'lerini
+// bilerek iki kez calistirdigi icin bu da iki kez tetiklenebiliyor) hepsi ayni tek
+// refresh cagrisini paylassin - dedup olmadan her biri tek-kullanimlik refresh
+// token'i ayri ayri rotate etmeye calisir, bu da backend'deki reuse-detection'i
+// yanlislikla tetikleyip oturumu dusurur.
+let refreshInFlight: Promise<RefreshResult | null> | null = null;
+
+async function refreshSession(): Promise<RefreshResult | null> {
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/refresh`, { method: "POST", credentials: "include" });
+        if (!res.ok) return null;
+        const body = (await res.json()) as RefreshResult;
+        setAccessToken(body.accessToken);
+        return body;
+      } catch {
+        return null;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+  }
+  return refreshInFlight;
+}
+
+async function request<T>(path: string, options: RequestInit = {}, isRetry = false): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...options.headers,
     },
   });
 
+  // /auth/* uclarindan gelen bir 401 "yanlis sifre/kod" gibi normal bir hata - oturum
+  // suresi dolmasiyla ilgisi yok, refresh denenmemeli.
+  if (response.status === 401 && !isRetry && !path.startsWith("/auth/")) {
+    const refreshed = await refreshSession();
+    if (refreshed) {
+      return request<T>(path, options, true);
+    }
+    setAccessToken(null);
+    authEventHandlers?.onExpired();
+  }
+
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new ApiError(response.status, body.error ?? `İstek başarısız oldu (${response.status})`);
+    throw new ApiError(response.status, body.error ?? `İstek başarısız oldu (${response.status})`, body.code);
   }
 
   return response.json() as Promise<T>;
@@ -57,7 +114,8 @@ export interface BackendUser {
 }
 
 interface AuthResponse {
-  token: string;
+  accessToken: string;
+  accessTokenExpiresAt: string;
   user: BackendUser;
 }
 
@@ -134,6 +192,8 @@ export interface RecommendationRow {
   topicName: string | null;
   subjectName: string | null;
   priority: PriorityLevel | null;
+  feedback: InsightFeedback | null;
+  feedbackReason: string | null;
 }
 
 export interface MyTopic {
@@ -274,6 +334,19 @@ export const apiClient = {
   resetPassword: (body: { email: string; code: string; newPassword: string }) =>
     request<{ message: string }>("/auth/reset-password", { method: "POST", body: JSON.stringify(body) }),
 
+  // refreshSession() ile ayni tek-ucuslu cagriyi paylasir (request()'in reaktif 401
+  // yolu da ayni fonksiyonu kullaniyor) - StrictMode'un cift-mount'u dahil, ayni anda
+  // gelen tum refresh talepleri tek bir gercek ag istegine duser.
+  refresh: async () => {
+    const result = await refreshSession();
+    if (!result) {
+      throw new ApiError(401, "Oturum bulunamadı", "TOKEN_MISSING");
+    }
+    return result;
+  },
+
+  logout: () => request<{ message: string }>("/auth/logout", { method: "POST" }),
+
   getMe: () => request<BackendUser>("/users/me"),
 
   getTopics: (mode: UserMode) => request<SubjectWithTopics[]>(`/topics?mode=${mode}`),
@@ -311,9 +384,9 @@ export const apiClient = {
   createScheduleSlot: (body: { subjectId: string; dayOfWeek: number; startTime: string; endTime: string; location?: string }) =>
     request<{ id: string }>("/schedule", { method: "POST", body: JSON.stringify(body) }),
 
-  getExams: () => request<ExamDto[]>("/exams"),
+  getExams: (mode: UserMode) => request<ExamDto[]>(`/exams?mode=${mode}`),
 
-  createExam: (body: { name: string; date: string; targetScore?: number; subjectIds: string[]; examCategory?: ExamCategory }) =>
+  createExam: (body: { name: string; date: string; targetScore?: number; subjectIds: string[]; examCategory?: ExamCategory; mode: UserMode }) =>
     request<{ id: string }>("/exams", { method: "POST", body: JSON.stringify(body) }),
 
   updateExam: (
@@ -350,22 +423,28 @@ export const apiClient = {
     notes?: string;
   }) => request<{ studySession: { id: string } } & RecommendationResult>("/study-sessions", { method: "POST", body: JSON.stringify(body) }),
 
-  getStudySessions: () => request<StudySessionRow[]>("/study-sessions"),
+  getStudySessions: (mode: UserMode) => request<StudySessionRow[]>(`/study-sessions?mode=${mode}`),
 
-  getRecommendations: () =>
-    request<RecommendationRow[]>("/recommendations"),
+  getRecommendations: (mode: UserMode) =>
+    request<RecommendationRow[]>(`/recommendations?mode=${mode}`),
 
-  getHabits: () => request<HabitRow[]>("/habits"),
+  submitRecommendationFeedback: (recommendationId: string, feedback: InsightFeedback, reason?: string) =>
+    request<{ id: string; feedback: InsightFeedback | null; feedbackReason: string | null }>(
+      `/recommendations/${recommendationId}/feedback`,
+      { method: "POST", body: JSON.stringify({ feedback, reason }) },
+    ),
 
-  createHabit: (name: string) =>
-    request<HabitRow>("/habits", { method: "POST", body: JSON.stringify({ name }) }),
+  getHabits: (mode: UserMode) => request<HabitRow[]>(`/habits?mode=${mode}`),
+
+  createHabit: (name: string, mode: UserMode) =>
+    request<HabitRow>("/habits", { method: "POST", body: JSON.stringify({ name, mode }) }),
 
   toggleHabitLog: (habitId: string, date: string) =>
     request<{ message: string }>(`/habits/${habitId}/toggle`, { method: "POST", body: JSON.stringify({ date }) }),
 
-  getJournals: () => request<JournalRow[]>("/journals"),
+  getJournals: (mode: UserMode) => request<JournalRow[]>(`/journals?mode=${mode}`),
 
-  createJournal: (body: { content: string; mood: string }) =>
+  createJournal: (body: { content: string; mood: string; mode: UserMode }) =>
     request<JournalRow>("/journals", { method: "POST", body: JSON.stringify(body) }),
 
   getDailyTasks: (date?: string) => request<DailyTaskRow[]>(`/daily-tasks${date ? `?date=${date}` : ""}`),

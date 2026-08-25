@@ -138,6 +138,12 @@ export async function generateSubjectInsight(userId: string, subjectId: string, 
       create: { userId, subjectId, content: text },
     });
 
+    // SubjectInsight'in aksine bu satir hicbir zaman ustune yazilmaz - gelecekte egitim/
+    // degerlendirme verisi olarak kullanilabilecek kalici bir uretim gecmisi olusturuyor.
+    await prisma.subjectInsightLog.create({
+      data: { userId, subjectId, systemPrompt: SYSTEM_PROMPT, userPrompt: buildUserPrompt(stats, isStudent) + feedbackNote, content: text },
+    });
+
     return {
       aiAvailable: true,
       content: updated.content,
@@ -163,6 +169,20 @@ export async function submitInsightFeedback(
       where: { userId_subjectId: { userId, subjectId } },
       data: { feedback, feedbackReason: reason ?? null },
     });
+
+    // Onbellekteki icerik her zaman en son log satiriyla birlikte yazildigi icin
+    // (bkz. generateSubjectInsight) o satir, geri bildirimin ait oldugu uretimdir.
+    const latestLog = await prisma.subjectInsightLog.findFirst({
+      where: { userId, subjectId },
+      orderBy: { createdAt: "desc" },
+    });
+    if (latestLog) {
+      await prisma.subjectInsightLog.update({
+        where: { id: latestLog.id },
+        data: { feedback, feedbackReason: reason ?? null },
+      });
+    }
+
     return {
       aiAvailable: true,
       content: updated.content,

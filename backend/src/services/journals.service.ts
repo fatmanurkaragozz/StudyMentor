@@ -1,3 +1,4 @@
+import type { UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 
 // AppContext.tsx'teki mock addJournalEntry ile ayni basit kelime-sayma mantigi -
@@ -13,13 +14,13 @@ function computeSentimentScore(content: string): number {
   return Number(Math.min(1, Math.max(-1, score)).toFixed(2));
 }
 
-export async function createJournal(userId: string, input: { content: string; mood: string }) {
+export async function createJournal(userId: string, input: { content: string; mood: string; mode: UserMode }) {
   const sentimentScore = computeSentimentScore(input.content);
   return prisma.journal.create({
-    data: { userId, content: input.content, mood: input.mood, sentimentScore },
+    data: { userId, content: input.content, mood: input.mood, sentimentScore, mode: input.mode },
   });
 }
 
-export async function listJournals(userId: string) {
-  return prisma.journal.findMany({ where: { userId }, orderBy: { createdAt: "desc" } });
+export async function listJournals(userId: string, mode: UserMode) {
+  return prisma.journal.findMany({ where: { userId, mode }, orderBy: { createdAt: "desc" } });
 }

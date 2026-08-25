@@ -60,4 +60,8 @@ env/
 # Trained ML model artifacts (regenerate via train.py)
 ml-service/models/
 
+# Exported real user data (regenerate via export_training_data.py) - never commit real usage data
+ml-service/studymentor_export.csv
+ml-service/studymentor_insight_export.jsonl
+
 .superpowers/

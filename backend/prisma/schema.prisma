@@ -14,11 +14,11 @@ enum Role {
 }
 
 enum EducationLevel {
-  MIDDLE_SCHOOL   // LGS
-  HIGH_SCHOOL     // YKS
-  UNIVERSITY      // Vize/Final
+  MIDDLE_SCHOOL // LGS
+  HIGH_SCHOOL // YKS
+  UNIVERSITY // Vize/Final
   LIFELONG_LEARNER // Kişisel Gelişim & Kariyer / Genel Çalışma
-  EXAM_PREP       // Okul/üniversite bağı olmadan bağımsız sınav hazırlığı (AGS/KPSS/ALES/DGS/YDS/YÖKDİL vb.)
+  EXAM_PREP // Okul/üniversite bağı olmadan bağımsız sınav hazırlığı (AGS/KPSS/ALES/DGS/YDS/YÖKDİL vb.)
 }
 
 // Sidebar/ProfilePage'deki Öğrenci↔Gelişim önizleme geçişinin (AppContext.setUserMode) client-side
@@ -81,8 +81,8 @@ model User {
   lastName       String
   role           Role           @default(STUDENT)
   educationLevel EducationLevel
-  grade          Int?           // Kaçıncı sınıf/yıl (LIFELONG_LEARNER/EXAM_PREP için null)
-  examCategory   ExamCategory?  // Sadece educationLevel EXAM_PREP ise anlamlı - hangi sınava hazırlandığı
+  grade          Int? // Kaçıncı sınıf/yıl (LIFELONG_LEARNER/EXAM_PREP için null)
+  examCategory   ExamCategory? // Sadece educationLevel EXAM_PREP ise anlamlı - hangi sınava hazırlandığı
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
@@ -96,37 +96,56 @@ model User {
   passwordResetExpiresAt DateTime?
 
   // İlişkiler
-  customSubjects       Subject[]
-  studySessions        StudySession[]
-  exams                Exam[]
-  habits               Habit[]
-  journals             Journal[]
-  aiRecommendations    AIRecommendation[]
+  customSubjects      Subject[]
+  studySessions       StudySession[]
+  exams               Exam[]
+  habits              Habit[]
+  journals            Journal[]
+  aiRecommendations   AIRecommendation[]
   resourceSuggestions ResourceSuggestion[]
-  topicChecks          TopicCheck[]
-  scheduleSlots        ScheduleSlot[]
-  dailyTasks           DailyTask[]
-  topicReminders       TopicReminder[]
-  subjectInsights      SubjectInsight[]
+  topicChecks         TopicCheck[]
+  scheduleSlots       ScheduleSlot[]
+  dailyTasks          DailyTask[]
+  topicReminders      TopicReminder[]
+  subjectInsights     SubjectInsight[]
+  subjectInsightLogs  SubjectInsightLog[]
+  refreshTokens       RefreshToken[]
+}
+
+// httpOnly cookie'de tutulan opak refresh token'ların sunucu taraflı kaydı - yetki
+// tamamen bu satırın varliğindan/revokedAt durumundan geliyor (JWT değil, her
+// kullanımda zaten DB'ye gidiliyor). tokenHash sha256 - ham değer asla saklanmaz.
+model RefreshToken {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash         String    @unique
+  expiresAt         DateTime
+  createdAt         DateTime  @default(now())
+  revokedAt         DateTime?
+  replacedByTokenId String?   @unique // rotation'da bu satırın yerini alan yeni satırı işaretler
+
+  @@index([userId])
 }
 
 model Subject {
   id             String          @id @default(uuid())
   name           String
   educationLevel EducationLevel? // Null ise kullanıcıya özel veya genel derstir
-  examCategory   ExamCategory?   // Dolu ise KPSS/YÖKDİL/ALES gibi merkezi bir sınav kataloğuna ait genel ders
-  userId         String?         // Kullanıcıya özel tanımlandıysa
+  examCategory   ExamCategory? // Dolu ise KPSS/YÖKDİL/ALES gibi merkezi bir sınav kataloğuna ait genel ders
+  userId         String? // Kullanıcıya özel tanımlandıysa
   user           User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mode           UserMode?       // Sadece kullanıcıya özel (userId dolu) derslerde anlamlı - hangi modda (Öğrenci/Gelişim) eklendiğini işaretler; genel/seed dersler için her zaman null
+  mode           UserMode? // Sadece kullanıcıya özel (userId dolu) derslerde anlamlı - hangi modda (Öğrenci/Gelişim) eklendiğini işaretler; genel/seed dersler için her zaman null
   createdAt      DateTime        @default(now())
 
   // İlişkiler
-  topics          Topic[]
-  studySessions   StudySession[]
-  exams           ExamSubject[]
-  scheduleSlots   ScheduleSlot[]
-  dailyTasks      DailyTask[]
-  subjectInsights SubjectInsight[]
+  topics             Topic[]
+  studySessions      StudySession[]
+  exams              ExamSubject[]
+  scheduleSlots      ScheduleSlot[]
+  dailyTasks         DailyTask[]
+  subjectInsights    SubjectInsight[]
+  subjectInsightLogs SubjectInsightLog[]
 
   @@unique([name, userId, mode])
 }
@@ -155,6 +174,27 @@ model SubjectInsight {
   @@unique([userId, subjectId])
 }
 
+// SubjectInsight'in aksine (o tablo kullanici+ders basina TEK satir tutar, her yeni
+// uretimde icerik/geri bildirim ustune yazilir - UI onbellegi) bu tablo append-only bir
+// gecmis: her "AI Yorumu Al" cagrisinin tam prompt'unu, uretilen icerigi ve o uretime
+// verilen geri bildirimi kalici olarak saklar. Amac gelecekte bu veriyi egitim/degerlendirme
+// veri seti olarak kullanabilmek - SubjectInsight'i degistirmiyor, sadece yanina ekleniyor.
+model SubjectInsightLog {
+  id             String           @id @default(uuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId      String
+  subject        Subject          @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  systemPrompt   String
+  userPrompt     String
+  content        String
+  feedback       InsightFeedback?
+  feedbackReason String?
+  createdAt      DateTime         @default(now())
+
+  @@index([userId, subjectId, createdAt])
+}
+
 // Öğrencinin haftalık ders programı - her hafta tekrar eden sabit çizelge (belirli bir tarihe değil, güne bağlı)
 model ScheduleSlot {
   id        String   @id @default(uuid())
@@ -162,9 +202,9 @@ model ScheduleSlot {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   subjectId String
   subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  dayOfWeek Int      // 1=Pazartesi ... 7=Pazar
-  startTime String   // "10:00"
-  endTime   String   // "11:30"
+  dayOfWeek Int // 1=Pazartesi ... 7=Pazar
+  startTime String // "10:00"
+  endTime   String // "11:30"
   location  String?
   createdAt DateTime @default(now())
 }
@@ -176,7 +216,7 @@ model Topic {
   subject     Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   status      TopicStatus @default(NOT_STARTED)
   lastStudied DateTime?
-  nextReview  DateTime?   // Spaced repetition algoritması tarafından belirlenecek tarih
+  nextReview  DateTime? // Spaced repetition algoritması tarafından belirlenecek tarih
   createdAt   DateTime    @default(now())
 
   // İlişkiler
@@ -208,12 +248,12 @@ model TopicReminder {
 // Uygulama içi "mini kontrol" (soru-cevap) etkileşimi - ML servisine gönderilen
 // gerçek (uydurulmamış) attempt_count/hint_count/yanıt-süresi verisini üretir.
 model TopicCheck {
-  id                 String         @id @default(uuid())
+  id                 String          @id @default(uuid())
   userId             String
-  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   topicId            String
-  topic              Topic          @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  opportunity        Int            // Bu konu için kaçıncı kontrol olduğu
+  topic              Topic           @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  opportunity        Int // Bu konu için kaçıncı kontrol olduğu
   attemptCount       Int?
   hintCount          Int?
   msFirstResponse    Float?
@@ -221,28 +261,31 @@ model TopicCheck {
   selfGradedCorrect  Boolean?
   correctProbability Float?
   priority           PriorityLevel?
-  startedAt          DateTime       @default(now())
+  educationLevel     EducationLevel? // Check baslatildigi andaki kullanicinin educationLevel'i (snapshot) - ileride
+  // bu satirlar egitim verisi olarak disari aktarilirken join'siz mod/persona
+  // bazli segmentasyon yapilabilsin diye. Eski satirlarda null olabilir.
+  startedAt          DateTime        @default(now())
   submittedAt        DateTime?
 
   @@index([userId, submittedAt])
 }
 
 model StudySession {
-  id              String     @id @default(uuid())
+  id              String   @id @default(uuid())
   userId          String
-  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   subjectId       String
-  subject         Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subject         Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   topicId         String
-  topic           Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  topic           Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
   durationMinutes Int
-  difficulty      Int        // 1-5 arası zorluk
-  productivity    Int        // 1-5 arası verimlilik
+  difficulty      Int // 1-5 arası zorluk
+  productivity    Int // 1-5 arası verimlilik
   notes           String?
-  createdAt       DateTime   @default(now())
+  createdAt       DateTime @default(now())
 
   // İlişkiler
-  dailyTask       DailyTask?
+  dailyTask DailyTask?
 
   @@index([userId, subjectId])
 }
@@ -251,15 +294,16 @@ model Exam {
   id           String        @id @default(uuid())
   userId       String
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name         String        // Örn: "YKS Deneme-1", "Matematik Vize"
+  name         String // Örn: "YKS Deneme-1", "Matematik Vize"
   date         DateTime
   targetScore  Float?
   resultScore  Float?
   examCategory ExamCategory? // Hangi hazır katalogdan oluşturulduğu (KPSS/YÖKDİL/ALES); null/OTHER = tamamen manuel
+  mode         UserMode // Habit/Journal ile ayni desen - "Sınav" (Öğrenci) ve "Hedef" (Gelişim) ayri listeler
   createdAt    DateTime      @default(now())
 
   // İlişkiler
-  subjects    ExamSubject[]
+  subjects ExamSubject[]
 }
 
 // Günlük "bugün ne çalışacağım" planı - bir ders/konuyu o güne planlar, tamamlanınca
@@ -272,7 +316,7 @@ model DailyTask {
   subject        Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   topicId        String
   topic          Topic           @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  date           DateTime        // Gün bazında tarih (YYYY-MM-DD)
+  date           DateTime // Gün bazında tarih (YYYY-MM-DD)
   status         DailyTaskStatus @default(PLANNED)
   studySessionId String?         @unique
   studySession   StudySession?   @relation(fields: [studySessionId], references: [id])
@@ -285,18 +329,19 @@ model ExamSubject {
   exam      Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
   subjectId String
   subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  score     Float?  // Bu dersten yapılan net veya alınan puan
+  score     Float? // Bu dersten yapılan net veya alınan puan
 }
 
 model Habit {
   id        String   @id @default(uuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String   // Örn: "Kitap okuma", "Spor", "İngilizce çalışma"
+  name      String // Örn: "Kitap okuma", "Spor", "İngilizce çalışma"
+  mode      UserMode // Subject.mode ile ayni desen - hangi persona (Öğrenci/Gelişim) altinda eklendigini isaretler
   createdAt DateTime @default(now())
 
   // İlişkiler
-  logs      HabitLog[]
+  logs HabitLog[]
 }
 
 model HabitLog {
@@ -314,23 +359,26 @@ model Journal {
   userId         String
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   content        String
-  mood           String   // Emoji veya mood metni
-  sentimentScore Float?   // AI tarafından hesaplanacak duygu analizi skoru (-1 ile +1 arası)
+  mood           String // Emoji veya mood metni
+  sentimentScore Float? // AI tarafından hesaplanacak duygu analizi skoru (-1 ile +1 arası)
+  mode           UserMode // Subject.mode ile ayni desen - hangi persona (Öğrenci/Gelişim) altinda eklendigini isaretler
   createdAt      DateTime @default(now())
 }
 
 model AIRecommendation {
-  id        String             @id @default(uuid())
-  userId    String
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topicId   String?            // Önerinin hangi konudan üretildiği (izlenebilirlik için)
-  topic     Topic?             @relation(fields: [topicId], references: [id], onDelete: SetNull)
-  title     String
-  content   String
-  type      RecommendationType
-  priority  PriorityLevel?     // "Kaptan" kisiliginin frontend'de mesaj uretmesi icin ham veri
-  isRead    Boolean            @default(false)
-  createdAt DateTime           @default(now())
+  id             String             @id @default(uuid())
+  userId         String
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId        String? // Önerinin hangi konudan üretildiği (izlenebilirlik için)
+  topic          Topic?             @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  title          String
+  content        String
+  type           RecommendationType
+  priority       PriorityLevel? // "Kaptan" kisiliginin frontend'de mesaj uretmesi icin ham veri
+  isRead         Boolean            @default(false)
+  feedback       InsightFeedback? // SubjectInsight ile simetrik - kullanicinin oneriye verdigi 👍/👎
+  feedbackReason String?
+  createdAt      DateTime           @default(now())
 }
 
 // Henüz hiçbir serviste kullanılmıyor - kullanıcıya özel kaynak önerisi özelliği
@@ -339,7 +387,7 @@ model ResourceSuggestion {
   id          String   @id @default(uuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title       String   // Örn: "BTK Akademi - Algoritma Eğitimi"
+  title       String // Örn: "BTK Akademi - Algoritma Eğitimi"
   link        String
   subjectName String
   createdAt   DateTime @default(now())

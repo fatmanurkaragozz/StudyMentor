@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Flame, BookOpen, Plus, Check, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { apiClient, type HabitRow, type JournalRow } from '../lib/apiClient';
+import { useApp } from '../context/AppContext';
 import { MiniDecorScene } from './hero3d/decor/MiniDecorScene';
 import { HangingIvyPlanter } from './hero3d/decor/HangingIvyPlanter';
 
@@ -17,6 +18,7 @@ function getPast5Days(): string[] {
 }
 
 export const GrowthHub: React.FC = () => {
+  const { user } = useApp();
   const past5Days = getPast5Days();
 
   const [habits, setHabits] = useState<HabitRow[]>([]);
@@ -39,7 +41,7 @@ export const GrowthHub: React.FC = () => {
   const loadHabits = () => {
     setLoadingHabits(true);
     apiClient
-      .getHabits()
+      .getHabits(user.mode)
       .then(setHabits)
       .catch(err => setHabitError(err instanceof Error ? err.message : 'Yüklenemedi'))
       .finally(() => setLoadingHabits(false));
@@ -47,12 +49,13 @@ export const GrowthHub: React.FC = () => {
 
   useEffect(() => {
     loadHabits();
+    setLoadingJournals(true);
     apiClient
-      .getJournals()
+      .getJournals(user.mode)
       .then(setJournals)
       .catch(err => setJournalError(err instanceof Error ? err.message : 'Yüklenemedi'))
       .finally(() => setLoadingJournals(false));
-  }, []);
+  }, [user.mode]);
 
   const handleCreateHabit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +63,7 @@ export const GrowthHub: React.FC = () => {
     setAddingHabit(true);
     setHabitError(null);
     try {
-      await apiClient.createHabit(newHabitName.trim());
+      await apiClient.createHabit(newHabitName.trim(), user.mode);
       setNewHabitName('');
       setShowAddHabit(false);
       loadHabits();
@@ -86,7 +89,7 @@ export const GrowthHub: React.FC = () => {
     setSavingJournal(true);
     setJournalError(null);
     try {
-      const entry = await apiClient.createJournal({ content: journalContent.trim(), mood: selectedMood });
+      const entry = await apiClient.createJournal({ content: journalContent.trim(), mood: selectedMood, mode: user.mode });
       setJournals(prev => [entry, ...prev]);
       setJournalContent('');
     } catch (err) {

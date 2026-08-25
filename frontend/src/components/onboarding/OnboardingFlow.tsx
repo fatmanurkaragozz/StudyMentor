@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { useApp } from '../../context/AppContext';
 import { AuthModal } from '../AuthModal';
 import { EducationLevelStep } from './EducationLevelStep';
 import { DataEntryStep } from './DataEntryStep';
 import type { PendingProfile } from './types';
-import type { BackendUser } from '../../lib/apiClient';
-import { toUserProfile } from '../../lib/apiClient';
 import type { UserMode } from '../../types';
 
 type Step = 'MODE_LEVEL' | 'AUTH' | 'DATA_ENTRY';
@@ -27,7 +24,6 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   onClose,
   onComplete,
 }) => {
-  const { setUserProfile } = useApp();
   const [step, setStep] = useState<Step>(initialStep);
   const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>(initialAuthMode);
   const [pendingProfile, setPendingProfile] = useState<PendingProfile | null>(initialPendingProfile);
@@ -49,8 +45,9 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     setAuthMode(mode);
   };
 
-  const handleAuthSuccess = ({ user }: { token: string; user: BackendUser }) => {
-    setUserProfile(toUserProfile(user));
+  // AuthContext basarili giris/dogrulama sonrasi AppContext'teki gercek profili
+  // zaten kendi icinde guncelliyor - burada sadece hangi adima gecilecegine karar veriliyor.
+  const handleAuthSuccess = () => {
     if (authMode === 'REGISTER') {
       setStep('DATA_ENTRY');
     } else {
