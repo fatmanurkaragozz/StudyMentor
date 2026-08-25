@@ -10,6 +10,8 @@ pdfplumber>=0.9.0
 pypdf>=3.9.0
 joblib>=1.2.0
 faker>=18.9.0
+psycopg2-binary>=2.9.0
+python-dotenv>=1.0.0
 ipykernel
 nbconvert
 nbformat

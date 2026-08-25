@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { createJournalSchema } from "../validation/schemas.js";
+import { createJournalSchema, modeQuerySchema } from "../validation/schemas.js";
 import { createJournal, listJournals } from "../services/journals.service.js";
 
 export async function postJournal(req: Request, res: Response) {
@@ -9,6 +9,7 @@ export async function postJournal(req: Request, res: Response) {
 }
 
 export async function getJournals(req: Request, res: Response) {
-  const result = await listJournals(req.userId as string);
+  const { mode } = modeQuerySchema.parse(req.query);
+  const result = await listJournals(req.userId as string, mode);
   res.json(result);
 }

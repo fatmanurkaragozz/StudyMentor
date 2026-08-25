@@ -82,13 +82,15 @@ export async function listTopicsForUser(userId: string, mode: UserMode) {
       ? { examCategory: user.examCategory }
       : { educationLevel: user.educationLevel };
 
+  // Kuresel mufredat/sinav katalogu (Subject.userId === null) kavramsal olarak hep
+  // ogrenci icerigi - Gelisim modunda hic gorunmemeli, o yuzden sadece STUDENT'ta OR'a dahil.
   const subjects = await prisma.subject.findMany({
     where: {
       OR: [
-        globalCatalogFilter,
+        ...(mode === "STUDENT" ? [globalCatalogFilter] : []),
         { userId, mode },
         // Kullanıcının eklediği bir sınavın (KPSS/YÖKDİL/ALES) kataloğundan seçtiği dersler
-        { exams: { some: { exam: { userId } } } },
+        { exams: { some: { exam: { userId, mode } } } },
       ],
     },
     include: { topics: true },

@@ -1,6 +1,9 @@
-import type { PriorityLevel, RecommendationType } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import type { InsightFeedback, PriorityLevel, RecommendationType, UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { predictPriority } from "./mlClient.service.js";
+import { isVisibleInMode } from "./subjectHistory.service.js";
+import { HttpError } from "../utils/httpError.js";
 
 const REVISION_TEXT: Record<PriorityLevel, (topicName: string) => { title: string; content: string }> = {
   YUKSEK: (topicName) => ({
@@ -68,16 +71,42 @@ export async function scoreAndRecommend(input: ScoreAndRecommendInput) {
   };
 }
 
-export async function listRecommendations(userId: string) {
+// Oneriler konu (Topic -> Subject) uzerinden geliyor - kullanicinin gercek moduna ait
+// olmayan (orn. baska bir mode'da eklenmis custom ders) konu icin oneri sizmasin diye
+// Gemini/SubjectHistory tarafiyla ayni gorunurluk kurali (isVisibleInMode) uygulanir.
+export async function listRecommendations(userId: string, mode: UserMode) {
   const recommendations = await prisma.aIRecommendation.findMany({
     where: { userId },
     include: { topic: { include: { subject: true } } },
     orderBy: { createdAt: "desc" },
   });
 
-  return recommendations.map(({ topic, ...rec }) => ({
-    ...rec,
-    topicName: topic?.name ?? null,
-    subjectName: topic?.subject.name ?? null,
-  }));
+  return recommendations
+    .filter((rec) => !rec.topic || isVisibleInMode(rec.topic.subject, mode))
+    .map(({ topic, ...rec }) => ({
+      ...rec,
+      topicName: topic?.name ?? null,
+      subjectName: topic?.subject.name ?? null,
+    }));
+}
+
+// SubjectInsight'taki 👍/👎 ile simetrik - ML tabanli oneriler icin de gercek kullanici
+// geri bildirimi topluyor (ileride egitim verisi olarak kullanilabilsin diye).
+export async function submitRecommendationFeedback(
+  userId: string,
+  recommendationId: string,
+  feedback: InsightFeedback,
+  reason: string | undefined,
+) {
+  try {
+    return await prisma.aIRecommendation.update({
+      where: { id: recommendationId, userId },
+      data: { feedback, feedbackReason: reason ?? null },
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+      throw new HttpError(404, "Öneri bulunamadı");
+    }
+    throw error;
+  }
 }

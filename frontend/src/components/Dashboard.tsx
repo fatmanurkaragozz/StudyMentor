@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { apiClient, type RecommendationRow, type StudySessionRow, type HabitRow, type ExamDto } from '../lib/apiClient';
-import { getKaptanMessage } from '../lib/kaptan';
+import { apiClient, type StudySessionRow, type HabitRow, type ExamDto } from '../lib/apiClient';
+import { useRecommendations } from '../hooks/useRecommendations';
 import {
   Clock,
   Flame,
@@ -69,37 +69,25 @@ export const Dashboard: React.FC = () => {
 
   const activeHabitStreak = Math.max(...habits.map(h => h.streakDays), 0);
 
-  const [aiRecommendations, setAiRecommendations] = useState<RecommendationRow[]>([]);
-  const [loadingRecommendations, setLoadingRecommendations] = useState(true);
+  const { recommendations: aiRecommendations, loading: loadingRecommendations } = useRecommendations();
 
   const [dueTopics, setDueTopics] = useState<DueTopic[]>([]);
   const [loadingDue, setLoadingDue] = useState(true);
   const [dueError, setDueError] = useState<string | null>(null);
   const [addedTaskTopicIds, setAddedTaskTopicIds] = useState<Set<string>>(new Set());
 
-  const [latestMood, setLatestMood] = useState<string | null>(null);
   const [exams, setExams] = useState<ExamDto[]>([]);
 
   const [subjectProgress, setSubjectProgress] = useState<SubjectProgress[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
 
-  const loadRecommendations = () => {
-    setLoadingRecommendations(true);
-    apiClient
-      .getRecommendations()
-      .then(setAiRecommendations)
-      .finally(() => setLoadingRecommendations(false));
-  };
-
   useEffect(() => {
-    loadRecommendations();
     apiClient
-      .getStudySessions()
+      .getStudySessions(user.mode)
       .then(setSessions)
       .finally(() => setLoadingSessions(false));
-    apiClient.getHabits().then(setHabits);
-    apiClient.getJournals().then(j => setLatestMood(j[0]?.mood ?? null));
-    apiClient.getExams().then(setExams);
+    apiClient.getHabits(user.mode).then(setHabits);
+    apiClient.getExams(user.mode).then(setExams);
 
     const endOfToday = new Date();
     endOfToday.setHours(23, 59, 59, 999);
@@ -166,18 +154,6 @@ export const Dashboard: React.FC = () => {
   };
 
   const latestRecommendation = aiRecommendations[0] ?? null;
-  const kaptanMessage = latestRecommendation?.priority
-    ? getKaptanMessage({
-        id: latestRecommendation.id,
-        firstName: user.name.split(' ')[0],
-        priority: latestRecommendation.priority,
-        topicName: latestRecommendation.topicName,
-        subjectName: latestRecommendation.subjectName,
-        mood: latestMood,
-      })
-    : latestRecommendation
-      ? { title: latestRecommendation.title, content: latestRecommendation.content }
-      : null;
 
   const startOfToday = new Date(new Date().toDateString());
   const upcomingExam = exams
@@ -316,11 +292,11 @@ export const Dashboard: React.FC = () => {
               </div>
             )}
 
-            {!loadingRecommendations && latestRecommendation && kaptanMessage && (
+            {!loadingRecommendations && latestRecommendation && (
               <>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">{kaptanMessage.title}</h3>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">{latestRecommendation.kaptan.title}</h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                  {kaptanMessage.content}
+                  {latestRecommendation.kaptan.content}
                 </p>
                 {latestRecommendation.topicId && (
                   <button
@@ -364,7 +340,7 @@ export const Dashboard: React.FC = () => {
               </h3>
               {dueForExamCount > 0 && (
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                  Bu sınava bağlı derslerden {dueForExamCount} konu tekrar bekliyor.
+                  {isStudent ? 'Bu sınava bağlı derslerden' : 'Bu hedefe bağlı uğraşlardan'} {dueForExamCount} konu tekrar bekliyor.
                 </p>
               )}
             </div>
@@ -451,12 +427,15 @@ export const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light" />
+                <BookOpen className={`w-4 h-4 ${isStudent ? 'text-brand-pink-dark dark:text-brand-pink-light' : 'text-brand-mint-dark dark:text-brand-mint'}`} />
                 <span>{isStudent ? 'Aktif Müfredat Dersleri & İlerleme' : 'Aktif Beceriler & Proje Takibi'}</span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Konu bazlı gerçek çalışma ilerlemen</p>
             </div>
-            <button onClick={() => setActiveTab('courses')} className="text-xs text-brand-pink-dark dark:text-brand-pink-light hover:underline">
+            <button
+              onClick={() => setActiveTab('courses')}
+              className={`text-xs hover:underline ${isStudent ? 'text-brand-pink-dark dark:text-brand-pink-light' : 'text-brand-mint-dark dark:text-brand-mint'}`}
+            >
               Tümünü Gör
             </button>
           </div>
@@ -483,7 +462,7 @@ export const Dashboard: React.FC = () => {
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
                       {item.studiedTopics}/{item.totalTopics} konu
                     </span>
-                    <span className="font-bold text-brand-pink-dark dark:text-brand-pink-light">{item.progress}%</span>
+                    <span className={`font-bold ${isStudent ? 'text-brand-pink-dark dark:text-brand-pink-light' : 'text-brand-mint-dark dark:text-brand-mint'}`}>{item.progress}%</span>
                   </div>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
@@ -525,7 +504,7 @@ export const Dashboard: React.FC = () => {
                   <span className="font-semibold text-slate-800 dark:text-slate-200 line-clamp-1">{session.topicName}</span>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 whitespace-nowrap">{session.durationMinutes} dk</span>
                 </div>
-                <div className="text-[11px] text-brand-pink-dark dark:text-brand-pink-light font-medium">{session.subjectName}</div>
+                <div className={`text-[11px] font-medium ${isStudent ? 'text-brand-pink-dark dark:text-brand-pink-light' : 'text-brand-mint-dark dark:text-brand-mint'}`}>{session.subjectName}</div>
                 <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-500 pt-1">
                   <span>Verim: {'⭐'.repeat(session.productivity)}</span>
                   <span>{new Date(session.createdAt).toLocaleDateString('tr-TR')}</span>

@@ -10,13 +10,12 @@ export interface SubjectHistoryStats {
 }
 
 // Bir dersin/ugrasin bu kullanicinin gecmisinde gorunup gorunmeyecegini belirler:
-// (a) hic userId'si olmayan (global/mufredat) dersler, kullanicinin gercek aktivitesi varsa,
+// (a) hic userId'si olmayan (global/mufredat) dersler kavramsal olarak hep ogrenci icerigi -
+//     sadece STUDENT modunda gorunur, Gelisim'de hic gorunmez,
 // (b) kullaniciya ozel dersler sadece dogru modda (mode) eklenmisse.
-// Katalog-uygunlugu (educationLevel/examCategory eslesmesi) bilerek kullanilmiyor - burada
-// soru "gercekten calisildi mi", "su an mufredata uygun mu" degil.
-function isVisibleInMode(subject: { userId: string | null; mode: UserMode | null }, mode: UserMode): boolean {
-  if (subject.userId === null) return true;
-  return subject.userId !== null && subject.mode === mode;
+export function isVisibleInMode(subject: { userId: string | null; mode: UserMode | null }, mode: UserMode): boolean {
+  if (subject.userId === null) return mode === "STUDENT";
+  return subject.mode === mode;
 }
 
 async function buildStatsForSubjectIds(

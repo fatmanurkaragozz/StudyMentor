@@ -1,3 +1,4 @@
+import type { UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 
@@ -26,14 +27,14 @@ function computeStreak(completedDates: Set<string>): number {
   return streak;
 }
 
-export async function createHabit(userId: string, name: string) {
-  const habit = await prisma.habit.create({ data: { userId, name } });
+export async function createHabit(userId: string, name: string, mode: UserMode) {
+  const habit = await prisma.habit.create({ data: { userId, name, mode } });
   return { id: habit.id, name: habit.name, streakDays: 0, completedDates: [] as string[] };
 }
 
-export async function listHabits(userId: string) {
+export async function listHabits(userId: string, mode: UserMode) {
   const habits = await prisma.habit.findMany({
-    where: { userId },
+    where: { userId, mode },
     include: { logs: { where: { isCompleted: true } } },
     orderBy: { createdAt: "asc" },
   });

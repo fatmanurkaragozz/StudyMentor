@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { createStudySessionSchema } from "../validation/schemas.js";
+import { createStudySessionSchema, modeQuerySchema } from "../validation/schemas.js";
 import { createStudySession, listStudySessions } from "../services/studySessions.service.js";
 
 export async function postStudySession(req: Request, res: Response) {
@@ -9,6 +9,7 @@ export async function postStudySession(req: Request, res: Response) {
 }
 
 export async function getStudySessions(req: Request, res: Response) {
-  const result = await listStudySessions(req.userId as string);
+  const { mode } = modeQuerySchema.parse(req.query);
+  const result = await listStudySessions(req.userId as string, mode);
   res.json(result);
 }

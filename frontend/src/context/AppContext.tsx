@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import type { UserProfile, UserMode } from '../types';
 
 interface AppContextType {
@@ -23,28 +23,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
 
-  // Kayıt/giriş sonrası gerçek backend profili burada saklanır - mod önizlemesi
-  // (Platform Modu değiştirici) bu gerçek veriyi asla ezmez, sadece geçici bir
-  // önizleme gösterir; kullanıcı kendi gerçek moduna dönünce tam olarak geri yüklenir.
-  const realProfileRef = useRef<UserProfile | null>(null);
-
   const setUserProfile = (profile: UserProfile) => {
-    realProfileRef.current = profile;
     setUser(profile);
   };
 
+  // Sadece bir arayuz/kopya onizlemesi - "Platform Modu" degistiricisinin (Sidebar/ProfilePage)
+  // karsiligi. Hicbir apiClient cagrisi artik user.mode'u backend'e gondermiyor (mode her zaman
+  // sunucuda kullanicinin gercek educationLevel'indan turetiliyor), o yuzden bu sadece Derslerim/
+  // Uğraşlarım gibi ekranlardaki metni/temayi degistirir - gercek verisi hangi moddaysa o kalir.
+  // educationLevel/grade kasten degistirilmiyor - onlar gercek hesap bilgisi, onizlemeyle degismez.
   const setUserMode = (mode: UserMode) => {
-    const realProfile = realProfileRef.current;
-    if (realProfile && realProfile.mode === mode) {
-      setUser(realProfile);
-      return;
-    }
-    setUser(prev => ({
-      ...prev,
-      mode,
-      educationLevel: mode === 'STUDENT' ? 'HIGH_SCHOOL' : 'LIFELONG_LEARNER',
-      grade: undefined,
-    }));
+    setUser(prev => ({ ...prev, mode }));
   };
 
   return (

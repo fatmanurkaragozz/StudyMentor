@@ -67,7 +67,7 @@ export const RealCalendar: React.FC = () => {
 
   const loadAll = () => {
     setLoading(true);
-    Promise.all([apiClient.getMySubjects(user.mode), apiClient.getSchedule(), apiClient.getExams()])
+    Promise.all([apiClient.getMySubjects(user.mode), apiClient.getSchedule(), apiClient.getExams(user.mode)])
       .then(([s, sch, ex]) => {
         setSubjects(s);
         setSchedule(sch);
@@ -503,6 +503,7 @@ const AddExamModal: React.FC<AddExamModalProps> = ({ subjects, isStudent, initia
           targetScore: targetScore === '' ? undefined : targetScore,
           subjectIds: selectedSubjectIds,
           examCategory,
+          mode: isStudent ? 'STUDENT' : 'LIFELONG_LEARNER',
         });
       }
       onSaved();
