@@ -194,3 +194,8 @@ export const createDailyTaskSchema = z.object({
 export const completeDailyTaskSchema = z.object({
   studySessionId: z.string().min(1),
 });
+
+export const createFeedbackSchema = z.object({
+  email: z.string().email(),
+  message: z.string().min(1).max(2000),
+});

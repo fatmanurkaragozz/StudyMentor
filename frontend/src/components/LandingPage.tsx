@@ -1,8 +1,9 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import type { FC } from 'react';
+import type { FC, FormEvent } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useInViewOnce } from '../hooks/useInViewOnce';
+import { apiClient, ApiError } from '../lib/apiClient';
 import { OnboardingFlow } from './onboarding/OnboardingFlow';
 import type { PendingProfile } from './onboarding/types';
 import { DeskHeroAnimation } from './DeskHeroAnimation';
@@ -23,6 +24,8 @@ import {
   Compass,
   Sparkles,
   LogIn,
+  Mail,
+  AlertCircle,
 } from 'lucide-react';
 
 const LazyHeroCanvas = lazy(() => import('./hero3d/HeroCanvas'));
@@ -63,6 +66,7 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
   const showStatic = !webglSupported || reducedMotion;
   const legacyStage = useHeroIntroSequence();
   const [modesRef, modesInView] = useInViewOnce<HTMLDivElement>();
+  const [feedbackRef, feedbackInView] = useInViewOnce<HTMLDivElement>();
   const [heroScrollStarted, setHeroScrollStarted] = useState(false);
 
   useEffect(() => {
@@ -87,6 +91,28 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
   };
 
   const closeOnboarding = () => setOnboarding(CLOSED_ONBOARDING);
+
+  const [feedbackEmail, setFeedbackEmail] = useState('');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+
+  const handleFeedbackSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setFeedbackError(null);
+    setFeedbackLoading(true);
+    try {
+      await apiClient.submitFeedback({ email: feedbackEmail, message: feedbackMessage });
+      setFeedbackSuccess(true);
+      setFeedbackEmail('');
+      setFeedbackMessage('');
+    } catch (err) {
+      setFeedbackError(err instanceof ApiError ? err.message : 'Geri bildirim gönderilemedi. Lütfen tekrar dene.');
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
 
   const handleSelectModeAndEnter = (mode: 'STUDENT' | 'LIFELONG_LEARNER') => {
     if (mode === 'LIFELONG_LEARNER') {
@@ -383,8 +409,76 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
         </div>
       </main>
 
+      <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 pb-16 w-full">
+        <div className="max-w-3xl mx-auto text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
+            Bu platformu nasıl daha iyi geliştirebiliriz?
+          </h2>
+          <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+            Fikirlerin, önerilerin ya da karşılaştığın bir sorun mu var? E-posta adresini bırak, doğrudan sana
+            yanıt verelim.
+          </p>
+        </div>
+
+        <div
+          ref={feedbackRef}
+          className={`transition-all duration-700 ease-out ${
+            feedbackInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
+        >
+          <Card className="max-w-xl mx-auto text-left">
+            <form onSubmit={handleFeedbackSubmit} className="space-y-4 text-xs">
+              {feedbackError && (
+                <div className="flex items-center gap-2 text-[11px] text-rose-700 dark:text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{feedbackError}</span>
+                </div>
+              )}
+
+              {feedbackSuccess && (
+                <div className="flex items-center gap-2 text-[11px] text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Geri bildirimin için teşekkürler! En kısa sürede okuyacağız.</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">E-posta Adresin</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    placeholder="sen@ornek.com"
+                    value={feedbackEmail}
+                    onChange={e => setFeedbackEmail(e.target.value)}
+                    className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark transition-all"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Geri Bildirimin</label>
+                <textarea
+                  placeholder="Bu platformu nasıl daha iyi hale getirebiliriz?"
+                  value={feedbackMessage}
+                  onChange={e => setFeedbackMessage(e.target.value)}
+                  className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark h-28 resize-none"
+                  maxLength={2000}
+                  required
+                />
+              </div>
+
+              <Button type="submit" variant="primary" disabled={feedbackLoading} className="w-full glow-ai">
+                <span>{feedbackLoading ? 'Gönderiliyor...' : 'Geri Bildirim Gönder'}</span>
+              </Button>
+            </form>
+          </Card>
+        </div>
+      </section>
+
       <footer className="relative z-20 py-6 border-t border-slate-300/40 dark:border-slate-800 text-center text-xs text-slate-500">
-        <p>© 2026 StudyMentor. Tüm hakları saklıdır.</p>
+        <p>© 2026 StudyMentor — Fatma Nur Karagöz. Tüm hakları saklıdır.</p>
       </footer>
 
       {onboarding.open && (
