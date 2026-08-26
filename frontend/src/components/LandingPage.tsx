@@ -129,7 +129,7 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col selection:bg-brand-pink-dark selection:text-white transition-colors duration-300 bg-gradient-to-b from-brand-ivory to-brand-ivory-deep dark:from-slate-950 dark:to-slate-950">
+    <div className="min-h-screen relative overflow-hidden flex flex-col selection:bg-brand-pink-dark selection:text-white transition-colors duration-300 bg-gradient-to-b from-brand-ivory to-brand-ivory-deep dark:from-slate-950 dark:to-slate-900">
       <div
         className={`absolute top-10 right-[10%] w-72 h-72 rounded-full bg-brand-pink-dark/[0.06] dark:bg-brand-pink-dark/[0.05] blur-3xl pointer-events-none select-none ${reducedMotion ? '' : 'animate-aurora'}`}
         style={{ animationDuration: '14s' }}
