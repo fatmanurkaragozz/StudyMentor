@@ -303,7 +303,7 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
       <div className="relative">
         <StarMap
           extended
-          className="[mask-image:linear-gradient(to_bottom,black,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black,black_70%,transparent_100%)]"
+          className="[mask-image:linear-gradient(to_bottom,black,black_70%,transparent_100%)]"
         />
 
         <main className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 pb-16 w-full">
@@ -533,7 +533,7 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
             </div>
           </div>
 
-          <p className="mt-6 text-center text-xs text-slate-500">© 2026 StudyMentor — Fatma Nur Karagöz. Tüm hakları saklıdır.</p>
+          <p className="mt-6 text-center text-xs text-slate-600 dark:text-slate-400">© 2026 StudyMentor — Fatma Nur Karagöz. Tüm hakları saklıdır.</p>
         </footer>
       </div>
 
