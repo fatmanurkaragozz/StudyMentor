@@ -30,6 +30,20 @@ import {
 
 const LazyHeroCanvas = lazy(() => import('./hero3d/HeroCanvas'));
 
+// lucide-react 1.x'te marka/logo ikonları (Github, Linkedin vb.) kaldırıldığı için
+// footer'daki sosyal linkler için minimal inline SVG logomark kullanılıyor.
+const GithubIcon: FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+  </svg>
+);
+
+const LinkedinIcon: FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+  </svg>
+);
+
 function hasWebGLSupport(): boolean {
   try {
     const canvas = document.createElement('canvas');
@@ -67,6 +81,7 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
   const legacyStage = useHeroIntroSequence();
   const [modesRef, modesInView] = useInViewOnce<HTMLDivElement>();
   const [feedbackRef, feedbackInView] = useInViewOnce<HTMLDivElement>();
+  const [footerRef, footerInView] = useInViewOnce<HTMLElement>();
   const [heroScrollStarted, setHeroScrollStarted] = useState(false);
 
   useEffect(() => {
@@ -285,201 +300,242 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
         </div>
       </div>
 
-      <main className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 pb-16 w-full">
-        <StarMap />
-        <div className="max-w-3xl mx-auto text-center mb-10">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
-            Çalışma rotanı planla,
-            <br className="hidden sm:block" /> ilerlemeni takip et.
-          </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            StudyMentor; ders ve konu takibini, alışkanlıklarını ve yapay zeka destekli tekrar önerilerini tek yerde
-            birleştirir.
-          </p>
-        </div>
+      <div className="relative">
+        <StarMap
+          extended
+          className="[mask-image:linear-gradient(to_bottom,black,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black,black_70%,transparent_100%)]"
+        />
 
-        <div
-          ref={modesRef}
-          className={`w-full grid grid-cols-1 lg:grid-cols-7 gap-6 items-stretch transition-all duration-700 ease-out ${
-            modesInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-          }`}
-        >
-          <Card id="mode-student-card" accent="indigo" className="lg:col-span-3 text-left flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl border border-brand-pink-dark/40 text-brand-pink-dark dark:text-brand-pink-light flex items-center justify-center">
-                <GraduationCap className="w-6 h-6" strokeWidth={1.5} />
-              </div>
-
-              <div>
-                <Badge tone="indigo" className="block mb-1">
-                  Müfredat &amp; Sınav Odaklı
-                </Badge>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Öğrenci Modu</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
-                  LGS, YKS ve üniversite vize/finaline hazırlananlar kadar; hiçbir okula ya da üniversiteye bağlı olmadan AGS, KPSS, ALES, DGS veya YDS gibi bir sınava bağımsız hazırlananlar için de: ders/konu takibi, deneme netleri ve akıllı tekrar hatırlatmaları. Okulun olsun ya da olmasın, hedefin bir sınavsa modun bu.
-                </p>
-              </div>
-
-              <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
-                  <span>Ders ve Konu Bazlı Akıllı Tekrar Planı</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
-                  <span>Deneme Sınavları &amp; Ders Net Analizi</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
-                  <span>Pomodoro Zamanlayıcısı ve Oturum Değerlendirme</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
-                  <span>Okula/Üniversiteye Bağlı Olmadan Bağımsız Sınav Hazırlığı</span>
-                </li>
-              </ul>
-            </div>
-
-            <Button variant="primary" onClick={() => handleSelectModeAndEnter('STUDENT')} className="w-full">
-              <span>Öğrenci Modunu Keşfet</span>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          </Card>
-
-          <div className="lg:col-span-1 flex flex-col items-center justify-center space-y-4 py-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-pink-dark to-brand-mint-dark text-white flex items-center justify-center shadow-md font-black text-xs">
-              VS
-            </div>
-
-            <div className="hidden lg:flex flex-col items-center gap-3 text-slate-400 text-xs font-semibold">
-              <div className="flex items-center gap-1 text-brand-pink-dark dark:text-brand-pink-light">
-                <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-                <span>Öğrenci</span>
-              </div>
-              <div
-                className={`h-12 w-0.5 rounded-full bg-gradient-to-b from-brand-pink-dark to-brand-mint-dark ${
-                  !reducedMotion && modesInView ? 'animate-neon-line' : ''
-                }`}
-                style={{ boxShadow: '0 0 10px rgba(194, 37, 92, 0.55), 0 0 14px rgba(22, 145, 108, 0.45)' }}
-              ></div>
-              <div className="flex items-center gap-1 text-brand-mint-dark dark:text-brand-mint">
-                <span>Gelişim</span>
-                <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
-              </div>
-            </div>
+        <main className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 pb-16 w-full">
+          <div className="max-w-3xl mx-auto text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
+              Çalışma rotanı planla,
+              <br className="hidden sm:block" /> ilerlemeni takip et.
+            </h2>
+            <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+              StudyMentor; ders ve konu takibini, alışkanlıklarını ve yapay zeka destekli tekrar önerilerini tek yerde
+              birleştirir.
+            </p>
           </div>
 
-          <Card id="mode-growth-card" accent="violet" className="lg:col-span-3 text-left flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              <div className="w-12 h-12 rounded-2xl border border-brand-mint-dark/40 text-brand-mint-dark dark:text-brand-mint flex items-center justify-center">
-                <Briefcase className="w-6 h-6" strokeWidth={1.5} />
+          <div
+            ref={modesRef}
+            className={`w-full grid grid-cols-1 lg:grid-cols-7 gap-6 items-stretch transition-all duration-700 ease-out ${
+              modesInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+            }`}
+          >
+            <Card id="mode-student-card" accent="indigo" className="lg:col-span-3 text-left flex flex-col justify-between space-y-6">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl border border-brand-pink-dark/40 text-brand-pink-dark dark:text-brand-pink-light flex items-center justify-center">
+                  <GraduationCap className="w-6 h-6" strokeWidth={1.5} />
+                </div>
+
+                <div>
+                  <Badge tone="indigo" className="block mb-1">
+                    Müfredat &amp; Sınav Odaklı
+                  </Badge>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Öğrenci Modu</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
+                    LGS, YKS ve üniversite vize/finaline hazırlananlar kadar; hiçbir okula ya da üniversiteye bağlı olmadan AGS, KPSS, ALES, DGS veya YDS gibi bir sınava bağımsız hazırlananlar için de: ders/konu takibi, deneme netleri ve akıllı tekrar hatırlatmaları. Okulun olsun ya da olmasın, hedefin bir sınavsa modun bu.
+                  </p>
+                </div>
+
+                <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
+                    <span>Ders ve Konu Bazlı Akıllı Tekrar Planı</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
+                    <span>Deneme Sınavları &amp; Ders Net Analizi</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
+                    <span>Pomodoro Zamanlayıcısı ve Oturum Değerlendirme</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
+                    <span>Okula/Üniversiteye Bağlı Olmadan Bağımsız Sınav Hazırlığı</span>
+                  </li>
+                </ul>
               </div>
 
-              <div>
-                <Badge tone="violet" className="block mb-1">
-                  Beceri &amp; Proje Odaklı
-                </Badge>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">İş Hayatım ve Gelişim</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
-                  Mesleğin ne olursa olsun — ya da hiçbir mesleğin olmasa bile: spor, İngilizce, tiyatro, müzik gibi kişisel uğraşların; yazılım/kişisel proje geliştirme; kişisel okumalar ve rutin alışkanlık takibi. Sınav ve okul ilişkisi olmayan her kişisel gelişim hedefi burada.
-                </p>
+              <Button variant="primary" onClick={() => handleSelectModeAndEnter('STUDENT')} className="w-full">
+                <span>Öğrenci Modunu Keşfet</span>
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+            </Card>
+
+            <div className="lg:col-span-1 flex flex-col items-center justify-center space-y-4 py-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-pink-dark to-brand-mint-dark text-white flex items-center justify-center shadow-md font-black text-xs">
+                VS
               </div>
 
-              <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-mint-dark dark:text-brand-mint shrink-0" strokeWidth={1.5} />
-                  <span>Proje &amp; Beceriler İlerleme Paneli</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-mint-dark dark:text-brand-mint shrink-0" strokeWidth={1.5} />
-                  <span>Alışkanlık Zinciri (Habit Tracker Matrix)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-brand-mint-dark dark:text-brand-mint shrink-0" strokeWidth={1.5} />
-                  <span>AI Sentiment Skorlu Günlük &amp; Duygu Değerlendirmesi</span>
-                </li>
-              </ul>
+              <div className="hidden lg:flex flex-col items-center gap-3 text-slate-400 text-xs font-semibold">
+                <div className="flex items-center gap-1 text-brand-pink-dark dark:text-brand-pink-light">
+                  <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+                  <span>Öğrenci</span>
+                </div>
+                <div
+                  className={`h-12 w-0.5 rounded-full bg-gradient-to-b from-brand-pink-dark to-brand-mint-dark ${
+                    !reducedMotion && modesInView ? 'animate-neon-line' : ''
+                  }`}
+                  style={{ boxShadow: '0 0 10px rgba(194, 37, 92, 0.55), 0 0 14px rgba(22, 145, 108, 0.45)' }}
+                ></div>
+                <div className="flex items-center gap-1 text-brand-mint-dark dark:text-brand-mint">
+                  <span>Gelişim</span>
+                  <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+                </div>
+              </div>
             </div>
 
-            <Button variant="secondary" onClick={() => handleSelectModeAndEnter('LIFELONG_LEARNER')} className="w-full">
-              <span>Bu Modu Keşfet</span>
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Card>
-        </div>
-      </main>
-
-      <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 pb-16 w-full">
-        <div className="max-w-3xl mx-auto text-center mb-10">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
-            Bu platformu nasıl daha iyi geliştirebiliriz?
-          </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            Fikirlerin, önerilerin ya da karşılaştığın bir sorun mu var? E-posta adresini bırak, doğrudan sana
-            yanıt verelim.
-          </p>
-        </div>
-
-        <div
-          ref={feedbackRef}
-          className={`transition-all duration-700 ease-out ${
-            feedbackInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-          }`}
-        >
-          <Card className="max-w-xl mx-auto text-left">
-            <form onSubmit={handleFeedbackSubmit} className="space-y-4 text-xs">
-              {feedbackError && (
-                <div className="flex items-center gap-2 text-[11px] text-rose-700 dark:text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{feedbackError}</span>
+            <Card id="mode-growth-card" accent="violet" className="lg:col-span-3 text-left flex flex-col justify-between space-y-6">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl border border-brand-mint-dark/40 text-brand-mint-dark dark:text-brand-mint flex items-center justify-center">
+                  <Briefcase className="w-6 h-6" strokeWidth={1.5} />
                 </div>
-              )}
 
-              {feedbackSuccess && (
-                <div className="flex items-center gap-2 text-[11px] text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Geri bildirimin için teşekkürler! En kısa sürede okuyacağız.</span>
+                <div>
+                  <Badge tone="violet" className="block mb-1">
+                    Beceri &amp; Proje Odaklı
+                  </Badge>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">İş Hayatım ve Gelişim</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
+                    Mesleğin ne olursa olsun — ya da hiçbir mesleğin olmasa bile: spor, İngilizce, tiyatro, müzik gibi kişisel uğraşların; yazılım/kişisel proje geliştirme; kişisel okumalar ve rutin alışkanlık takibi. Sınav ve okul ilişkisi olmayan her kişisel gelişim hedefi burada.
+                  </p>
                 </div>
-              )}
 
-              <div>
-                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">E-posta Adresin</label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="email"
-                    placeholder="sen@ornek.com"
-                    value={feedbackEmail}
-                    onChange={e => setFeedbackEmail(e.target.value)}
-                    className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark transition-all"
+                <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-brand-mint-dark dark:text-brand-mint shrink-0" strokeWidth={1.5} />
+                    <span>Proje &amp; Beceriler İlerleme Paneli</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-brand-mint-dark dark:text-brand-mint shrink-0" strokeWidth={1.5} />
+                    <span>Alışkanlık Zinciri (Habit Tracker Matrix)</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-brand-mint-dark dark:text-brand-mint shrink-0" strokeWidth={1.5} />
+                    <span>AI Sentiment Skorlu Günlük &amp; Duygu Değerlendirmesi</span>
+                  </li>
+                </ul>
+              </div>
+
+              <Button variant="secondary" onClick={() => handleSelectModeAndEnter('LIFELONG_LEARNER')} className="w-full">
+                <span>Bu Modu Keşfet</span>
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Card>
+          </div>
+        </main>
+
+        <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 pb-16 mt-20 w-full">
+          <div className="max-w-3xl mx-auto text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
+              Bu platformu nasıl daha iyi geliştirebiliriz?
+            </h2>
+            <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+              Fikirlerin, önerilerin ya da karşılaştığın bir sorun mu var? E-posta adresini bırak, doğrudan sana
+              yanıt verelim.
+            </p>
+          </div>
+
+          <div
+            ref={feedbackRef}
+            className={`transition-all duration-700 ease-out ${
+              feedbackInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+            }`}
+          >
+            <Card className="max-w-xl mx-auto text-left">
+              <form onSubmit={handleFeedbackSubmit} className="space-y-4 text-xs">
+                {feedbackError && (
+                  <div className="flex items-center gap-2 text-[11px] text-rose-700 dark:text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{feedbackError}</span>
+                  </div>
+                )}
+
+                {feedbackSuccess && (
+                  <div className="flex items-center gap-2 text-[11px] text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>Geri bildirimin için teşekkürler! En kısa sürede okuyacağız.</span>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">E-posta Adresin</label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="email"
+                      placeholder="sen@ornek.com"
+                      value={feedbackEmail}
+                      onChange={e => setFeedbackEmail(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Geri Bildirimin</label>
+                  <textarea
+                    placeholder="Bu platformu nasıl daha iyi hale getirebiliriz?"
+                    value={feedbackMessage}
+                    onChange={e => setFeedbackMessage(e.target.value)}
+                    className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark h-28 resize-none"
+                    maxLength={2000}
                     required
                   />
                 </div>
+
+                <Button type="submit" variant="primary" disabled={feedbackLoading} className="w-full glow-ai">
+                  <span>{feedbackLoading ? 'Gönderiliyor...' : 'Geri Bildirim Gönder'}</span>
+                </Button>
+              </form>
+            </Card>
+          </div>
+        </section>
+
+        <footer
+          ref={footerRef}
+          className={`relative z-20 py-10 border-t border-slate-300/40 dark:border-slate-800 transition-all duration-700 ease-out ${
+            footerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}
+        >
+          <div className="max-w-7xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-pink-dark to-brand-mint-dark flex items-center justify-center shadow-sm">
+                <Compass className="w-4 h-4 text-white" strokeWidth={1.75} />
               </div>
+              <span className="font-bold text-sm text-slate-800 dark:text-slate-200">StudyMentor</span>
+            </div>
 
-              <div>
-                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Geri Bildirimin</label>
-                <textarea
-                  placeholder="Bu platformu nasıl daha iyi hale getirebiliriz?"
-                  value={feedbackMessage}
-                  onChange={e => setFeedbackMessage(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark h-28 resize-none"
-                  maxLength={2000}
-                  required
-                />
-              </div>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://github.com/fatmanurkaragozz"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-all"
+              >
+                <GithubIcon className="w-4 h-4" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/fatma-nur-karag%C3%B6z-78678a294/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-all"
+              >
+                <LinkedinIcon className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
 
-              <Button type="submit" variant="primary" disabled={feedbackLoading} className="w-full glow-ai">
-                <span>{feedbackLoading ? 'Gönderiliyor...' : 'Geri Bildirim Gönder'}</span>
-              </Button>
-            </form>
-          </Card>
-        </div>
-      </section>
-
-      <footer className="relative z-20 py-6 border-t border-slate-300/40 dark:border-slate-800 text-center text-xs text-slate-500">
-        <p>© 2026 StudyMentor — Fatma Nur Karagöz. Tüm hakları saklıdır.</p>
-      </footer>
+          <p className="mt-6 text-center text-xs text-slate-500">© 2026 StudyMentor — Fatma Nur Karagöz. Tüm hakları saklıdır.</p>
+        </footer>
+      </div>
 
       {onboarding.open && (
         <OnboardingFlow
