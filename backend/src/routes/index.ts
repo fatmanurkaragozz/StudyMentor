@@ -14,6 +14,7 @@ import { habitsRouter } from "./habits.routes.js";
 import { journalsRouter } from "./journals.routes.js";
 import { dailyTasksRouter } from "./dailyTasks.routes.js";
 import { topicRemindersRouter } from "./topicReminders.routes.js";
+import { feedbackRouter } from "./feedback.routes.js";
 
 export const router = Router();
 
@@ -32,3 +33,4 @@ router.use(habitsRouter);
 router.use(journalsRouter);
 router.use(dailyTasksRouter);
 router.use(topicRemindersRouter);
+router.use(feedbackRouter);

@@ -29,3 +29,14 @@ export const refreshLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "Çok fazla oturum yenileme denemesi. Lütfen birkaç dakika sonra tekrar dene." },
 });
+
+// Landing page'deki geri bildirim formu - auth gerektirmeyen public bir uc ve
+// her gonderim gercek bir e-posta tetikliyor, o yuzden emailCodeLimiter ile ayni
+// sikilikta ama ayri bir kova (feedback trafigi sifre sifirlama kotasini yemesin).
+export const feedbackLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Çok fazla geri bildirim gönderildi. Lütfen bir süre sonra tekrar dene." },
+});

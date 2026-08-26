@@ -478,4 +478,7 @@ export const apiClient = {
       method: "POST",
       body: JSON.stringify({ feedback, reason }),
     }),
+
+  submitFeedback: (body: { email: string; message: string }) =>
+    request<{ message: string }>("/feedback", { method: "POST", body: JSON.stringify(body) }),
 };
