@@ -65,3 +65,4 @@ ml-service/studymentor_export.csv
 ml-service/studymentor_insight_export.jsonl
 
 .superpowers/
+.worktrees/
