@@ -10,6 +10,15 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    # config/env.ts, import zamanında zorunlu env değişkenlerini kontrol ediyor
+    # (server sessizce ayağa kalkmasın diye kasıtlı bir davranış) - testler gerçek
+    # bir DB/SMTP'ye hiç bağlanmadığı (Prisma mock'lanıyor) için bu değerler sahte
+    # olabilir, sadece "mevcut mu" kontrolünü geçmeleri yeterli.
+    env:
+      DATABASE_URL: "postgresql://user:password@localhost:5432/test"
+      JWT_SECRET: "ci-test-secret"
+      GMAIL_USER: "test@example.com"
+      GMAIL_APP_PASSWORD: "test-app-password"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
