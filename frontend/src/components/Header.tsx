@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { getEducationLabel } from '../lib/labels';
-import { Search, Bell, UserCheck } from 'lucide-react';
+import { Search, UserCheck } from 'lucide-react';
+import { NotificationBell } from './NotificationBell';
 
 export const Header: React.FC = () => {
   const { user, setActiveTab } = useApp();
@@ -46,10 +47,7 @@ export const Header: React.FC = () => {
       {/* Right Header Controls */}
       <div className="flex items-center gap-4">
         {/* Notifications */}
-        <button className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-800 rounded-xl transition-all">
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-brand-pink-dark animate-pulse"></span>
-        </button>
+        <NotificationBell />
 
         {/* User Profile Info */}
         <button

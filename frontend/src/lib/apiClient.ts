@@ -349,6 +349,9 @@ export const apiClient = {
 
   getMe: () => request<BackendUser>("/users/me"),
 
+  updateMe: (body: Partial<{ firstName: string; lastName: string; email: string; educationLevel: EducationLevel; grade: number }>) =>
+    request<BackendUser>("/users/me", { method: "PATCH", body: JSON.stringify(body) }),
+
   getTopics: (mode: UserMode) => request<SubjectWithTopics[]>(`/topics?mode=${mode}`),
 
   createCustomSubject: (body: { name: string; mode: UserMode }) =>
@@ -433,6 +436,9 @@ export const apiClient = {
       `/recommendations/${recommendationId}/feedback`,
       { method: "POST", body: JSON.stringify({ feedback, reason }) },
     ),
+
+  markRecommendationRead: (recommendationId: string) =>
+    request<{ id: string; isRead: boolean }>(`/recommendations/${recommendationId}/read`, { method: "PATCH" }),
 
   getHabits: (mode: UserMode) => request<HabitRow[]>(`/habits?mode=${mode}`),
 

@@ -9,7 +9,7 @@ import { HttpError } from "../utils/httpError.js";
 import { isValidGrade } from "../utils/grade.js";
 import { sendVerificationEmail, sendPasswordResetEmail } from "./mailer.service.js";
 
-const VERIFICATION_CODE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat
+export const VERIFICATION_CODE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat
 const RESET_CODE_TTL_MS = 15 * 60 * 1000; // 15 dakika
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 gun
 const ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 dakika
@@ -27,7 +27,7 @@ function accessTokenExpiresAt(): string {
   return new Date(Date.now() + ACCESS_TOKEN_TTL_MS).toISOString();
 }
 
-function generateCode(): string {
+export function generateCode(): string {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 

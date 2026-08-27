@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { listRecommendations, submitRecommendationFeedback } from "../services/recommendations.service.js";
+import { listRecommendations, submitRecommendationFeedback, markRecommendationRead } from "../services/recommendations.service.js";
 import { modeQuerySchema, submitInsightFeedbackSchema } from "../validation/schemas.js";
 
 export async function getRecommendations(req: Request, res: Response) {
@@ -11,5 +11,10 @@ export async function getRecommendations(req: Request, res: Response) {
 export async function postRecommendationFeedback(req: Request<{ id: string }>, res: Response) {
   const input = submitInsightFeedbackSchema.parse(req.body);
   const result = await submitRecommendationFeedback(req.userId as string, req.params.id, input.feedback, input.reason);
+  res.json(result);
+}
+
+export async function patchRecommendationRead(req: Request<{ id: string }>, res: Response) {
+  const result = await markRecommendationRead(req.userId as string, req.params.id);
   res.json(result);
 }
