@@ -110,3 +110,17 @@ export async function submitRecommendationFeedback(
     throw error;
   }
 }
+
+export async function markRecommendationRead(userId: string, recommendationId: string) {
+  try {
+    return await prisma.aIRecommendation.update({
+      where: { id: recommendationId, userId },
+      data: { isRead: true },
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+      throw new HttpError(404, "Öneri bulunamadı");
+    }
+    throw error;
+  }
+}
