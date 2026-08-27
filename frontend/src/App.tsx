@@ -53,14 +53,18 @@ export function AppContent() {
   // (DATA_ENTRY) status 'authenticated' olur olmaz MainLayout'a atlamasin.
   const hasResolvedInitialAuth = useRef(false);
 
+  // Ilk cozumlemeyi (loading -> authenticated) effect yerine render fazinda yapiyoruz:
+  // effect commit'ten SONRA calistigi icin, status 'authenticated' oldugu render'da
+  // showLanding hala true kalip LandingPage bir kare boyanirdi. Render sirasinda
+  // setState cagirmak React'i commit'ten once yeniden render etmeye zorluyor, bu yuzden
+  // gecerli oturumu olan kullanici hicbir karede "Giris Yap" gormuyor.
+  if (status !== 'loading' && !hasResolvedInitialAuth.current) {
+    hasResolvedInitialAuth.current = true;
+    if (status === 'authenticated') setShowLanding(false);
+  }
+
   useEffect(() => {
-    if (status === 'loading') return;
-    if (!hasResolvedInitialAuth.current) {
-      hasResolvedInitialAuth.current = true;
-      if (status === 'authenticated') setShowLanding(false);
-      return;
-    }
-    if (status === 'unauthenticated') setShowLanding(true);
+    if (status === 'unauthenticated' && hasResolvedInitialAuth.current) setShowLanding(true);
   }, [status]);
 
   const handleLogout = async () => {
