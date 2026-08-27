@@ -450,3 +450,29 @@ Bugünün ortak teması aslında ikisinde de aynıydı: iyi mühendislik çoğu 
 - **Kodun Doğru Görünüp Yanlış Davranması:** Auth geçişini yaptıktan sonra tarayıcı konsolunda beklenmedik bir çift 401 hatası fark edildi. Kök neden kod okumasıyla değil, gerçek tarayıcıda çalıştırıp gözlemleyince ortaya çıktı: React'ın geliştirme modundaki StrictMode davranışı, oturum açılışındaki tek seferlik "sessizce yenile" çağrısını bilerek iki kez tetikliyordu, ve bu çağrı, aynı anda gelen isteklerin birbirini ezmesini önlemek için zaten yazılmış olan tekilleştirme korumasının dışında kalmıştı — yani savunma zaten vardı, ama bir giriş noktasına uygulanıp diğerine unutulmuştu.
 
 Bugün fark ettiğim ortak şey şuydu: hem mod-ayrımı sızıntıları hem StrictMode'un ortaya çıkardığı çift-çağrı, aslında "bir yerde doğru yapılmış bir şeyin her yere tutarlı şekilde uygulanmadığı" aynı hata sınıfının farklı görünümleriydi. İkisi de kod okumasıyla değil, gerçek veriyle ya da gerçek tarayıcıda çalıştırıp gözlemleyerek yakalandı — bu da bana bir savunma mekanizması yazmanın onu her olası giriş noktasına uygulamakla aynı şey olmadığını, ve bunu doğrulamanın tek yolunun bazen sadece okumak değil, gerçekten çalıştırıp izlemek olduğunu bir kez daha gösterdi.
+
+---
+
+### 📅 27. Gün: 25 Ağustos 2026 (Salı)
+
+**O gün neler yaptım:**
+
+- **Çift-Persona ve Refresh-Token İşinin Main'e Alınması:** Pazartesi tamamlanan Öğrenci/Gelişim ayrımı ve httpOnly cookie tabanlı refresh-token oturum mimarisi, Pull Request #13 ile main'e birleştirildi; o işin özeti staj defterine 26. gün kaydı olarak eklendi.
+- **Açılış Sayfası Footer'ı İçin Kodsuz Bir Tasarım Turu:** Açılış sayfasının en altındaki (önceki bir oturumda eklenmiş) geri bildirim formunun ve tek satırlık footer'ın görsel olarak yetersiz kaldığına karar verilip, hiç kod yazmadan önce bir netleştirme sürecine girildi: mod kartlarının arkasındaki yıldız haritasının (`StarMap`) geri bildirim bölümü ve footer'a doğru genişleyip sönmesi, footer'ın gerçek bir "alt bar"a dönüşmesi (sahte/placeholder değil, gerçek GitHub/LinkedIn linkleriyle) kararlaştırıldı. Bu arada dark modda fark edilen ayrı bir hata da — kök arka plan gradyanının iki ucunun aynı renk olması yüzünden hiç görünmemesi — aynı işe dahil edildi.
+- **Geriye Uyumluluğu Baştan Garanti Altına Almak:** `StarMap` bileşeni bu sayfanın yanında `AIInsights` ekranında da kullanıldığı için, genişletmenin oradaki mevcut görünümü hiç bozmaması gerektiği en başta bir kısıt olarak yazıya döküldü. Bunun için mevcut noktaları/viewBox'ı yerinde büyütmek yerine, varsayılan değerde hiçbir şeyi değiştirmeyen (`extended`/`className`) opt-in prop'lar tasarlandı — bir tasarım dokümanına, ardından adım adım bir uygulama planına yazılıp koda geçiş bilerek ertesi güne bırakıldı.
+
+Bugün asıl öğrendiğim şey, görsel bir değişiklik için bile "bu, başka hangi ekranı etkiler?" sorusunu koda dalmadan önce yazılı olarak cevaplamanın, sonradan `AIInsights`'ı kazara bozma riskini daha en baştan ortadan kaldırdığıydı.
+
+---
+
+### 📅 28. Gün: 26 Ağustos 2026 (Çarşamba)
+
+**O gün neler yaptım:**
+
+- **Ziyaretçi Geri Bildirim Formunun Main'e Alınması:** Önceki bir oturumda yazılmış, açılış sayfasındaki gerçek `POST /api/feedback` ucuna bağlı ziyaretçi geri bildirim formu commit'lenip main'e taşındı.
+- **Dark Mode Kök Arka Plan Gradyanı Düzeltmesi:** Dünkü tasarım turunda tespit edilen hata (`dark:from-slate-950 dark:to-slate-950` — iki ucu aynı renk olduğu için gradyanın dark modda hiç görünmemesi) tek satırlık bir renk değişikliğiyle (`dark:to-slate-900`) düzeltildi; hero'nun kendi ayrı gradyanına dokunulmadı.
+- **StarMap'e Geriye Uyumlu Genişletme:** `StarMap.tsx`'e `extended`/`className` prop'ları eklendi. Varsayılan (kapalı) durumda bileşen birebir eskisi gibi davranıyor — `AIInsights.tsx`'teki mevcut kullanım sıfır değişiklikle korundu; `extended` açıldığında daha uzun bir viewBox ve aşağıya doğru seyrekleşen ek yıldız noktaları devreye giriyor.
+- **Yıldız Haritasının Footer'a Genişletilmesi ve Footer'ın Profesyonel Bir Bara Dönüştürülmesi:** `LandingPage.tsx`'te `<main>` + geri bildirim `<section>`'ı + `<footer>` tek bir `relative` kapsayıcıya alınıp tek bir genişletilmiş `StarMap`, üçünün toplam yüksekliğine yayıldı; bir CSS `mask-image` gradyanıyla yıldızlar footer'a doğru sönümlendi. Footer; solda küçültülmüş marka rozeti, sağda gerçek GitHub/LinkedIn ikon linkleriyle (yeni sekmede açılan, `aria-label`'lı) yeniden tasarlandı ve diğer bölümlerle tutarlı bir belirme animasyonu (`useInViewOnce`) eklendi.
+- **Son Cila — Erişilebilirlik ve Kod Temizliği:** Gereksiz bir `-webkit-mask` class'ı kaldırıldı; footer'daki telif hakkı satırının kontrastı WCAG AA standardına çekildi. Tüm değişiklikler Pull Request #14 ile main'e birleştirildi.
+
+Dünkü tasarım dokümanı elimdeyken koda başlamak, "bu değişiklik AIInsights'ı bozar mı?" gibi soruların uygulama sırasında değil önceden cevaplanmış olarak karşıma çıkmasını sağladı — planlamayla uygulamayı ayrı günlere bölmenin gerçek faydasını ilk kez bu kadar net hissettim.
