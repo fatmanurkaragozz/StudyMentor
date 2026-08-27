@@ -147,6 +147,14 @@ html:not(.dark) .glass-card:hover {
   height: 100dvh;
 }
 
+/* Sayfanın son bölümünün (geri bildirim + footer) her zaman en az bir viewport
+   yüksekliğinde olmasını garanti eder - aksi halde en alta kadar kaydırınca
+   bir önceki bölümün kuyruğu hâlâ görünür kalabilir. */
+.min-h-viewport {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 /* Aurora arka plan hareketi */
 @keyframes aurora-drift {
   0%, 100% { transform: translate(0, 0) scale(1); }

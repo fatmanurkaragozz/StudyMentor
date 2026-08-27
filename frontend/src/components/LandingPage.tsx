@@ -89,9 +89,13 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
     const markStarted = () => setHeroScrollStarted(true);
     window.addEventListener('wheel', markStarted, { passive: true, once: true });
     window.addEventListener('touchmove', markStarted, { passive: true, once: true });
+    // Klavye (Page Down/End/ok tuşları) veya scrollbar sürükleme gibi wheel/touchmove
+    // tetiklemeyen kaydırma yöntemlerinde de ipucunun kalıcı olarak takılı kalmaması için.
+    window.addEventListener('scroll', markStarted, { passive: true, once: true });
     return () => {
       window.removeEventListener('wheel', markStarted);
       window.removeEventListener('touchmove', markStarted);
+      window.removeEventListener('scroll', markStarted);
     };
   }, [heroScrollStarted]);
 
@@ -429,112 +433,118 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
           </div>
         </main>
 
-        <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 pb-16 mt-20 w-full">
-          <div className="max-w-3xl mx-auto text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
-              Bu platformu nasıl daha iyi geliştirebiliriz?
-            </h2>
-            <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-              Fikirlerin, önerilerin ya da karşılaştığın bir sorun mu var? E-posta adresini bırak, doğrudan sana
-              yanıt verelim.
-            </p>
-          </div>
+        <div className="min-h-viewport flex flex-col">
+          <section className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 pb-16 mt-20 w-full flex-1 flex flex-col justify-center">
+            <div className="max-w-3xl mx-auto text-center mb-10">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
+                Bu platformu nasıl daha iyi geliştirebiliriz?
+              </h2>
+              <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+                Fikirlerin, önerilerin ya da karşılaştığın bir sorun mu var? E-posta adresini bırak, doğrudan sana
+                yanıt verelim.
+              </p>
+            </div>
 
-          <div
-            ref={feedbackRef}
-            className={`transition-all duration-700 ease-out ${
-              feedbackInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-            }`}
-          >
-            <Card className="max-w-xl mx-auto text-left">
-              <form onSubmit={handleFeedbackSubmit} className="space-y-4 text-xs">
-                {feedbackError && (
-                  <div className="flex items-center gap-2 text-[11px] text-rose-700 dark:text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{feedbackError}</span>
+            <div
+              ref={feedbackRef}
+              className={`transition-all duration-700 ease-out ${
+                feedbackInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+              }`}
+            >
+              <Card className="max-w-xl mx-auto text-left">
+                <form onSubmit={handleFeedbackSubmit} className="space-y-4 text-xs">
+                  {feedbackError && (
+                    <div className="flex items-center gap-2 text-[11px] text-rose-700 dark:text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{feedbackError}</span>
+                    </div>
+                  )}
+
+                  {feedbackSuccess && (
+                    <div className="flex items-center gap-2 text-[11px] text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>Geri bildirimin için teşekkürler! En kısa sürede okuyacağız.</span>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">E-posta Adresin</label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="email"
+                        placeholder="sen@ornek.com"
+                        value={feedbackEmail}
+                        onChange={e => setFeedbackEmail(e.target.value)}
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark transition-all"
+                        required
+                      />
+                    </div>
                   </div>
-                )}
 
-                {feedbackSuccess && (
-                  <div className="flex items-center gap-2 text-[11px] text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    <span>Geri bildirimin için teşekkürler! En kısa sürede okuyacağız.</span>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">E-posta Adresin</label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="email"
-                      placeholder="sen@ornek.com"
-                      value={feedbackEmail}
-                      onChange={e => setFeedbackEmail(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark transition-all"
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Geri Bildirimin</label>
+                    <textarea
+                      placeholder="Bu platformu nasıl daha iyi hale getirebiliriz?"
+                      value={feedbackMessage}
+                      onChange={e => setFeedbackMessage(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark h-28 resize-none"
+                      maxLength={2000}
                       required
                     />
                   </div>
+
+                  <Button type="submit" variant="primary" disabled={feedbackLoading} className="w-full glow-ai">
+                    <span>{feedbackLoading ? 'Gönderiliyor...' : 'Geri Bildirim Gönder'}</span>
+                  </Button>
+                </form>
+              </Card>
+            </div>
+          </section>
+
+          <footer
+            ref={footerRef}
+            className={`relative z-20 py-10 border-t border-slate-300/40 dark:border-slate-800 transition-all duration-700 ease-out ${
+              footerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
+          >
+            <div className="max-w-7xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-pink-dark to-brand-mint-dark flex items-center justify-center shadow-sm">
+                  <Compass className="w-4 h-4 text-white" strokeWidth={1.75} />
                 </div>
-
-                <div>
-                  <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Geri Bildirimin</label>
-                  <textarea
-                    placeholder="Bu platformu nasıl daha iyi hale getirebiliriz?"
-                    value={feedbackMessage}
-                    onChange={e => setFeedbackMessage(e.target.value)}
-                    className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-pink-dark h-28 resize-none"
-                    maxLength={2000}
-                    required
-                  />
-                </div>
-
-                <Button type="submit" variant="primary" disabled={feedbackLoading} className="w-full glow-ai">
-                  <span>{feedbackLoading ? 'Gönderiliyor...' : 'Geri Bildirim Gönder'}</span>
-                </Button>
-              </form>
-            </Card>
-          </div>
-        </section>
-
-        <footer
-          ref={footerRef}
-          className={`relative z-20 py-10 border-t border-slate-300/40 dark:border-slate-800 transition-all duration-700 ease-out ${
-            footerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-        >
-          <div className="max-w-7xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-pink-dark to-brand-mint-dark flex items-center justify-center shadow-sm">
-                <Compass className="w-4 h-4 text-white" strokeWidth={1.75} />
+                <span className="font-bold text-sm text-slate-800 dark:text-slate-200">StudyMentor</span>
               </div>
-              <span className="font-bold text-sm text-slate-800 dark:text-slate-200">StudyMentor</span>
+
+              <div className="flex items-center gap-3">
+                <a
+                  href="https://github.com/fatmanurkaragozz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                  className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-all"
+                >
+                  <GithubIcon className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/fatma-nur-karag%C3%B6z-78678a294/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-all"
+                >
+                  <LinkedinIcon className="w-4 h-4" />
+                </a>
+              </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <a
-                href="https://github.com/fatmanurkaragozz"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-all"
-              >
-                <GithubIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/fatma-nur-karag%C3%B6z-78678a294/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-                className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-all"
-              >
-                <LinkedinIcon className="w-4 h-4" />
-              </a>
+            <div className="max-w-7xl mx-auto px-6 sm:px-12 mt-6 grid grid-cols-1 sm:grid-cols-3 items-center gap-1.5 sm:gap-0 text-xs text-slate-600 dark:text-slate-400">
+              <span className="text-center sm:text-left">© 2026 Fatma Nur Karagöz.</span>
+              <span className="text-center">Tüm hakları saklıdır.</span>
+              <span className="hidden sm:block" aria-hidden="true" />
             </div>
-          </div>
-
-          <p className="mt-6 text-center text-xs text-slate-600 dark:text-slate-400">© 2026 StudyMentor — Fatma Nur Karagöz. Tüm hakları saklıdır.</p>
-        </footer>
+          </footer>
+        </div>
       </div>
 
       {onboarding.open && (
