@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { apiClient, type StudySessionRow, type HabitRow, type ExamDto } from '../lib/apiClient';
 import { useRecommendations } from '../hooks/useRecommendations';
+import { getWelcomeMessage } from '../lib/labels';
 import {
   Clock,
   Flame,
@@ -186,9 +187,7 @@ export const Dashboard: React.FC = () => {
               Tekrar Hoş Geldin, {user.name.split(' ')[0]} 👋
             </h2>
             <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 max-w-xl">
-              {isStudent
-                ? 'Bugün hedefindeki üniversite ve sınav derecesi için 1 adımı daha geride bırakmaya hazır mısın?'
-                : 'Bugün yazılım projelerin, kişisel becerilerin ve verimli alışkanlıkların için harika bir çalışma günü!'}
+              {getWelcomeMessage(user)}
             </p>
           </div>
 
