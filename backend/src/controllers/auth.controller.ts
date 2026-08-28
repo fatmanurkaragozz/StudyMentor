@@ -24,11 +24,16 @@ const REFRESH_COOKIE_NAME = "refresh_token";
 const REFRESH_COOKIE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 gun
 
 // path: "/api/auth" - bu cookie sadece auth uclarina gonderilsin, her API cagrisina degil.
+// sameSite "none" prod'da zorunlu: frontend (Static Web Apps) ve backend (App Service)
+// farkli domain'lerde olacagi icin bu gercek bir cross-site kurulum - "lax" cookie'ler
+// fetch/XHR ile yapilan cross-site isteklerde hic gonderilmez (sadece ust-seviye
+// navigasyonlarda gonderilir), bu da /auth/refresh'in cookie'yi hic gormemesine yol acardi.
 function setRefreshCookie(res: Response, rawToken: string) {
+  const isProd = config.nodeEnv === "production";
   res.cookie(REFRESH_COOKIE_NAME, rawToken, {
     httpOnly: true,
-    secure: config.nodeEnv === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     path: "/api/auth",
     maxAge: REFRESH_COOKIE_MAX_AGE_MS,
   });
