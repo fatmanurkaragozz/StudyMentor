@@ -29,15 +29,15 @@ jobs:
       - name: Build and push container image to registry
         uses: azure/container-apps-deploy-action@v2
         with:
-          appSourcePath: ${{ github.workspace }}backend
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
+          appSourcePath: ${{ github.workspace }}/backend
+          dockerfilePath: Dockerfile
           registryUrl: docker.io
           registryUsername: ${{ secrets.STUDYMENTORAPI_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.STUDYMENTORAPI_REGISTRY_PASSWORD }}
           containerAppName: studymentor-api
           resourceGroup: studymentor-rg
-          imageToBuild: fatmanurkaragoz/fatmanurkaragoz/studymentor-api:${{ github.sha }}
+          imageToBuild: fatmanurkaragoz/studymentor-api:${{ github.sha }}
+          targetPort: 8080
           
             
 
