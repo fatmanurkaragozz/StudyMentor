@@ -5,6 +5,12 @@
 # olmadigi node_modules'tan dogrulandi, bu yuzden generate acikca cagriliyor.
 FROM node:24-slim
 
+# Prisma'nin query engine'i libssl'e ihtiyac duyuyor - node:24-slim (Debian slim)
+# bunu varsayilan olarak icermiyor, "libssl.so.1.1: cannot open shared object file"
+# hatasiyla runtime'da cokmeye yol aciyordu (build sirasinda sadece uyari olarak
+# gorunuyordu, gercek hata container calisirken ortaya cikiyordu).
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./
