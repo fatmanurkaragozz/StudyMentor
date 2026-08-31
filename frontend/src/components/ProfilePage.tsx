@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { useIntros } from '../context/IntroContext';
 import { getEducationLabel } from '../lib/labels';
 import { apiClient, toUserProfile, ApiError } from '../lib/apiClient';
 import type { EducationLevel } from '../types';
@@ -27,6 +28,7 @@ const inputClass =
 export const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
   const { user, setUserMode, setUserProfile } = useApp();
   const { verifyEmail, resendVerification } = useAuth();
+  const { resetAll, dismissedCount } = useIntros();
   const isStudent = user.mode === 'STUDENT';
   const isExamPrep = user.educationLevel === 'EXAM_PREP';
 
@@ -308,6 +310,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
             </button>
           </div>
         </div>
+
+        {dismissedCount > 0 && (
+          <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-2">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Rehber Kartları</div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {dismissedCount} bölüm/özellik rehberini "bir daha gösterme" ile gizledin.
+            </p>
+            <button
+              onClick={resetAll}
+              className="text-xs font-semibold text-slate-600 dark:text-slate-300 underline hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+            >
+              Gizlenen rehber kartlarını yeniden göster
+            </button>
+          </div>
+        )}
 
         <button
           onClick={onLogout}
