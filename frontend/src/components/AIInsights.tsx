@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { apiClient, type SubjectHistoryEntry, type InsightFeedback } from '../lib/apiClient';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
 import { TopicCheckModal } from './onboarding/TopicCheckModal';
+import { IntroHint } from './IntroHint';
 import { getSubjectHistoryFallbackComment } from '../lib/kaptan';
 import { useRecommendations } from '../hooks/useRecommendations';
 import { Sparkles, BrainCircuit, Calendar, ArrowUpRight, Loader2, Compass, Clock, ListChecks, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -156,6 +157,7 @@ export const AIInsights: React.FC = () => {
       )}
 
       <div className="relative space-y-4">
+        {recommendations.length > 0 && <IntroHint kind="feature" id="priority-score" />}
         {recommendations.map(item => (
           <div key={item.id} className="glass-panel p-6 rounded-2xl border border-brand-violet/30 bg-white dark:bg-slate-900/80 space-y-3">
             <div className="flex items-center justify-between">

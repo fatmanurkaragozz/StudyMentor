@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { apiClient, type StudySessionRow, type HabitRow, type ExamDto } from '../lib/apiClient';
 import { useRecommendations } from '../hooks/useRecommendations';
 import { getWelcomeMessage } from '../lib/labels';
+import { IntroHint } from './IntroHint';
 import {
   Clock,
   Flame,
@@ -272,6 +273,9 @@ export const Dashboard: React.FC = () => {
 
       {/* Kaptan (AI Koç) Banner */}
       <div className="glass-panel rounded-2xl p-5 border border-brand-violet/30 relative overflow-hidden">
+        <div className="mb-3">
+          <IntroHint kind="feature" id="kaptan" />
+        </div>
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-xl bg-brand-violet/20 border border-brand-violet/30 text-brand-violet-hover dark:text-brand-violet flex items-center justify-center shrink-0 glow-violet">
             <Compass className="w-6 h-6" />
@@ -353,6 +357,7 @@ export const Dashboard: React.FC = () => {
 
       {/* Aralıklı Tekrar - Bugün Tekrar Zamanı */}
       <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+        <IntroHint kind="feature" id="spaced-repetition" />
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <Repeat className="w-4 h-4 text-rose-500 dark:text-rose-400" />

@@ -3,6 +3,7 @@ import { BookOpen, Plus, Loader2, AlertCircle, Sparkles, Trash2, Pencil, Chevron
 import { apiClient, type MySubject, type MyTopic } from '../lib/apiClient';
 import { useApp } from '../context/AppContext';
 import { TopicCheckModal } from './onboarding/TopicCheckModal';
+import { IntroHint } from './IntroHint';
 import { MiniDecorScene } from './hero3d/decor/MiniDecorScene';
 import { PottedPlant } from './hero3d/decor/PottedPlant';
 
@@ -215,6 +216,8 @@ export const MyCourses: React.FC = () => {
           <span>{isStudent ? 'Ders Ekle' : 'Uğraş Ekle'}</span>
         </button>
       </form>
+
+      <IntroHint kind="feature" id="mini-check" />
 
       {error && (
         <div className="flex items-center gap-2 text-rose-700 dark:text-rose-300 text-xs bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2">

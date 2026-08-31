@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Flame, BookOpen, Plus, Check, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { apiClient, type HabitRow, type JournalRow } from '../lib/apiClient';
 import { useApp } from '../context/AppContext';
+import { IntroHint } from './IntroHint';
 import { MiniDecorScene } from './hero3d/decor/MiniDecorScene';
 import { HangingIvyPlanter } from './hero3d/decor/HangingIvyPlanter';
 
@@ -117,6 +118,7 @@ export const GrowthHub: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Habit Tracker Section */}
         <div className="relative glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+          <IntroHint kind="feature" id="habit-matrix" />
           {bestStreak >= 3 && (
             <MiniDecorScene className="absolute -top-5 right-2 w-24 h-16" cameraPosition={[0, 0, 2.6]}>
               <HangingIvyPlanter position={[0, 0.3, 0]} scale={1.3} />
@@ -191,6 +193,7 @@ export const GrowthHub: React.FC = () => {
 
         {/* Journal & Mood Section */}
         <div className="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+          <IntroHint kind="feature" id="journal-sentiment" />
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-brand-violet-hover dark:text-brand-violet" />
             <span>Günlük Yazma & AI Duygu Analizi</span>
