@@ -59,7 +59,7 @@ export function AppContent() {
   // oturum bulunduysa (httpOnly refresh cookie) landing'i atlar. Sonraki 'unauthenticated'
   // geciler (orn. oturum kullanim sirasinda suresi dolarsa) landing'e geri doner - ama bu,
   // ilk coz'ulmeden ayri tutuluyor ki register/dogrulama akisindaki ara adimlar
-  // (DATA_ENTRY) status 'authenticated' olur olmaz MainLayout'a atlamasin.
+  // status 'authenticated' olur olmaz MainLayout'a atlamasin.
   const hasResolvedInitialAuth = useRef(false);
 
   // Ilk cozumlemeyi (loading -> authenticated) effect yerine render fazinda yapiyoruz:
