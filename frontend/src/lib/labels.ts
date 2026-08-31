@@ -39,3 +39,24 @@ export function getWelcomeMessage(user: UserProfile): string {
       return 'Bugün projelerin, kişisel becerilerin ve verimli alışkanlıkların için harika bir çalışma günü!';
   }
 }
+
+// İlk kayıttan hemen sonra dashboard'da bir kez gösterilen karşılama. getWelcomeMessage
+// (her girişteki günlük selam) ile karıştırılmamalı - bu tek seferlik ve yeni kullanıcıyı
+// ilk adımlara yönlendirir. Yapı getWelcomeMessage gibi: önce user.mode.
+export function getFirstWelcomeMessage(user: UserProfile): { title: string; body: string } {
+  const firstName = user.name.split(' ')[0] || user.name;
+  const title = `Hoş geldin, ${firstName}! 🎉`;
+  const guideHint =
+    'Her ekranın üstünde o bölümün ne işe yaradığını anlatan bir "Bölüm Rehberi" kartı var.';
+
+  if (user.mode === 'LIFELONG_LEARNER') {
+    return {
+      title,
+      body: `StudyMentor'a hoş geldin. ${guideHint} Başlamak için "Uğraşlarım"dan bir uğraş ekle ve ilk odak seansını yap — Kaptan (AI Koç) kısa sürede sana özel öneriler üretmeye başlar.`,
+    };
+  }
+  return {
+    title,
+    body: `StudyMentor'a hoş geldin. ${guideHint} Başlamak için "Derslerim"den derslerini ekle ve bir konu için ilk mini kontrolünü yap — Kaptan (AI Koç) kısa sürede sana özel öneriler üretmeye başlar.`,
+  };
+}
