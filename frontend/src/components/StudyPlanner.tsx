@@ -4,6 +4,7 @@ import { apiClient, type SubjectWithTopics, type RecommendationResult, type Dail
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
 import { getKaptanSessionMessage } from '../lib/kaptan';
 import { ReminderPrompt } from './ReminderPrompt';
+import { IntroHint } from './IntroHint';
 import {
   Play,
   Pause,
@@ -340,6 +341,7 @@ export const StudyPlanner: React.FC = () => {
 
       {/* Günlük To-Do Listesi */}
       <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+        <IntroHint kind="feature" id="daily-tasks" />
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 shrink-0">
             <ListTodo className={`w-4 h-4 ${isStudent ? 'text-brand-pink-dark dark:text-brand-pink-light' : 'text-brand-mint-dark dark:text-brand-mint'}`} />
@@ -446,6 +448,8 @@ export const StudyPlanner: React.FC = () => {
           </div>
         )}
       </div>
+
+      <IntroHint kind="feature" id="pomodoro" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Main Timer Box */}
