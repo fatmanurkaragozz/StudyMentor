@@ -66,3 +66,18 @@ ml-service/studymentor_insight_export.jsonl
 
 .superpowers/
 .worktrees/
+
+# AI assistant tooling / editor helpers (local only, not part of the project)
+.claude/
+.qodo/
+
+# Internal planning artifacts (kept local)
+docs/superpowers/
+
+# Personal / academic deliverables (not part of the codebase)
+Documents/Staj_Defteri_Raporu.md
+Documents/*.pdf
+Documents/*.png
+
+# Third-party ML datasets - see ml-service/fixtures/README.md for how to obtain
+ml-service/fixtures/duolingo_sample_50k.csv
