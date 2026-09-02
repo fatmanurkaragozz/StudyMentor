@@ -23,12 +23,29 @@
 | 2026-09-02 | Azure kimliği: Contributor rolü **sadece `studymentor-rg`** kapsamında | En az yetki — kimlik ele geçirilse etki alanı tek resource group |
 | 2026-09-02 | `production` environment + required reviewer + `main` branch koruması | Deploy push ile tetikleniyor; asıl koruma "main'e kim kod koyabiliyor" |
 | 2026-09-02 | Docker Hub: hesap parolası değil, kapsamlı access token (1 yıl) | Sızarsa yalnızca o token iptal edilir; hijyen/kullanılabilirlik dengesi |
+| 2026-09-02 | PR #21 merge edildi, ilk deploy başarılı | Hat çalışıyor: merge → deploy.yml → production kapısı → OIDC → build → Azure Container Apps |
+| 2026-09-02 | 2. federated credential eklendi (`gh-studymentor-prod-2`) | Bu reponun OIDC subject'i numeric ID taşıyor; düz subject `AADSTS700213` veriyordu (aşağıda S/C) |
 
 <!-- Yeni satırları buraya ekle -->
 
 ---
 
 ## Sık sorulabilecek sorular ve cevaplar
+
+### 0. "İlk deploy'da Azure login neden `AADSTS700213` verdi?"
+
+GitHub'ın gönderdiği OIDC token'ının `sub` claim'i, beklenen düz biçimde
+(`repo:<owner>/<repo>:environment:production`) değil — araya **owner ID ve repo
+ID** giriyor:
+`repo:fatmanurkaragozz@157278225/StudyMentor@1306608188:environment:production`.
+
+İlk federated credential düz subject ile oluşturulmuştu, eşleşmedi. Çözüm: repo
+ve owner ID'lerini (`curl -s https://api.github.com/repos/<owner>/<repo>` →
+`.id`, `.owner.id`) içeren ikinci bir credential (`gh-studymentor-prod-2`).
+
+Not: GitHub, owner adını bir secret ile eşleşiyorsa (`REGISTRY_USERNAME` =
+`fatmanurkaragoz`) hata logunda `***` ile maskeler; hata mesajındaki subject'i
+okurken bunu zihnen aç.
 
 ### 1. OIDC / parolasız kimlik doğrulama
 
