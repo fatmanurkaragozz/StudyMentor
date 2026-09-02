@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "Security vulnerability / Güvenlik açığı"
+    url: https://github.com/fatmanurkaragozz/StudyMentor/security/advisories/new
+    about: "Report privately, not as a public issue. / Public issue değil, özel olarak bildir."
+  - name: "Question / Discussion — Soru / Tartışma"
+    url: https://github.com/fatmanurkaragozz/StudyMentor/discussions
+    about: "Ask questions and share ideas. / Soru sor ve fikir paylaş."

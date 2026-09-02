@@ -14,11 +14,11 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile>({
     id: 'u-1',
-    name: 'Fatmanur Karagöz',
-    email: 'fatmanur@studymentor.ai',
+    name: 'Örnek Kullanıcı',
+    email: 'ornek@studymentor.app',
     mode: 'STUDENT',
     educationLevel: 'HIGH_SCHOOL',
-    targetGoal: 'YKS 2026 Derece & Full-Stack AI Engineer',
+    targetGoal: 'YKS 2026',
   });
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');

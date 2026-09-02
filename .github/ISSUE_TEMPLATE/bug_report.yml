@@ -1,0 +1,59 @@
+name: "🐞 Bug report / Hata bildirimi"
+description: "Report something that is broken / Bozuk bir şeyi bildir"
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report! Please fill in as much as you can.
+        Bildirim için teşekkürler! Elinden geldiğince doldur.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: "What happened? / Ne oldu?"
+      description: "A clear description of the bug. / Hatanın net bir açıklaması."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "What did you expect? / Ne bekliyordun?"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to reproduce / Yeniden üretme adımları"
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Area / Alan"
+      options:
+        - frontend
+        - backend
+        - ml-service
+        - docs
+        - "not sure / emin değilim"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment / Ortam"
+      description: "OS, Node version, browser — if relevant. / İşletim sistemi, Node sürümü, tarayıcı — ilgiliyse."
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs / console output"
+      render: shell
+    validations:
+      required: false

@@ -1,0 +1,54 @@
+# Deploys backend/ to Azure Container Apps on every push to main.
+#
+# Safe to be public: no credentials live in this file. Azure auth uses OIDC
+# (federated identity, no stored Azure secret); infra identifiers come from
+# repository Variables. Setup: docs/deployment.md
+name: Deploy backend to Azure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+# Least privilege. id-token is required for the OIDC login to Azure.
+permissions:
+  id-token: write
+  contents: read
+
+# Never run two deploys at once; let an in-flight deploy finish.
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Gate: add required reviewers / branch restriction on this environment
+    # in repo Settings > Environments > production.
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login (OIDC - no stored secret)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build image and deploy to Azure Container Apps
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}/backend
+          dockerfilePath: Dockerfile
+          registryUrl: ${{ vars.CONTAINER_REGISTRY_URL }}
+          registryUsername: ${{ secrets.REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
+          containerAppName: ${{ vars.AZURE_CONTAINER_APP_NAME }}
+          resourceGroup: ${{ vars.AZURE_RESOURCE_GROUP }}
+          imageToBuild: ${{ vars.CONTAINER_IMAGE_NAME }}:${{ github.sha }}
+          targetPort: "8080"
