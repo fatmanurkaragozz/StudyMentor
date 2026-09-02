@@ -107,6 +107,15 @@ echo "AZURE_SUBSCRIPTION_ID = $SUBSCRIPTION_ID"
 > `repo:<owner>/<repo>:environment:production` — **not** a branch ref. If you ever
 > delete the `environment:` line from the workflow, change the federated
 > credential subject to `repo:<owner>/<repo>:ref:refs/heads/main`.
+>
+> **This repo's subject carries numeric IDs.** GitHub presents the subject as
+> `repo:<owner>@<owner_id>/<repo>@<repo_id>:environment:production`
+> (e.g. `repo:fatmanurkaragozz@157278225/StudyMentor@1306608188:environment:production`),
+> not the plain `repo:<owner>/<repo>:...` form. A federated credential with the
+> plain subject fails with `AADSTS700213`. Get the IDs from
+> `curl -s https://api.github.com/repos/<owner>/<repo>` (`.id` = repo id,
+> `.owner.id` = owner id) and put them in the `subject`. This is what the
+> `gh-studymentor-prod-2` credential does.
 
 > **Can't create app registrations?** In many organisation tenants this is
 > restricted. Ask a directory admin to run step 1a–1b, or create the app under
@@ -233,7 +242,7 @@ waiting for your approval each time.
 
 | Symptom | Cause / fix |
 | --- | --- |
-| `AADSTS700213` at Azure login | Federated credential `subject` ≠ token subject. Must be `repo:<owner>/<repo>:environment:production`. |
+| `AADSTS700213` at Azure login | Federated credential `subject` ≠ token subject. Read the exact `presented assertion subject '...'` from the error. For this repo it is `repo:<owner>@<owner_id>/<repo>@<repo_id>:environment:production` (see the note in Step 1). GitHub masks the owner name in the log if it matches a secret — un-mask it mentally. |
 | `AuthorizationFailed` during deploy | Role assignment missing or still propagating (wait ~2 min). Check step 1c scope. |
 | `denied: requested access to the resource is denied` (registry) | Wrong `REGISTRY_USERNAME`/`REGISTRY_PASSWORD`, or token lacks write, or `CONTAINER_IMAGE_NAME` namespace ≠ username. |
 | Container starts then crashes | Runtime env vars not set **on the Container App** (see "How it works"). The image is fine; the config is missing. |
@@ -470,7 +479,7 @@ ve her seferinde senin onayını bekler.
 
 | Belirti | Sebep / çözüm |
 | --- | --- |
-| Azure login'de `AADSTS700213` | Federated credential `subject`'i ≠ token subject'i. `repo:<owner>/<repo>:environment:production` olmalı. |
+| Azure login'de `AADSTS700213` | Federated credential `subject`'i ≠ token subject'i. Hatadaki `presented assertion subject '...'` satırını oku. Bu repoda `repo:<owner>@<owner_id>/<repo>@<repo_id>:environment:production` (Adım 1'deki nota bak). GitHub, owner adını bir secret'la eşleşiyorsa logda maskeler — zihnen aç. |
 | Deploy sırasında `AuthorizationFailed` | Rol ataması eksik ya da hâlâ yayılıyor (~2 dk bekle). 1c adımındaki scope'u kontrol et. |
 | `denied: requested access ... is denied` (registry) | Yanlış `REGISTRY_USERNAME`/`REGISTRY_PASSWORD`, ya da token'da write yok, ya da `CONTAINER_IMAGE_NAME` namespace'i ≠ kullanıcı adı. |
 | Container başlıyor sonra çöküyor | Çalışma zamanı env değişkenleri **Container App üzerinde** ayarlı değil ("Nasıl çalışıyor" bölümü). İmaj sağlam; ayar eksik. |
