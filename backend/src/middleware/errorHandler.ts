@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
+import { config } from "../config/env.js";
 import { HttpError } from "../utils/httpError.js";
 
 export function notFoundHandler(_req: Request, res: Response) {
@@ -18,6 +19,11 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   }
 
   console.error(err);
-  const message = err instanceof Error ? err.message : "Internal server error";
+  // Beklenmeyen hatalarda ham mesaji (stack, DB detayi vb.) sadece prod disinda
+  // istemciye don; production'da generic mesaj - ic detay sizdirmamak icin.
+  const message =
+    config.nodeEnv !== "production" && err instanceof Error
+      ? err.message
+      : "Internal server error";
   res.status(500).json({ error: message });
 }
