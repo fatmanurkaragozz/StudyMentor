@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getEducationLabel } from './labels';
+import { getEducationLabel, getFirstWelcomeMessage } from './labels';
 import type { UserProfile } from '../types';
 
 const baseUser: UserProfile = {
@@ -39,5 +39,30 @@ describe('getEducationLabel', () => {
     expect(getEducationLabel({ ...baseUser, educationLevel: 'EXAM_PREP', grade: undefined })).toBe(
       '🎯 Bağımsız Sınav Hazırlığı',
     );
+  });
+});
+
+describe('getFirstWelcomeMessage', () => {
+  it('baslikta kullanicinin ilk adi gecer', () => {
+    const { title } = getFirstWelcomeMessage({ ...baseUser, name: 'Fatma Nur Karagöz' });
+    expect(title).toContain('Fatma');
+    expect(title).not.toContain('Nur');
+  });
+
+  it('LIFELONG_LEARNER icin gelisim odakli govde doner', () => {
+    const { body } = getFirstWelcomeMessage({
+      ...baseUser,
+      mode: 'LIFELONG_LEARNER',
+      educationLevel: 'LIFELONG_LEARNER',
+      grade: undefined,
+    });
+    expect(body).toContain('Uğraşlarım');
+    expect(body).not.toContain('Derslerim');
+  });
+
+  it('ogrenci icin ders odakli govde doner', () => {
+    const { body } = getFirstWelcomeMessage(baseUser);
+    expect(body).toContain('Derslerim');
+    expect(body).toContain('Bölüm Rehberi');
   });
 });

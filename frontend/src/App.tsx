@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AppProvider, useApp } from './context/AppContext';
+import { IntroProvider, useIntros } from './context/IntroContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LandingPage } from './components/LandingPage';
 import { Sidebar } from './components/Sidebar';
@@ -14,9 +15,12 @@ import { GrowthHub } from './components/GrowthHub';
 import { AIInsights } from './components/AIInsights';
 import { ProfilePage } from './components/ProfilePage';
 import { MyCourses } from './components/MyCourses';
+import { IntroHint } from './components/IntroHint';
+import { WelcomeBanner } from './components/WelcomeBanner';
 
 const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> = ({ onGoToLanding, onLogout }) => {
   const { activeTab } = useApp();
+  const { welcomePending } = useIntros();
 
   return (
     <div className="flex min-h-screen bg-[#faf8f5] dark:bg-[#121417] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-brand-pink-dark selection:text-white transition-colors duration-300">
@@ -28,6 +32,11 @@ const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> 
         <Header />
 
         <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+          {welcomePending && activeTab === 'dashboard' ? (
+            <WelcomeBanner />
+          ) : (
+            <IntroHint kind="section" id={activeTab} key={activeTab} />
+          )}
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'courses' && <MyCourses />}
           {activeTab === 'planner' && <StudyPlanner />}
@@ -50,7 +59,7 @@ export function AppContent() {
   // oturum bulunduysa (httpOnly refresh cookie) landing'i atlar. Sonraki 'unauthenticated'
   // geciler (orn. oturum kullanim sirasinda suresi dolarsa) landing'e geri doner - ama bu,
   // ilk coz'ulmeden ayri tutuluyor ki register/dogrulama akisindaki ara adimlar
-  // (DATA_ENTRY) status 'authenticated' olur olmaz MainLayout'a atlamasin.
+  // status 'authenticated' olur olmaz MainLayout'a atlamasin.
   const hasResolvedInitialAuth = useRef(false);
 
   // Ilk cozumlemeyi (loading -> authenticated) effect yerine render fazinda yapiyoruz:
@@ -91,9 +100,11 @@ export function App() {
   return (
     <ThemeProvider>
       <AppProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
+        <IntroProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </IntroProvider>
       </AppProvider>
     </ThemeProvider>
   );

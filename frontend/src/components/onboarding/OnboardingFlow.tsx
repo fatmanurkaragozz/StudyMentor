@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { AuthModal } from '../AuthModal';
 import { EducationLevelStep } from './EducationLevelStep';
-import { DataEntryStep } from './DataEntryStep';
+import { useIntros } from '../../context/IntroContext';
 import type { PendingProfile } from './types';
 import type { UserMode } from '../../types';
 
-type Step = 'MODE_LEVEL' | 'AUTH' | 'DATA_ENTRY';
+type Step = 'MODE_LEVEL' | 'AUTH';
 
 interface OnboardingFlowProps {
   initialStep: 'MODE_LEVEL' | 'AUTH';
@@ -28,6 +28,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>(initialAuthMode);
   const [pendingProfile, setPendingProfile] = useState<PendingProfile | null>(initialPendingProfile);
   const [presetMode, setPresetMode] = useState<UserMode | null>(initialPresetMode);
+  const { beginWelcome } = useIntros();
 
   const handleLevelContinue = (profile: PendingProfile) => {
     setPendingProfile(profile);
@@ -49,28 +50,23 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   // zaten kendi icinde guncelliyor - burada sadece hangi adima gecilecegine karar veriliyor.
   const handleAuthSuccess = () => {
     if (authMode === 'REGISTER') {
-      setStep('DATA_ENTRY');
-    } else {
-      onComplete();
+      beginWelcome();
     }
+    onComplete();
   };
 
   if (step === 'MODE_LEVEL') {
     return <EducationLevelStep onClose={onClose} onContinue={handleLevelContinue} presetMode={presetMode} />;
   }
 
-  if (step === 'AUTH') {
-    return (
-      <AuthModal
-        isOpen
-        onClose={onClose}
-        mode={authMode}
-        onModeChange={handleAuthModeChange}
-        pendingProfile={pendingProfile}
-        onSuccess={handleAuthSuccess}
-      />
-    );
-  }
-
-  return <DataEntryStep onFinish={onComplete} />;
+  return (
+    <AuthModal
+      isOpen
+      onClose={onClose}
+      mode={authMode}
+      onModeChange={handleAuthModeChange}
+      pendingProfile={pendingProfile}
+      onSuccess={handleAuthSuccess}
+    />
+  );
 };

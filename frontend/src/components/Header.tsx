@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import { getEducationLabel } from '../lib/labels';
-import { Search, UserCheck } from 'lucide-react';
+import { Search, UserCheck, Sun, Moon } from 'lucide-react';
 import { NotificationBell } from './NotificationBell';
 
 export const Header: React.FC = () => {
   const { user, setActiveTab } = useApp();
+  const { theme, toggleTheme } = useTheme();
   const isStudent = user.mode === 'STUDENT';
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const searchPlaceholder = isStudent ? 'Ders, konu veya sınav ara...' : 'Proje, beceri veya not ara...';
@@ -46,13 +48,25 @@ export const Header: React.FC = () => {
 
       {/* Right Header Controls */}
       <div className="flex items-center gap-4">
+        {/* Tema degistirme - masaustunde Sidebar'da zaten var (hidden md:flex oldugu
+            icin mobilde hic gorunmuyordu), burada sadece mobilde gosteriliyor. */}
+        <button
+          onClick={toggleTheme}
+          className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-800 rounded-xl transition-all"
+          aria-label="Aydınlık / Karanlık Mod Değiştir"
+        >
+          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </button>
+
         {/* Notifications */}
         <NotificationBell />
 
         {/* User Profile Info */}
         <button
+          type="button"
           onClick={() => setActiveTab('profile')}
-          className="flex items-center gap-3 pl-2 border-l border-slate-300 dark:border-slate-800 hover:opacity-80 transition-opacity"
+          aria-label="Profilim"
+          className="flex items-center gap-3 py-2 pl-3 pr-2 -mr-2 border-l border-slate-300 dark:border-slate-800 hover:opacity-80 active:opacity-60 transition-opacity"
         >
           <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center font-bold text-xs text-brand-pink-dark dark:text-brand-pink-light">
             {user.name.split(' ').map(n => n[0]).join('')}
