@@ -1,0 +1,48 @@
+name: "✨ Feature request / Özellik önerisi"
+description: "Suggest an idea or improvement / Bir fikir veya iyileştirme öner"
+title: "[feat]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: "What problem does this solve? / Hangi sorunu çözüyor?"
+      description: "Describe the need, not just the solution. / Sadece çözümü değil, ihtiyacı da anlat."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "Proposed solution / Önerilen çözüm"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Area / Alan"
+      options:
+        - frontend
+        - backend
+        - ml-service
+        - docs
+        - "cross-cutting / genel"
+    validations:
+      required: true
+  - type: dropdown
+    id: persona
+    attributes:
+      label: "Which persona? / Hangi persona?"
+      description: "The app has two modes. / Uygulamanın iki modu var."
+      options:
+        - "STUDENT"
+        - "LIFELONG_LEARNER"
+        - "both / ikisi"
+        - "n/a"
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives considered / Düşünülen alternatifler"
+    validations:
+      required: false

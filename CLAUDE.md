@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-StudyMentor is a solo-developer full-stack project (internship/learning project, currently on `feature/exam-catalog-and-platform-fixes`, not yet merged to `main`). All three subprojects now have real, working code — this is no longer an early scaffolding-only state:
+StudyMentor is a full-stack project that started as a solo internship/learning project and is now open to contributions. All three subprojects have real, working code — this is no longer an early scaffolding-only state:
 
 - **frontend/** — a React app whose screens are wired to the real backend via [frontend/src/lib/apiClient.ts](frontend/src/lib/apiClient.ts) (Dashboard, StudyPlanner, RealCalendar, GrowthHub, MyCourses, AIInsights, auth/onboarding flow all call it directly). Session survives a page reload (see `App.tsx`'s bootstrap effect + `GET /users/me`).
 - **backend/** — a full Express + TypeScript + Prisma API under `backend/src` (JWT auth + email verification, layered controllers/services/routes/validation/middleware, auth rate limiting). `npm run dev` actually runs a server now.
 - **ml-service/** — a small FastAPI service (`ml-service/app/main.py`, `model.py`, `predict.py`) that serves priority predictions from a trained model (`ml-service/models/priority_model.joblib`, gitignored, produced by `ml-service/train.py`). Backend calls it from [backend/src/services/mlClient.service.ts](backend/src/services/mlClient.service.ts) via the `ML_SERVICE_URL` env var, with a fallback when it's unreachable. Treat it as a small single-model scoring service, not a general ML platform — don't assume endpoints beyond what's in `app/main.py`.
 
 ### Known gaps (don't assume these are finished)
-- No automated test suite exists yet for backend or frontend.
+- Test coverage is thin: backend and frontend each have a small Vitest suite (run in CI via [.github/workflows/test.yml](.github/workflows/test.yml)), not full coverage. ml-service has no tests.
 - `ResourceSuggestion` (Prisma model) is defined but unused by any service — see Architecture below.
 - Tailwind v4's dark mode is class-based via `@custom-variant dark (&:where(.dark, .dark *));` in [frontend/src/index.css](frontend/src/index.css) — if this line is ever removed/lost (e.g. during a merge), every `dark:` utility class silently falls back to following the OS `prefers-color-scheme` instead of the in-app theme toggle, with no error or warning. Worth remembering if dark mode ever "stops working" after a merge.
 
@@ -23,14 +23,15 @@ npm run dev       # start Vite dev server
 npm run build     # tsc -b type-check + vite build
 npm run lint      # oxlint
 npm run preview   # preview production build
+npm test          # vitest run
 ```
-There is no test runner configured yet.
 
 ### Backend (`backend/`)
 ```
 npm run dev              # tsx watch src/index.ts
 npm run build             # tsc
 npm run start             # node dist/index.js
+npm test                  # vitest run
 npm run prisma:migrate    # prisma migrate dev
 npm run prisma:studio     # prisma studio
 npm run prisma:generate   # prisma generate
@@ -62,7 +63,7 @@ Python/FastAPI, with its own `.venv` and `requirements.txt`. `train.py` trains t
 ### Backend
 - Layered and consistent: `routes/` → `controllers/` (parse input via zod schemas in [backend/src/validation/schemas.ts](backend/src/validation/schemas.ts)) → `services/` (business logic + Prisma) → `prisma`. Every route is wrapped in [asyncHandler](backend/src/utils/asyncHandler.ts); business errors are thrown as [HttpError](backend/src/utils/httpError.ts) and centrally handled by [errorHandler](backend/src/middleware/errorHandler.ts).
 - [backend/prisma/schema.prisma](backend/prisma/schema.prisma) is the source of truth for the data model. Key models: `User` → `Subject` → `Topic` → `StudySession`; plus `Exam`/`ExamSubject`, `Habit`/`HabitLog`, `Journal`, `AIRecommendation`, `DailyTask`, and `ResourceSuggestion` (defined but not yet used by any service — don't build against it without checking first).
-- `backend/prisma/migrations/` holds the real incremental history (8 migrations as of this writing) — don't hand-edit the schema without a matching migration.
+- `backend/prisma/migrations/` holds the real incremental history (18 migrations as of this writing) — don't hand-edit the schema without a matching migration.
 - `ExamCategory` covers the full Turkish national exam catalog (LGS, TYT/AYT/YDT, KPSS incl. Eğitim Bilimleri, ALES, DGS, YÖKDİL incl. Fen/Sosyal/Sağlık, AGS, YDS, plus legacy `YOKDIL` kept for back-compat and `OTHER` for user-defined exams) — seeded via [backend/prisma/seed.ts](backend/prisma/seed.ts), which also builds the full subject/topic curriculum tree per exam category.
 - `EducationLevel` in the Prisma schema (`MIDDLE_SCHOOL`, `HIGH_SCHOOL`, `UNIVERSITY`, `LIFELONG_LEARNER`) and the frontend's `UserMode`/`EducationLevel` types in [frontend/src/types/index.ts](frontend/src/types/index.ts) are meant to line up — double check both when changing either.
 - Subjects can be either global (curriculum/`educationLevel`-defined, or exam-catalog/`examCategory`-defined, `userId` null) or user-defined custom subjects (`userId` set) — respect this nullable-owner pattern rather than assuming every `Subject` belongs to a user.
