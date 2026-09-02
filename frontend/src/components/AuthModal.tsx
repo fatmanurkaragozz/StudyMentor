@@ -282,6 +282,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onM
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 <strong className="text-slate-700 dark:text-slate-300">{pendingEmail}</strong> adresine 6 haneli bir kod gönderdik.
               </p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                Gelen kutunda göremiyorsan spam/gereksiz klasörüne de bakmayı unutma.
+              </p>
             </div>
 
             {error && (
