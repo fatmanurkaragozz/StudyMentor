@@ -52,3 +52,12 @@ jobs:
           resourceGroup: ${{ vars.AZURE_RESOURCE_GROUP }}
           imageToBuild: ${{ vars.CONTAINER_IMAGE_NAME }}:${{ github.sha }}
           targetPort: "8080"
+
+      # Sifira olceklenince ilk istek soguk baslangicla birkac saniye gecikiyordu.
+      # En az 1 kopya acik kalsin (zaten 1 ise Azure yeni revision uretmez).
+      - name: Keep one replica warm (no cold start)
+        run: |
+          az containerapp update \
+            --name ${{ vars.AZURE_CONTAINER_APP_NAME }} \
+            --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+            --min-replicas 1

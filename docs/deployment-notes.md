@@ -25,6 +25,8 @@
 | 2026-09-02 | Docker Hub: hesap parolası değil, kapsamlı access token (1 yıl) | Sızarsa yalnızca o token iptal edilir; hijyen/kullanılabilirlik dengesi |
 | 2026-09-02 | PR #21 merge edildi, ilk deploy başarılı | Hat çalışıyor: merge → deploy.yml → production kapısı → OIDC → build → Azure Container Apps |
 | 2026-09-02 | 2. federated credential eklendi (`gh-studymentor-prod-2`) | Bu reponun OIDC subject'i numeric ID taşıyor; düz subject `AADSTS700213` veriyordu (aşağıda S/C) |
+| 2026-09-02 | Container App `minReplicas: 1` (deploy.yml'e `az containerapp update` adımı) | Kullanıcı geri bildirimi "yavaş"; sıfıra ölçeklenince ilk istek soğuk başlangıçla birkaç sn gecikiyordu |
+| 2026-09-02 | Express'e `compression`, frontend'e ekran-bazlı `React.lazy` + `react-vendor` chunk | İlk yük JS'i ~344 KB gzip → ~90 KB gzip; three.js artık yalnızca lazy `HeroCanvas` chunk'ında |
 
 <!-- Yeni satırları buraya ekle -->
 

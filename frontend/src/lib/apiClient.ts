@@ -25,6 +25,25 @@ export class ApiError extends Error {
   }
 }
 
+// Backend soguk baslarken (Azure Container Apps) ya da ag koptugunda istek sonsuza
+// kadar asili kalmasin - 15 sn sonra iptal edip net bir hata dondur.
+const REQUEST_TIMEOUT_MS = 15_000;
+
+async function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: init.signal ?? controller.signal });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new ApiError(0, "Sunucu zamanında yanıt vermedi. Lütfen birazdan tekrar dene.");
+    }
+    throw new ApiError(0, "Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.");
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 interface AuthEventHandlers {
   // Arka planda sessiz refresh denemesi de basarisiz olunca (refresh cookie de
   // gecersiz/eksik) cagrilir - AuthContext bunu "oturum bitti" olarak isler.
@@ -54,7 +73,7 @@ async function refreshSession(): Promise<RefreshResult | null> {
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
       try {
-        const res = await fetch(`${BASE_URL}/auth/refresh`, { method: "POST", credentials: "include" });
+        const res = await fetchWithTimeout(`${BASE_URL}/auth/refresh`, { method: "POST", credentials: "include" });
         if (!res.ok) return null;
         const body = (await res.json()) as RefreshResult;
         setAccessToken(body.accessToken);
@@ -70,7 +89,7 @@ async function refreshSession(): Promise<RefreshResult | null> {
 }
 
 async function request<T>(path: string, options: RequestInit = {}, isRetry = false): Promise<T> {
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const response = await fetchWithTimeout(`${BASE_URL}${path}`, {
     ...options,
     credentials: "include",
     headers: {

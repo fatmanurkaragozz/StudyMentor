@@ -1,3 +1,4 @@
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -15,6 +16,7 @@ export function createApp() {
   // auth/register dahil tum rate-limitli uclar 500 donuyordu.
   app.set("trust proxy", 1);
   app.use(helmet());
+  app.use(compression());
   app.use(cors({ origin: [config.frontendOrigin], credentials: true }));
   app.use(cookieParser());
   app.use(express.json());

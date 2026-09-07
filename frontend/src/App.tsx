@@ -1,22 +1,31 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AppProvider, useApp } from './context/AppContext';
 import { IntroProvider, useIntros } from './context/IntroContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { LandingPage } from './components/LandingPage';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { BottomTabBar } from './components/BottomTabBar';
-import { Dashboard } from './components/Dashboard';
-import { StudyPlanner } from './components/StudyPlanner';
-import { RealCalendar } from './components/RealCalendar';
-import { GrowthHub } from './components/GrowthHub';
-import { AIInsights } from './components/AIInsights';
-import { ProfilePage } from './components/ProfilePage';
-import { MyCourses } from './components/MyCourses';
 import { IntroHint } from './components/IntroHint';
 import { WelcomeBanner } from './components/WelcomeBanner';
+
+// Ekran bazli kod bolme: her sekme + landing ayri chunk olarak ilk yukten sonra
+// gerektiginde indirilir. Bilesenler named export oldugu icin default'a sariyoruz.
+const LandingPage = lazy(() => import('./components/LandingPage').then(m => ({ default: m.LandingPage })));
+const Dashboard = lazy(() => import('./components/Dashboard').then(m => ({ default: m.Dashboard })));
+const MyCourses = lazy(() => import('./components/MyCourses').then(m => ({ default: m.MyCourses })));
+const StudyPlanner = lazy(() => import('./components/StudyPlanner').then(m => ({ default: m.StudyPlanner })));
+const RealCalendar = lazy(() => import('./components/RealCalendar').then(m => ({ default: m.RealCalendar })));
+const GrowthHub = lazy(() => import('./components/GrowthHub').then(m => ({ default: m.GrowthHub })));
+const AIInsights = lazy(() => import('./components/AIInsights').then(m => ({ default: m.AIInsights })));
+const ProfilePage = lazy(() => import('./components/ProfilePage').then(m => ({ default: m.ProfilePage })));
+
+const RouteFallback: React.FC = () => (
+  <div className="flex items-center justify-center py-24 text-slate-400 dark:text-slate-600">
+    <Loader2 className="w-6 h-6 animate-spin" />
+  </div>
+);
 
 const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> = ({ onGoToLanding, onLogout }) => {
   const { activeTab } = useApp();
@@ -37,13 +46,15 @@ const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> 
           ) : (
             <IntroHint kind="section" id={activeTab} key={activeTab} />
           )}
-          {activeTab === 'dashboard' && <Dashboard />}
-          {activeTab === 'courses' && <MyCourses />}
-          {activeTab === 'planner' && <StudyPlanner />}
-          {activeTab === 'calendar' && <RealCalendar />}
-          {activeTab === 'growth' && <GrowthHub />}
-          {activeTab === 'insights' && <AIInsights />}
-          {activeTab === 'profile' && <ProfilePage onLogout={onLogout} />}
+          <Suspense fallback={<RouteFallback />}>
+            {activeTab === 'dashboard' && <Dashboard />}
+            {activeTab === 'courses' && <MyCourses />}
+            {activeTab === 'planner' && <StudyPlanner />}
+            {activeTab === 'calendar' && <RealCalendar />}
+            {activeTab === 'growth' && <GrowthHub />}
+            {activeTab === 'insights' && <AIInsights />}
+            {activeTab === 'profile' && <ProfilePage onLogout={onLogout} />}
+          </Suspense>
         </main>
       </div>
 
@@ -90,7 +101,17 @@ export function AppContent() {
   }
 
   if (showLanding) {
-    return <LandingPage onEnterApp={() => setShowLanding(false)} />;
+    return (
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center bg-[#faf8f5] dark:bg-[#121417]">
+            <Loader2 className="w-6 h-6 animate-spin text-slate-400 dark:text-slate-600" />
+          </div>
+        }
+      >
+        <LandingPage onEnterApp={() => setShowLanding(false)} />
+      </Suspense>
+    );
   }
 
   return <MainLayout onGoToLanding={() => setShowLanding(true)} onLogout={handleLogout} />;

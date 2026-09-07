@@ -5,6 +5,7 @@ import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
 import { getKaptanSessionMessage } from '../lib/kaptan';
 import { ReminderPrompt } from './ReminderPrompt';
 import { IntroHint } from './IntroHint';
+import { NoCoursesHint } from './NoCoursesHint';
 import {
   Play,
   Pause,
@@ -143,6 +144,10 @@ export const StudyPlanner: React.FC = () => {
     const s = secs % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
+
+  // Ogrenci modunda hic ders yoksa: ders/konu select'leri bos kutu goruntusu
+  // verir - onun yerine "once ders ekle" yonlendirmesi gosteriyoruz.
+  const noSubjects = isStudent && !loadingSubjects && subjects.length === 0;
 
   const selectedSubject = subjects.find(s => s.subjectId === selectedSubjectId) ?? null;
   const activeTopicName = isStudent
@@ -347,48 +352,52 @@ export const StudyPlanner: React.FC = () => {
             <ListTodo className={`w-4 h-4 ${isStudent ? 'text-brand-pink-dark dark:text-brand-pink-light' : 'text-brand-mint-dark dark:text-brand-mint'}`} />
             <span>Bugün Ne Çalışacağım?</span>
           </h3>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            {isStudent ? (
-              <>
-                <select
-                  value={selectedSubjectId}
-                  onChange={e => handleSelectSubject(e.target.value)}
-                  className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-brand-pink-dark"
-                >
-                  {subjects.map(s => (
-                    <option key={s.subjectId} value={s.subjectId}>{s.subjectName}</option>
-                  ))}
-                </select>
-                <select
-                  value={selectedTopicId}
-                  onChange={e => setSelectedTopicId(e.target.value)}
-                  className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-brand-pink-dark"
-                >
-                  {selectedSubject?.topics.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
-              </>
-            ) : (
-              <input
-                type="text"
-                placeholder="Örn: Python Öğreniyorum, Gitar Pratiği"
-                value={pursuitName}
-                onChange={e => setPursuitName(e.target.value)}
-                className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-brand-mint-dark"
-              />
-            )}
-            <button
-              onClick={handleAddTask}
-              disabled={addingTask || (isStudent ? !selectedTopicId : !pursuitName.trim())}
-              className={`px-3 py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 shrink-0 ${
-                isStudent ? 'bg-brand-pink-dark hover:opacity-90' : 'bg-brand-mint-dark hover:opacity-90'
-              }`}
-            >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Bugüne Ekle</span>
-            </button>
-          </div>
+          {noSubjects ? (
+            <NoCoursesHint student className="lg:max-w-md" />
+          ) : (
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              {isStudent ? (
+                <>
+                  <select
+                    value={selectedSubjectId}
+                    onChange={e => handleSelectSubject(e.target.value)}
+                    className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-brand-pink-dark"
+                  >
+                    {subjects.map(s => (
+                      <option key={s.subjectId} value={s.subjectId}>{s.subjectName}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedTopicId}
+                    onChange={e => setSelectedTopicId(e.target.value)}
+                    className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-brand-pink-dark"
+                  >
+                    {selectedSubject?.topics.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Örn: Python Öğreniyorum, Gitar Pratiği"
+                  value={pursuitName}
+                  onChange={e => setPursuitName(e.target.value)}
+                  className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-200 text-xs focus:outline-none focus:border-brand-mint-dark"
+                />
+              )}
+              <button
+                onClick={handleAddTask}
+                disabled={addingTask || (isStudent ? !selectedTopicId : !pursuitName.trim())}
+                className={`px-3 py-2 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 shrink-0 ${
+                  isStudent ? 'bg-brand-pink-dark hover:opacity-90' : 'bg-brand-mint-dark hover:opacity-90'
+                }`}
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>Bugüne Ekle</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {taskError && (
@@ -583,6 +592,8 @@ export const StudyPlanner: React.FC = () => {
                 </div>
               )}
 
+              {noSubjects && <NoCoursesHint student />}
+
               <div className="space-y-2">
                 {pagedSidebarItems.map(item => (
                   <div
@@ -700,7 +711,9 @@ export const StudyPlanner: React.FC = () => {
 
             {!submitResult ? (
               <form onSubmit={handleSaveSession} className="space-y-4 text-xs">
-                {isStudent ? (
+                {noSubjects ? (
+                  <NoCoursesHint student />
+                ) : isStudent ? (
                   <>
                     <div>
                       <label className="block text-slate-700 dark:text-slate-300 mb-1 font-semibold">Ders</label>

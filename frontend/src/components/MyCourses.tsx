@@ -4,8 +4,7 @@ import { apiClient, type MySubject, type MyTopic } from '../lib/apiClient';
 import { useApp } from '../context/AppContext';
 import { TopicCheckModal } from './onboarding/TopicCheckModal';
 import { IntroHint } from './IntroHint';
-import { MiniDecorScene } from './hero3d/decor/MiniDecorScene';
-import { PottedPlant } from './hero3d/decor/PottedPlant';
+import { DecorSprout } from './DecorSprout';
 
 const PAGE_SIZE = 8;
 
@@ -234,13 +233,13 @@ export const MyCourses: React.FC = () => {
       )}
 
       {!loading && subjects.length === 0 && !error && (
-        <div className="relative glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
-          <MiniDecorScene className="absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-20" cameraPosition={[0, 0.4, 2.4]}>
-            <PottedPlant position={[0, -0.1, 0]} scale={1.3} />
-          </MiniDecorScene>
-          {isStudent
-            ? 'Henüz ders eklemedin. Yukarıdaki formdan ilk dersini ekleyerek başla.'
-            : 'Henüz uğraş eklemedin. Yukarıdaki formdan ilk uğraşını ekleyerek başla.'}
+        <div className="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col items-center gap-3 text-center text-xs text-slate-500 dark:text-slate-400">
+          <DecorSprout className="w-12 h-12" student={isStudent} />
+          <p>
+            {isStudent
+              ? 'Henüz ders eklemedin. Yukarıdaki formdan ilk dersini ekleyerek başla.'
+              : 'Henüz uğraş eklemedin. Yukarıdaki formdan ilk uğraşını ekleyerek başla.'}
+          </p>
         </div>
       )}
 
