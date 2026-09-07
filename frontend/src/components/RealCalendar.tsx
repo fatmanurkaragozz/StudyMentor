@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CalendarDays, Plus, Loader2, AlertCircle, Clock, MapPin, Award, X, Pencil, Trash2 } from 'lucide-react';
 import { apiClient, type MySubject, type ScheduleSlotDto, type ExamDto, type ExamCategory, type ExamCatalogSubject } from '../lib/apiClient';
 import { useApp } from '../context/AppContext';
+import { NoCoursesHint } from './NoCoursesHint';
 
 const EXAM_TYPE_GROUPS: { group: string; options: { value: ExamCategory; label: string }[] }[] = [
   {
@@ -143,13 +144,7 @@ export const RealCalendar: React.FC = () => {
         </div>
       )}
 
-      {!loading && !hasCourses && (
-        <div className="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
-          {isStudent
-            ? 'Önce "Derslerim" sekmesinden bir ders ekle, sonra buraya program ve sınav ekleyebilirsin.'
-            : 'Önce "Uğraşlarım" sekmesinden bir uğraş ekle, sonra buraya program ve hedef ekleyebilirsin.'}
-        </div>
-      )}
+      {!loading && !hasCourses && <NoCoursesHint student={isStudent} />}
 
       {!loading && hasCourses && (
         <>
