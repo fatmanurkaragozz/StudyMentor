@@ -6,8 +6,7 @@ import { getEducationLabel } from '../lib/labels';
 import { apiClient, toUserProfile, ApiError } from '../lib/apiClient';
 import type { EducationLevel } from '../types';
 import { Mail, GraduationCap, Briefcase, Target, LogOut, Pencil, Check, X } from 'lucide-react';
-import { MiniDecorScene } from './hero3d/decor/MiniDecorScene';
-import { PottedPlant } from './hero3d/decor/PottedPlant';
+import { DecorSprout } from './DecorSprout';
 
 interface ProfilePageProps {
   onLogout: () => void;
@@ -127,9 +126,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
       </div>
 
       <div className="relative glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-6">
-        <MiniDecorScene className="absolute -top-4 -right-4 w-24 h-24" cameraPosition={[0, 0.4, 2.4]}>
-          <PottedPlant position={[0, -0.1, 0]} scale={1.4} />
-        </MiniDecorScene>
+        <DecorSprout className="absolute -top-3 -right-3 w-10 h-10 shadow-sm" student={isStudent} />
 
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
