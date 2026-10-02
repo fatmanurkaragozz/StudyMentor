@@ -1,4 +1,4 @@
-import type { PriorityLevel, UserMode } from "@prisma/client";
+import type { PriorityLevel, Prisma, UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 
@@ -69,7 +69,9 @@ export async function requireTopicInSubject(topicId: string, subjectId: string) 
   return topic;
 }
 
-export async function listTopicsForUser(userId: string, mode: UserMode) {
+// Kullanicinin verilen moddaki "ders listesi" - Calisma & Odak/Dashboard'un ders listesi
+// (listTopicsForUser) ile tekrar hatirlatmalari (listDueReminders) ayni kurali kullansin diye tek yerde.
+export async function studyListSubjectWhere(userId: string, mode: UserMode): Promise<Prisma.SubjectWhereInput> {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     throw new HttpError(404, "Kullanıcı bulunamadı");
@@ -84,15 +86,19 @@ export async function listTopicsForUser(userId: string, mode: UserMode) {
 
   // Kuresel mufredat/sinav katalogu (Subject.userId === null) kavramsal olarak hep
   // ogrenci icerigi - Gelisim modunda hic gorunmemeli, o yuzden sadece STUDENT'ta OR'a dahil.
+  return {
+    OR: [
+      ...(mode === "STUDENT" ? [globalCatalogFilter] : []),
+      { userId, mode },
+      // Kullanıcının eklediği bir sınavın (KPSS/YÖKDİL/ALES) kataloğundan seçtiği dersler
+      { exams: { some: { exam: { userId, mode } } } },
+    ],
+  };
+}
+
+export async function listTopicsForUser(userId: string, mode: UserMode) {
   const subjects = await prisma.subject.findMany({
-    where: {
-      OR: [
-        ...(mode === "STUDENT" ? [globalCatalogFilter] : []),
-        { userId, mode },
-        // Kullanıcının eklediği bir sınavın (KPSS/YÖKDİL/ALES) kataloğundan seçtiği dersler
-        { exams: { some: { exam: { userId, mode } } } },
-      ],
-    },
+    where: await studyListSubjectWhere(userId, mode),
     include: { topics: true },
     orderBy: { name: "asc" },
   });

@@ -512,7 +512,7 @@ export const apiClient = {
       body: JSON.stringify({ topicId, intervalDays, accept }),
     }),
 
-  getDueTopicReminders: () => request<DueTopicReminder[]>("/topic-reminders/due"),
+  getDueTopicReminders: (mode: UserMode) => request<DueTopicReminder[]>(`/topic-reminders/due?mode=${mode}`),
 
   getSubjectHistory: (mode: UserMode) => request<SubjectHistoryEntry[]>(`/subjects/history?mode=${mode}`),
 

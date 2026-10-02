@@ -1,6 +1,6 @@
-import type { PriorityLevel } from "@prisma/client";
+import type { PriorityLevel, UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
-import { REVIEW_INTERVAL_DAYS, getDisplayTopicLabel } from "./topics.service.js";
+import { REVIEW_INTERVAL_DAYS, getDisplayTopicLabel, studyListSubjectWhere } from "./topics.service.js";
 
 // Bir oturum/kontrol puanlandiktan sonra cagrilir. ML onceligi yoksa ya da bu
 // (userId, topicId) icin zaten aktif bir hatirlatma varsa tekrar sorulmaz.
@@ -39,10 +39,17 @@ export async function respondToReminder(
   });
 }
 
-// Bugun (ya da verilen tarihte) hatirlatilmasi gereken, kullaniciya ozel konular.
-export async function listDueReminders(userId: string, asOf: Date = new Date()) {
+// Bugun (ya da verilen tarihte) hatirlatilmasi gereken, kullaniciya ozel konular. Sadece o moddaki
+// ders listesinde olan konular - silinen bir sinavin (orn. bitmis KPSS) hatirlatmalari veri
+// silinmeden gizlenir, sinav tekrar eklenirse geri gelir.
+export async function listDueReminders(userId: string, mode: UserMode, asOf: Date = new Date()) {
   const due = await prisma.topicReminder.findMany({
-    where: { userId, isActive: true, nextReminderAt: { lte: asOf } },
+    where: {
+      userId,
+      isActive: true,
+      nextReminderAt: { lte: asOf },
+      topic: { subject: await studyListSubjectWhere(userId, mode) },
+    },
     include: { topic: { include: { subject: true } } },
     orderBy: { nextReminderAt: "asc" },
   });
