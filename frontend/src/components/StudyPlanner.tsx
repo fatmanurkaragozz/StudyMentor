@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { Activity, useCallback, useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { useFocusTimer } from '../context/FocusTimerContext';
+import { formatTime, secondsUntil } from '../lib/focusTimer';
+import { formatPlanTime, localDateKey } from '../lib/dateKey';
+import type { UserMode } from '../types';
 import { apiClient, type SubjectWithTopics, type RecommendationResult, type DailyTaskRow, type MySubject } from '../lib/apiClient';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
 import { getKaptanSessionMessage } from '../lib/kaptan';
@@ -24,12 +28,32 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-const todayKey = () => new Date().toISOString().split('T')[0];
+const todayKey = () => localDateKey();
 const SIDEBAR_PAGE_SIZE = 5;
 
+// Her mod (Ogrenci/Gelisim) kendi sayacini, secili ders/ugrasini ve aktif gorevini ayri
+// tutsun diye ziyaret edilen her mod icin ayri bir ModePlanner monteli kaliyor, sadece aktif
+// mod gorunuyor (Activity: gizliyken state korunur, effect'ler durur, gorununce veri tazelenir). Tek ornek olsaydi Gelisim'de baslatilan sayac, mod degisince Ogrenci'nin
+// secili dersinin sayaci gibi gorunurdu; boylece o sayac arka planda kendi modunda sayiyor.
 export const StudyPlanner: React.FC = () => {
   const { user } = useApp();
-  const isStudent = user.mode === 'STUDENT';
+  const [visitedModes, setVisitedModes] = useState<UserMode[]>([user.mode]);
+  if (!visitedModes.includes(user.mode)) setVisitedModes([...visitedModes, user.mode]);
+
+  return (
+    <>
+      {visitedModes.map(mode => (
+        <Activity key={mode} mode={mode === user.mode ? 'visible' : 'hidden'}>
+          <ModePlanner mode={mode} />
+        </Activity>
+      ))}
+    </>
+  );
+};
+
+const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
+  const { user } = useApp();
+  const isStudent = mode === 'STUDENT';
 
   // Timer states
   const [durations, setDurations] = useState<Record<'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK', number>>({
@@ -38,7 +62,10 @@ export const StudyPlanner: React.FC = () => {
     LONG_BREAK: 15,
   });
   const [secondsLeft, setSecondsLeft] = useState<number>(25 * 60);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const { endsAt, setEndsAt } = useFocusTimer(mode);
+  const isRunning = endsAt !== null;
+  // Oturumun ilk baslatildigi an - kayitta startedAt olarak gider, Defterim saat araligini bundan gosterir.
+  const [sessionStartedAt, setSessionStartedAt] = useState<number | null>(null);
   const [timerMode, setTimerMode] = useState<'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK' | 'CUSTOM'>('POMODORO');
 
   // Real ders/konu data
@@ -79,57 +106,73 @@ export const StudyPlanner: React.FC = () => {
 
   useEffect(() => {
     apiClient
-      .getTopics(user.mode)
+      .getTopics(mode)
       .then(data => {
         setSubjects(data);
+        // Bu effect ekran her gorundugunde yeniden calisiyor (Activity) - calisan bir oturumun
+        // ders/konusu degismesin diye mevcut secim hala listedeyse korunuyor.
         if (isStudent && data.length > 0) {
-          setSelectedSubjectId(data[0].subjectId);
-          if (data[0].topics.length > 0) setSelectedTopicId(data[0].topics[0].id);
+          setSelectedSubjectId(prev => (data.some(s => s.subjectId === prev) ? prev : data[0].subjectId));
+          setSelectedTopicId(prev =>
+            data.some(s => s.topics.some(t => t.id === prev)) ? prev : data[0].topics[0]?.id ?? '',
+          );
         }
       })
       .catch(err => setLoadError(err instanceof Error ? err.message : 'Dersler yüklenemedi'))
       .finally(() => setLoadingSubjects(false));
-  }, [isStudent, user.mode]);
+  }, [isStudent, mode]);
 
   useEffect(() => {
     if (isStudent) return;
-    setLoadingPursuits(true);
     apiClient
-      .getMySubjects(user.mode)
+      .getMySubjects(mode)
       .then(setMyPursuits)
       .catch(err => setLoadError(err instanceof Error ? err.message : 'Uğraşlar yüklenemedi'))
       .finally(() => setLoadingPursuits(false));
-  }, [isStudent, user.mode]);
+  }, [isStudent, mode]);
 
-  const loadTasks = () => {
+  const loadTasks = useCallback(() => {
     apiClient
-      .getDailyTasks(todayKey())
+      .getDailyTasks(mode, todayKey())
       .then(setDailyTasks)
       .catch(err => setTaskError(err instanceof Error ? err.message : 'Görevler yüklenemedi'))
       .finally(() => setLoadingTasks(false));
-  };
+  }, [mode]);
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [loadTasks]);
 
   useEffect(() => {
-    let interval: any = null;
-    if (isRunning && secondsLeft > 0) {
-      interval = setInterval(() => {
-        setSecondsLeft(prev => prev - 1);
-      }, 1000);
-    } else if (secondsLeft === 0 && isRunning) {
-      setIsRunning(false);
-      setShowCompleteModal(true);
-    }
+    if (endsAt === null) return;
+    const tick = () => {
+      const left = secondsUntil(endsAt);
+      setSecondsLeft(left);
+      if (left === 0) {
+        setEndsAt(null);
+        setShowCompleteModal(true);
+      }
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [isRunning, secondsLeft]);
+  }, [endsAt, setEndsAt]);
 
-  const switchMode = (mode: 'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK') => {
-    setIsRunning(false);
-    setTimerMode(mode);
-    setSecondsLeft(durations[mode] * 60);
+  const startTimer = () => {
+    setSessionStartedAt(prev => prev ?? Date.now());
+    setEndsAt(Date.now() + secondsLeft * 1000);
+  };
+
+  const pauseTimer = () => {
+    if (endsAt !== null) setSecondsLeft(secondsUntil(endsAt));
+    setEndsAt(null);
+  };
+
+  const switchMode = (nextMode: 'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK') => {
+    setEndsAt(null);
+    setSessionStartedAt(null);
+    setTimerMode(nextMode);
+    setSecondsLeft(durations[nextMode] * 60);
   };
 
   const handleDurationChange = (minutes: number) => {
@@ -137,12 +180,6 @@ export const StudyPlanner: React.FC = () => {
     const clamped = Math.max(1, Math.min(180, Math.round(minutes) || 1));
     setDurations(prev => ({ ...prev, [timerMode]: clamped }));
     if (!isRunning) setSecondsLeft(clamped * 60);
-  };
-
-  const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   // Ogrenci modunda hic ders yoksa: ders/konu select'leri bos kutu goruntusu
@@ -215,7 +252,7 @@ export const StudyPlanner: React.FC = () => {
       let topicId = selectedTopicId;
 
       if (!isStudent) {
-        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode: user.mode });
+        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode });
         subjectId = created.subjectId;
         topicId = created.topicId;
       }
@@ -231,8 +268,10 @@ export const StudyPlanner: React.FC = () => {
         difficulty,
         productivity,
         notes: notes.trim() || undefined,
+        startedAt: sessionStartedAt !== null ? new Date(sessionStartedAt).toISOString() : undefined,
       });
       setSubmitResult(res);
+      setSessionStartedAt(null);
       if (activeTaskId) {
         await apiClient.completeDailyTask(activeTaskId, res.studySession.id);
         loadTasks();
@@ -263,13 +302,13 @@ export const StudyPlanner: React.FC = () => {
 
       if (!isStudent) {
         if (!pursuitName.trim()) return;
-        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode: user.mode });
+        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode });
         subjectId = created.subjectId;
         topicId = created.topicId;
       }
 
       if (!subjectId || !topicId) return;
-      await apiClient.createDailyTask({ subjectId, topicId, date: todayKey() });
+      await apiClient.createDailyTask({ subjectId, topicId, date: todayKey(), mode });
       loadTasks();
     } catch (err) {
       setTaskError(err instanceof Error ? err.message : 'Eklenemedi');
@@ -279,11 +318,24 @@ export const StudyPlanner: React.FC = () => {
   };
 
   const handleStartTaskSession = (task: DailyTaskRow) => {
+    if (!task.subjectId || !task.topicId) return;
     setActiveTaskId(task.id);
     setSelectedSubjectId(task.subjectId);
     setSelectedTopicId(task.topicId);
-    setSecondsLeft(durations[timerMode === 'CUSTOM' ? 'POMODORO' : timerMode] * 60);
-    setIsRunning(true);
+    const seconds = durations[timerMode === 'CUSTOM' ? 'POMODORO' : timerMode] * 60;
+    setSecondsLeft(seconds);
+    setSessionStartedAt(Date.now());
+    setEndsAt(Date.now() + seconds * 1000);
+  };
+
+  // Defterim'den eklenen serbest metinli planlar oturum baslatamaz (ders/konu yok), sadece isaretlenir.
+  const handleMarkTaskDone = async (taskId: string) => {
+    try {
+      await apiClient.updateDailyTask(taskId, { status: 'DONE' });
+      loadTasks();
+    } catch (err) {
+      setTaskError(err instanceof Error ? err.message : 'Güncellenemedi');
+    }
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -304,14 +356,14 @@ export const StudyPlanner: React.FC = () => {
     setLoadError(null);
     try {
       await apiClient.deleteSubject(subjectId);
-      const data = await apiClient.getTopics(user.mode);
+      const data = await apiClient.getTopics(mode);
       setSubjects(data);
       if (selectedSubjectId === subjectId) {
         setSelectedSubjectId(data[0]?.subjectId ?? '');
         setSelectedTopicId(data[0]?.topics[0]?.id ?? '');
       }
       if (!isStudent) {
-        const mine = await apiClient.getMySubjects(user.mode);
+        const mine = await apiClient.getMySubjects(mode);
         setMyPursuits(mine);
         if (pursuitName === subjectName) setPursuitName('');
       }
@@ -336,7 +388,7 @@ export const StudyPlanner: React.FC = () => {
             {isStudent ? '🎓 Ders & Konu Odaklanması' : '💼 Proje & Beceriler Zamanlayıcısı'}
           </span>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">
-            {isStudent ? 'Çalışma & Pomodoro Zirvesi' : 'Derin Odaklanma (Deep Work) Zamanlayıcısı'}
+            {isStudent ? 'Çalışma & Odak Zamanlayıcısı' : 'Derin Odaklanma (Deep Work) Zamanlayıcısı'}
           </h2>
           <p className="text-xs text-slate-600 dark:text-slate-400">
             Odaklanma sürenizi takip edin, oturum sonunda zorluk ve verimlilik verilerini kaydederek AI modelini eğitin.
@@ -426,8 +478,10 @@ export const StudyPlanner: React.FC = () => {
                 }`}
               >
                 <div>
-                  <div className="font-semibold text-slate-800 dark:text-slate-200">{task.subjectName}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400">{task.topicName}</div>
+                  <div className="font-semibold text-slate-800 dark:text-slate-200">{task.title ?? task.subjectName}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                    {[formatPlanTime(task.startTime, task.endTime), task.title ? null : task.topicName].filter(Boolean).join(' · ')}
+                  </div>
                 </div>
                 {task.status === 'DONE' ? (
                   <span className="flex items-center gap-1 text-brand-mint-dark dark:text-brand-mint font-semibold text-[10px]">
@@ -436,14 +490,23 @@ export const StudyPlanner: React.FC = () => {
                   </span>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleStartTaskSession(task)}
-                      className={`px-2.5 py-1.5 rounded-lg text-white font-semibold text-[10px] ${
-                        isStudent ? 'bg-brand-pink-dark hover:opacity-90' : 'bg-brand-mint-dark hover:opacity-90'
-                      }`}
-                    >
-                      Oturum Başlat
-                    </button>
+                    {task.topicId ? (
+                      <button
+                        onClick={() => handleStartTaskSession(task)}
+                        className={`px-2.5 py-1.5 rounded-lg text-white font-semibold text-[10px] ${
+                          isStudent ? 'bg-brand-pink-dark hover:opacity-90' : 'bg-brand-mint-dark hover:opacity-90'
+                        }`}
+                      >
+                        Oturum Başlat
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleMarkTaskDone(task.id)}
+                        className="px-2.5 py-1.5 rounded-lg font-semibold text-[10px] text-brand-mint-dark dark:text-brand-mint bg-brand-mint-dark/10 border border-brand-mint-dark/30 hover:bg-brand-mint-dark/20"
+                      >
+                        Tamamla
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDeleteTask(task.id)}
                       className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 transition-all"
@@ -473,7 +536,7 @@ export const StudyPlanner: React.FC = () => {
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Odak (25dk)
+              Odak
             </button>
             <button
               onClick={() => switchMode('SHORT_BREAK')}
@@ -481,7 +544,7 @@ export const StudyPlanner: React.FC = () => {
                 timerMode === 'SHORT_BREAK' ? 'bg-brand-gold-dark text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Kısa Mola (5dk)
+              Kısa Mola
             </button>
             <button
               onClick={() => switchMode('LONG_BREAK')}
@@ -489,7 +552,7 @@ export const StudyPlanner: React.FC = () => {
                 timerMode === 'LONG_BREAK' ? 'bg-brand-violet text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Uzun Mola (15dk)
+              Uzun Mola
             </button>
           </div>
 
@@ -534,7 +597,7 @@ export const StudyPlanner: React.FC = () => {
           {/* Timer Action Buttons */}
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setIsRunning(!isRunning)}
+              onClick={isRunning ? pauseTimer : startTimer}
               className={`w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-xl transition-all transform active:scale-95 ${
                 isRunning
                   ? 'bg-brand-gold-dark hover:opacity-90'
@@ -548,7 +611,8 @@ export const StudyPlanner: React.FC = () => {
 
             <button
               onClick={() => {
-                setIsRunning(false);
+                setEndsAt(null);
+                setSessionStartedAt(null);
                 setSecondsLeft(durations[timerMode === 'CUSTOM' ? 'POMODORO' : timerMode] * 60);
               }}
               className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all"

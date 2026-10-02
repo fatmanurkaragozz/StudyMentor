@@ -5,7 +5,8 @@ import { getNavItems } from '../lib/navItems';
 export const BottomTabBar: React.FC = () => {
   const { activeTab, setActiveTab, user } = useApp();
   const isStudent = user.mode === 'STUDENT';
-  const menuItems = getNavItems(isStudent);
+  // Mobilde 8 sekme sigmiyor - Profil'e zaten Header'daki isimden gidiliyor.
+  const menuItems = getNavItems(isStudent).filter(item => item.id !== 'profile');
 
   return (
     <nav

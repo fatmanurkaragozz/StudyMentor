@@ -12,6 +12,7 @@ interface CreateStudySessionInput {
   difficulty: number;
   productivity: number;
   notes?: string;
+  startedAt?: string;
 }
 
 // Elle "dunku veri" girisi (mini-check yapmadan) - burada gercek bir soru/deneme
@@ -59,6 +60,7 @@ export async function createStudySession(userId: string, input: CreateStudySessi
       difficulty: input.difficulty,
       productivity: input.productivity,
       notes: input.notes,
+      startedAt: input.startedAt ? new Date(input.startedAt) : null,
     },
   });
 
@@ -81,7 +83,7 @@ export async function createStudySession(userId: string, input: CreateStudySessi
     overlapTimeMs: DEFAULT_OVERLAP_TIME_MS,
   });
 
-  await markTopicReviewed(input.topicId, result.priority);
+  await markTopicReviewed(userId, input.topicId, result.priority);
   // Bu konuyu gercekten calisti, aktif bir hatirlatma varsa donguyu ilerlet;
   // yoksa (ya da zaten aktifse) yeni bir oneri sunulabilir mi diye bak.
   await advanceReminderIfActive(userId, input.topicId);
@@ -90,9 +92,15 @@ export async function createStudySession(userId: string, input: CreateStudySessi
   return { studySession, ...result, proposedReminder };
 }
 
-export async function listStudySessions(userId: string, mode: UserMode) {
+// range: Defterim'in gun/ay gorunumu icin [from, to) araligi. Calisma ani startedAt; eski
+// kayitlarda o yok, onlar icin kayit ani (createdAt) kullaniliyor.
+export async function listStudySessions(userId: string, mode: UserMode, range?: { from: string; to: string }) {
+  const between = range ? { gte: new Date(range.from), lt: new Date(range.to) } : undefined;
   const sessions = await prisma.studySession.findMany({
-    where: { userId },
+    where: {
+      userId,
+      ...(between ? { OR: [{ startedAt: between }, { startedAt: null, createdAt: between }] } : {}),
+    },
     include: { subject: true, topic: true },
     orderBy: { createdAt: "desc" },
   });
@@ -109,6 +117,7 @@ export async function listStudySessions(userId: string, mode: UserMode) {
       difficulty: s.difficulty,
       productivity: s.productivity,
       notes: s.notes,
+      startedAt: s.startedAt,
       createdAt: s.createdAt,
     }));
 }

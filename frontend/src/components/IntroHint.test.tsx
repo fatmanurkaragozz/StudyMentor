@@ -88,22 +88,22 @@ const renderFeature = (id = 'pomodoro') =>
 describe('IntroHint (feature)', () => {
   it('once sessiz bir "... nedir?" baglantisi olarak durur', () => {
     renderFeature('pomodoro');
-    expect(screen.getByRole('button', { name: /pomodoro sayacı nedir/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /odak sayacı nedir/i })).toBeInTheDocument();
     expect(screen.queryByText(/Dashboard metriklerine/)).not.toBeInTheDocument();
   });
 
   it('baglantiya tiklayinca acilir, "Anladim" ile baglantiya doner', async () => {
     renderFeature('pomodoro');
-    await userEvent.click(screen.getByRole('button', { name: /pomodoro sayacı nedir/i }));
+    await userEvent.click(screen.getByRole('button', { name: /odak sayacı nedir/i }));
     expect(screen.getByText(/Dashboard metriklerine/)).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Anladım' }));
-    expect(screen.getByRole('button', { name: /pomodoro sayacı nedir/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /odak sayacı nedir/i })).toBeInTheDocument();
   });
 
   it('"bir daha gosterme" isaretli kapatinca tamamen kaybolur', async () => {
     const { container } = renderFeature('pomodoro');
-    await userEvent.click(screen.getByRole('button', { name: /pomodoro sayacı nedir/i }));
+    await userEvent.click(screen.getByRole('button', { name: /odak sayacı nedir/i }));
     await userEvent.click(screen.getByLabelText('Bir daha gösterme'));
     await userEvent.click(screen.getByRole('button', { name: 'Anladım' }));
 

@@ -20,6 +20,7 @@ export const SECTION_MAX_WIDTH: Record<string, string> = {
   dashboard: 'max-w-7xl',
   courses: 'max-w-5xl',
   planner: 'max-w-5xl',
+  notebook: 'max-w-6xl',
   calendar: 'max-w-6xl',
   growth: 'max-w-6xl',
   insights: 'max-w-6xl',
@@ -45,7 +46,7 @@ const SECTION_INTROS: Record<string, IntroFn> = {
     isStudent
       ? {
           title: 'Derslerim',
-          body: 'Bu dönem çalıştığın dersleri ve her dersin konularını burada tutarsın. Takvim, Pomodoro ve AI önerileri hep bu listeden beslenir.',
+          body: 'Bu dönem çalıştığın dersleri ve her dersin konularını burada tutarsın. Takvim, Odak Zamanlayıcısı ve AI önerileri hep bu listeden beslenir.',
           steps: [
             'Üstteki alandan bir ders ekle (örn. "Matematik", "Tarih").',
             'Dersin satırını genişletip altına konularını yaz.',
@@ -65,11 +66,11 @@ const SECTION_INTROS: Record<string, IntroFn> = {
   planner: (isStudent) =>
     isStudent
       ? {
-          title: 'Çalışma & Pomodoro',
-          body: 'Odak ve mola sürelerini dönüşümlü çalıştıran bir Pomodoro zamanlayıcısı ve günlük çalışma listesi. Her oturumun sonunda çalışmanı kaydedersin.',
+          title: 'Çalışma & Odak',
+          body: 'Odak ve mola sürelerini kendin belirlediğin bir zamanlayıcı ve günlük çalışma listesi. Her oturumun sonunda çalışmanı kaydedersin.',
           steps: [
             'Soldan bir ders ve konu seç, sağdaki listeye günün görevlerini ekle.',
-            'Odak / Kısa Mola / Uzun Mola sekmesini seçip "Başlat"a bas.',
+            'Odak / Kısa Mola / Uzun Mola sekmesini seç, süreyi kendin ayarla ve "Başlat"a bas.',
             'Oturum bitince açılan formda zorluk ve verimliliği işaretle; Kaptan sana bir öncelik verir.',
           ],
         }
@@ -78,8 +79,29 @@ const SECTION_INTROS: Record<string, IntroFn> = {
           body: 'Derin odaklanma için mola aralıklı bir zamanlayıcı ve günlük yapılacaklar listesi. Bir uğraşına odaklanıp her oturumun sonunda ne yaptığını kaydedersin.',
           steps: [
             'Hangi uğraşın üzerine çalışacağını yaz, sağdaki listeye günün görevlerini ekle.',
-            'Odak / Kısa Mola / Uzun Mola sekmesini seçip "Başlat"a bas.',
+            'Odak / Kısa Mola / Uzun Mola sekmesini seç, süreyi kendin ayarla ve "Başlat"a bas.',
             'Oturum bitince açılan formda zorluk ve verimliliği işaretle; Kaptan sana bir öncelik verir.',
+          ],
+        },
+
+  notebook: (isStudent) =>
+    isStudent
+      ? {
+          title: 'Defterim',
+          body: 'Hangi gün hangi saatlerde hangi derse çalıştığını gösteren defterin. Günlerine plan ve not da yazabilirsin.',
+          steps: [
+            'Sayaçla kaydettiğin oturumlar burada saat aralığıyla kendiliğinden görünür.',
+            'Sayaçsız çalıştıysan "Geçmişe ekle" ile dersi, konuyu ve saatleri gir.',
+            'Bir güne plan yaz; bugünün planları Çalışma & Odak ekranındaki listede de görünür.',
+          ],
+        }
+      : {
+          title: 'Defterim',
+          body: 'Hangi gün hangi saatlerde hangi uğraşına zaman ayırdığını gösteren defterin. Günlerine plan ve not da yazabilirsin.',
+          steps: [
+            'Zamanlayıcıyla kaydettiğin oturumlar burada saat aralığıyla kendiliğinden görünür.',
+            'Zamanlayıcısız çalıştıysan "Geçmişe ekle" ile uğraşı ve saatleri gir.',
+            'Bir güne plan yaz; bugünün planları Odak & Zamanlayıcı ekranındaki listede de görünür.',
           ],
         },
 
@@ -152,25 +174,26 @@ const FEATURE_HINTS: Record<string, IntroFn> = {
     title: 'Bugün Tekrar Zamanı',
     body: 'Bir konuyu unutmaya başlamadan önce, tam tekrar edilmesi gereken gün karşına çıkarır (aralıklı tekrar). Liste, modelin önerdiği ve senin kabul ettiğin hatırlatmaları birleştirir.',
     steps: [
-      'Bir konuyu "Bugüne Ekle" ile Pomodoro ekranındaki günlük plana aktar.',
+      'Bir konuyu "Bugüne Ekle" ile Çalışma & Odak ekranındaki günlük plana aktar.',
       '"Kişisel Hatırlatma" etiketi, daha önce senin kabul ettiğin bir hatırlatmadır.',
       'Liste boşsa o gün tekrar bekleyen bir şey yok demektir.',
     ],
   }),
 
   pomodoro: () => ({
-    title: 'Pomodoro Sayacı',
-    body: 'Odak ve mola sürelerini dönüşümlü çalıştıran zamanlayıcı. Süre bitince çalışmanı kaydedip zorluk ve verimlilik puanı verirsin.',
+    title: 'Odak Sayacı',
+    body: 'Odak ve mola sürelerini kendin belirlediğin zamanlayıcı. Süre bitince çalışmanı kaydedip zorluk ve verimlilik puanı verirsin.',
     steps: [
-      'Odak / Kısa Mola / Uzun Mola sekmesini seç; istersen süreyi elle değiştir.',
+      'Odak / Kısa Mola / Uzun Mola sekmesini seç ve süreyi istediğin gibi ayarla.',
       '"Başlat"a bas; sayaç biterken uyarı alırsın.',
+      'Başka bir sekmeye geçsen de sayaç çalışmaya devam eder; kalan süreyi üst barda görürsün.',
       'Oturum sonu formunda zorluk ve verimliliği işaretle; kayıt Dashboard metriklerine yansır.',
     ],
   }),
 
   'daily-tasks': () => ({
     title: 'Bugün Ne Çalışacağım?',
-    body: 'O güne ait kısa bir yapılacaklar listesi. Bir maddeden doğrudan ona bağlı bir Pomodoro oturumu başlatabilirsin.',
+    body: 'O güne ait kısa bir yapılacaklar listesi. Bir maddeden doğrudan ona bağlı bir odak oturumu başlatabilirsin.',
     steps: [
       "Bir madde ekle; Dashboard'daki tekrar listesinden de buraya aktarabilirsin.",
       'Maddenin yanındaki "Oturum Başlat" sayacı o göreve bağlar.',

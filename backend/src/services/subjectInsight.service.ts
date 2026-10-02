@@ -63,7 +63,7 @@ function buildUserPrompt(entry: SubjectHistoryStats, isStudent: boolean): string
     .join("\n");
   return (
     `${label}: ${entry.subjectName}\n` +
-    `Bu ${label.toLowerCase()}te henüz süreli (Pomodoro) bir oturum kaydı yok, ama şu konularda mini kontrol yaptı:\n` +
+    `Bu ${label.toLowerCase()}te henüz süreli (zamanlayıcıyla) bir oturum kaydı yok, ama şu konularda mini kontrol yaptı:\n` +
     `${topicLines}\n\n` +
     `Bu verilere dayanarak kullanıcıya kısa bir yorum ve öneri yaz.`
   );

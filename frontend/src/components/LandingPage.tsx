@@ -355,7 +355,7 @@ export const LandingPage: FC<LandingPageProps> = ({ onEnterApp }) => {
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />
-                    <span>Pomodoro Zamanlayıcısı ve Oturum Değerlendirme</span>
+                    <span>Odak Zamanlayıcısı ve Oturum Değerlendirme</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-brand-pink-dark dark:text-brand-pink-light shrink-0" strokeWidth={1.5} />

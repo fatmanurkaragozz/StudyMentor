@@ -107,6 +107,7 @@ model User {
   scheduleSlots       ScheduleSlot[]
   dailyTasks          DailyTask[]
   topicReminders      TopicReminder[]
+  topicProgress       UserTopicProgress[]
   subjectInsights     SubjectInsight[]
   subjectInsightLogs  SubjectInsightLog[]
   refreshTokens       RefreshToken[]
@@ -225,6 +226,22 @@ model Topic {
   recommendations AIRecommendation[]
   dailyTasks      DailyTask[]
   reminders       TopicReminder[]
+  progress        UserTopicProgress[]
+}
+
+// Kullanicinin bir konudaki ilerlemesi. Katalog konulari (Subject.userId null) tum kullanicilarca
+// paylasildigi icin ilerleme Topic satirinda degil, burada kullanici basina tutuluyor.
+model UserTopicProgress {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId     String
+  topic       Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  lastStudied DateTime
+  nextReview  DateTime? // Spaced repetition: bu kullanicinin bir sonraki tekrar tarihi
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, topicId])
 }
 
 // Kullanıcıya özel tekrarlayan hatırlatma aboneliği - "N günde bir bu konuyu tekrar et"
@@ -271,18 +288,19 @@ model TopicCheck {
 }
 
 model StudySession {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
   userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   subjectId       String
-  subject         Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subject         Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   topicId         String
-  topic           Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  topic           Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
   durationMinutes Int
   difficulty      Int // 1-5 arası zorluk
   productivity    Int // 1-5 arası verimlilik
   notes           String?
-  createdAt       DateTime @default(now())
+  startedAt       DateTime? // Çalışmanın başladığı an (sayaç ilk başlatıldığında ya da elle kayıtta seçilen saat); eski kayıtlarda yok
+  createdAt       DateTime  @default(now())
 
   // İlişkiler
   dailyTask DailyTask?
@@ -312,10 +330,14 @@ model DailyTask {
   id             String          @id @default(uuid())
   userId         String
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subjectId      String
-  subject        Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  topicId        String
-  topic          Topic           @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  subjectId      String? // Ders/konu bağlı madde ise dolu; serbest metinli plan/notta (title) ikisi de boş
+  subject        Subject?        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topicId        String?
+  topic          Topic?          @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  title          String? // Defterim'deki serbest metinli plan/not
+  startTime      String? // Planlanan saat aralığı, ScheduleSlot ile aynı biçim: "15:00"
+  endTime        String? // "16:00"
+  mode           UserMode        @default(STUDENT) // Habit/Journal ile ayni desen; varsayilan sadece eski backend'in insert'leri kirilmasin diye
   date           DateTime // Gün bazında tarih (YYYY-MM-DD)
   status         DailyTaskStatus @default(PLANNED)
   studySessionId String?         @unique

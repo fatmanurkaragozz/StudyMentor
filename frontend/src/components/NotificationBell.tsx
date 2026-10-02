@@ -2,12 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Bell, CalendarClock, Sparkles } from 'lucide-react';
 import { apiClient, type DueTopicReminder } from '../lib/apiClient';
 import { useRecommendations } from '../hooks/useRecommendations';
+import { useApp } from '../context/AppContext';
 
 // Ayri bir "Notification" modeli/servisi kurmak yerine zaten var olan iki ozelligi
 // (useRecommendations - Dashboard/AIInsights'in kullandigi ayni /recommendations
 // fetch'i - ve TopicReminder due listesi) birlestiren hafif bir panel. Header'i
 // sismesin diye ayri dosyada.
 export const NotificationBell: React.FC = () => {
+  const { user } = useApp();
   const [open, setOpen] = useState(false);
   const { recommendations, loading: recsLoading, reload: reloadRecommendations } = useRecommendations();
   const unread = recommendations.filter(r => !r.isRead);
@@ -18,7 +20,7 @@ export const NotificationBell: React.FC = () => {
   const refreshReminders = async () => {
     setRemindersLoading(true);
     try {
-      setDueReminders(await apiClient.getDueTopicReminders());
+      setDueReminders(await apiClient.getDueTopicReminders(user.mode));
     } catch {
       // Bildirim paneli ikincil bir ozellik - sessizce bos gosterilir.
     } finally {
@@ -26,10 +28,11 @@ export const NotificationBell: React.FC = () => {
     }
   };
 
+  // Mod degisince o modun ders listesine gore hatirlatmalar yeniden yuklenir.
   useEffect(() => {
     refreshReminders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user.mode]);
 
   useEffect(() => {
     if (open) {

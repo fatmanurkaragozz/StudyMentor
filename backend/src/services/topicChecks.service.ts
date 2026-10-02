@@ -1,6 +1,6 @@
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
-import { getDisplayTopicLabel, getTopicWithSubject, markTopicReviewed } from "./topics.service.js";
+import { getDisplayTopicLabel, getTopicProgress, getTopicWithSubject, markTopicReviewed } from "./topics.service.js";
 import { scoreAndRecommend } from "./recommendations.service.js";
 import { advanceReminderIfActive, proposeReminder } from "./topicReminders.service.js";
 
@@ -30,8 +30,9 @@ export async function startCheck(userId: string, topicId: string) {
     data: { userId, topicId, opportunity, educationLevel: user.educationLevel },
   });
 
-  const hint = topic.lastStudied
-    ? `Son çalıştığın tarih: ${topic.lastStudied.toLocaleDateString("tr-TR")}. Notlarına göz at.`
+  const progress = await getTopicProgress(userId, topicId);
+  const hint = progress
+    ? `Son çalıştığın tarih: ${progress.lastStudied.toLocaleDateString("tr-TR")}. Notlarına göz at.`
     : "Bu konuyu birine anlatabilir misin? Kısa bir örnek soru çözmeyi dener misin?";
 
   return {
@@ -83,7 +84,7 @@ export async function submitCheck(userId: string, checkId: string, input: Submit
     },
   });
 
-  await markTopicReviewed(check.topicId, result.priority);
+  await markTopicReviewed(userId, check.topicId, result.priority);
   await advanceReminderIfActive(userId, check.topicId);
   const proposedReminder = await proposeReminder(userId, check.topicId, result.priority);
 

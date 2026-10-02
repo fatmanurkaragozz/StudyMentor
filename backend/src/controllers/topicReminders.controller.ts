@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { respondToReminderSchema } from "../validation/schemas.js";
+import { modeQuerySchema, respondToReminderSchema } from "../validation/schemas.js";
 import { respondToReminder, listDueReminders } from "../services/topicReminders.service.js";
 
 export async function postTopicReminder(req: Request, res: Response) {
@@ -9,6 +9,7 @@ export async function postTopicReminder(req: Request, res: Response) {
 }
 
 export async function getDueTopicReminders(req: Request, res: Response) {
-  const result = await listDueReminders(req.userId as string);
+  const { mode } = modeQuerySchema.parse(req.query);
+  const result = await listDueReminders(req.userId as string, mode);
   res.json(result);
 }

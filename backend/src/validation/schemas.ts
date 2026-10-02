@@ -158,13 +158,28 @@ export const submitTopicCheckSchema = z.object({
   selfGradedCorrect: z.boolean(),
 });
 
-export const createStudySessionSchema = z.object({
-  subjectId: z.string().min(1),
-  topicId: z.string().min(1),
-  durationMinutes: z.number().int().min(1),
-  difficulty: z.number().int().min(1).max(5),
-  productivity: z.number().int().min(1).max(5),
-  notes: z.string().optional(),
+// Saat istemcinin saatinden gelir; kucuk saat kaymalari kayit reddine yol acmasin diye pay.
+const CLOCK_SKEW_MS = 5 * 60 * 1000;
+
+export const createStudySessionSchema = z
+  .object({
+    subjectId: z.string().min(1),
+    topicId: z.string().min(1),
+    durationMinutes: z.number().int().min(1).max(24 * 60),
+    difficulty: z.number().int().min(1).max(5),
+    productivity: z.number().int().min(1).max(5),
+    notes: z.string().optional(),
+    // Sayacin ilk baslatildigi an ya da Defterim'de elle girilen baslangic.
+    startedAt: z.iso.datetime({ offset: true }).optional(),
+  })
+  .refine(
+    (v) => !v.startedAt || new Date(v.startedAt).getTime() + v.durationMinutes * 60_000 <= Date.now() + CLOCK_SKEW_MS,
+    { message: "Gelecekte biten bir çalışma kaydedilemez" },
+  );
+
+export const listStudySessionsQuerySchema = modeQuerySchema.extend({
+  from: z.iso.datetime({ offset: true }).optional(),
+  to: z.iso.datetime({ offset: true }).optional(),
 });
 
 export const respondToReminderSchema = z.object({
@@ -188,10 +203,33 @@ export const createJournalSchema = z.object({
   mode: userModeSchema,
 });
 
-export const createDailyTaskSchema = z.object({
-  subjectId: z.string().min(1),
-  topicId: z.string().min(1),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+const timeOfDaySchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+
+// Ders/konu bagli madde (Calisma & Odak, Dashboard) ya da Defterim'deki serbest metinli plan.
+export const createDailyTaskSchema = z
+  .object({
+    subjectId: z.string().min(1).optional(),
+    topicId: z.string().min(1).optional(),
+    title: z.string().trim().min(1).max(200).optional(),
+    startTime: timeOfDaySchema.optional(),
+    endTime: timeOfDaySchema.optional(),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    mode: userModeSchema,
+  })
+  .refine((v) => !!v.subjectId === !!v.topicId, { message: "Ders ve konu birlikte verilmeli" })
+  .refine((v) => !!v.title || !!v.topicId, { message: "Plan için bir metin ya da ders/konu gerekli" })
+  .refine((v) => !v.endTime || !!v.startTime, { message: "Bitiş saati için başlangıç saati gerekli" })
+  // "HH:mm" metin olarak karsilastirildiginda da dogru siralanir.
+  .refine((v) => !v.startTime || !v.endTime || v.endTime > v.startTime, {
+    message: "Bitiş saati başlangıçtan sonra olmalı",
+  });
+
+export const updateDailyTaskSchema = z.object({
+  status: z.enum(["PLANNED", "DONE"]).optional(),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
 });
 
 export const completeDailyTaskSchema = z.object({

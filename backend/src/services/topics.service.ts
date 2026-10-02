@@ -1,4 +1,4 @@
-import type { PriorityLevel, UserMode } from "@prisma/client";
+import type { PriorityLevel, Prisma, UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 
@@ -20,15 +20,15 @@ export const REVIEW_INTERVAL_DAYS: Record<PriorityLevel, number> = {
   DUSUK: 7,
 };
 
-// Bu konu bir sınava bağlıysa (ExamSubject üzerinden) ve hesaplanan tekrar tarihi sınav tarihini
-// geçiyorsa, sınavdan sonrasını önermenin anlamı olmadığı için tarih sınav gününe kısıtlanır.
-async function computeNextReview(topicId: string, priority: PriorityLevel): Promise<Date> {
+// Bu konu kullanicinin KENDI bir sinavina bagliysa (ExamSubject uzerinden) ve hesaplanan tekrar tarihi
+// sinav tarihini geciyorsa, sinavdan sonrasini onermenin anlami olmadigi icin tarih sinav gunune kisitlanir.
+async function computeNextReview(userId: string, topicId: string, priority: PriorityLevel): Promise<Date> {
   const intervalDays = REVIEW_INTERVAL_DAYS[priority];
   const candidate = new Date();
   candidate.setUTCDate(candidate.getUTCDate() + intervalDays);
 
   const examLinks = await prisma.examSubject.findMany({
-    where: { subject: { topics: { some: { id: topicId } } }, exam: { date: { gte: new Date() } } },
+    where: { subject: { topics: { some: { id: topicId } } }, exam: { userId, date: { gte: new Date() } } },
     include: { exam: true },
   });
 
@@ -44,13 +44,21 @@ async function computeNextReview(topicId: string, priority: PriorityLevel): Prom
 }
 
 // AICoach bir oncelik hesapladiktan sonra cagirir - bir konunun "calisildi" ve
-// (varsa) bir sonraki tekrar tarihinin ne oldugu Curriculum'un sorumlulugunda.
-export async function markTopicReviewed(topicId: string, priority: PriorityLevel | null): Promise<void> {
-  const nextReview = priority ? await computeNextReview(topicId, priority) : undefined;
-  await prisma.topic.update({
-    where: { id: topicId },
-    data: { lastStudied: new Date(), ...(nextReview ? { nextReview } : {}) },
+// (varsa) bir sonraki tekrar tarihinin ne oldugu Curriculum'un sorumlulugunda. Ilerleme kullanici
+// basina tutuluyor: katalog konulari paylasildigi icin Topic satirina yazmak herkesi etkilerdi.
+export async function markTopicReviewed(userId: string, topicId: string, priority: PriorityLevel | null): Promise<void> {
+  const nextReview = priority ? await computeNextReview(userId, topicId, priority) : undefined;
+  const lastStudied = new Date();
+  await prisma.userTopicProgress.upsert({
+    where: { userId_topicId: { userId, topicId } },
+    create: { userId, topicId, lastStudied, nextReview: nextReview ?? null },
+    // Oncelik yoksa (ML kapali) onceki tekrar tarihi korunur.
+    update: { lastStudied, ...(nextReview ? { nextReview } : {}) },
   });
+}
+
+export async function getTopicProgress(userId: string, topicId: string) {
+  return prisma.userTopicProgress.findUnique({ where: { userId_topicId: { userId, topicId } } });
 }
 
 // Konuyu dersiyle birlikte getirir - baska modullerin (LearningEngine) Topic
@@ -69,7 +77,9 @@ export async function requireTopicInSubject(topicId: string, subjectId: string) 
   return topic;
 }
 
-export async function listTopicsForUser(userId: string, mode: UserMode) {
+// Kullanicinin verilen moddaki "ders listesi" - Calisma & Odak/Dashboard'un ders listesi
+// (listTopicsForUser) ile tekrar hatirlatmalari (listDueReminders) ayni kurali kullansin diye tek yerde.
+export async function studyListSubjectWhere(userId: string, mode: UserMode): Promise<Prisma.SubjectWhereInput> {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     throw new HttpError(404, "Kullanıcı bulunamadı");
@@ -84,16 +94,20 @@ export async function listTopicsForUser(userId: string, mode: UserMode) {
 
   // Kuresel mufredat/sinav katalogu (Subject.userId === null) kavramsal olarak hep
   // ogrenci icerigi - Gelisim modunda hic gorunmemeli, o yuzden sadece STUDENT'ta OR'a dahil.
+  return {
+    OR: [
+      ...(mode === "STUDENT" ? [globalCatalogFilter] : []),
+      { userId, mode },
+      // Kullanıcının eklediği bir sınavın (KPSS/YÖKDİL/ALES) kataloğundan seçtiği dersler
+      { exams: { some: { exam: { userId, mode } } } },
+    ],
+  };
+}
+
+export async function listTopicsForUser(userId: string, mode: UserMode) {
   const subjects = await prisma.subject.findMany({
-    where: {
-      OR: [
-        ...(mode === "STUDENT" ? [globalCatalogFilter] : []),
-        { userId, mode },
-        // Kullanıcının eklediği bir sınavın (KPSS/YÖKDİL/ALES) kataloğundan seçtiği dersler
-        { exams: { some: { exam: { userId, mode } } } },
-      ],
-    },
-    include: { topics: true },
+    where: await studyListSubjectWhere(userId, mode),
+    include: { topics: { include: { progress: { where: { userId } } } } },
     orderBy: { name: "asc" },
   });
 
@@ -103,9 +117,8 @@ export async function listTopicsForUser(userId: string, mode: UserMode) {
     topics: subject.topics.map((topic) => ({
       id: topic.id,
       name: topic.name,
-      status: topic.status,
-      lastStudied: topic.lastStudied,
-      nextReview: topic.nextReview,
+      lastStudied: topic.progress[0]?.lastStudied ?? null,
+      nextReview: topic.progress[0]?.nextReview ?? null,
     })),
   }));
 }
