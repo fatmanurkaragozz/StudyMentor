@@ -12,7 +12,7 @@ export function getNavItems(isStudent: boolean): NavItem[] {
   return [
     { id: 'dashboard', label: 'Ana Dashboard', shortLabel: 'Panel', icon: LayoutDashboard },
     { id: 'courses', label: isStudent ? 'Derslerim' : 'Uğraşlarım', shortLabel: isStudent ? 'Dersler' : 'Uğraşlar', icon: BookOpen },
-    { id: 'planner', label: isStudent ? 'Çalışma & Pomodoro' : 'Odak & Zamanlayıcı', shortLabel: 'Pomodoro', icon: Timer },
+    { id: 'planner', label: isStudent ? 'Çalışma & Odak' : 'Odak & Zamanlayıcı', shortLabel: 'Odak', icon: Timer },
     { id: 'calendar', label: 'Takvim', shortLabel: 'Takvim', icon: CalendarDays },
     { id: 'growth', label: 'Habit & Journal Hub', shortLabel: 'Habit', icon: Flame },
     { id: 'insights', label: 'AI Analiz & Koç', shortLabel: 'AI Koç', icon: Sparkles },

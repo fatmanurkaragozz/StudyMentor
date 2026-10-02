@@ -315,7 +315,7 @@ type HistoryTopicsVariant = (label: string, name: string, count: number) => stri
 const HISTORY_TOPICS_TEMPLATES: Record<TopicCountBucket, HistoryTopicsVariant[]> = {
   AZ: [
     (_label, name) =>
-      `${name} tarafında henüz süreli bir oturum kaydın yok, sadece bir mini kontrol yapmışsın. Bir Pomodoro oturumuyla gerçek bir başlangıç yapmaya ne dersin?`,
+      `${name} tarafında henüz süreli bir oturum kaydın yok, sadece bir mini kontrol yapmışsın. Bir odak oturumuyla gerçek bir başlangıç yapmaya ne dersin?`,
   ],
   ORTA: [
     (_label, name, count) =>

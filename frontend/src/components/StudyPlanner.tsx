@@ -367,7 +367,7 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
             {isStudent ? '🎓 Ders & Konu Odaklanması' : '💼 Proje & Beceriler Zamanlayıcısı'}
           </span>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">
-            {isStudent ? 'Çalışma & Pomodoro Zirvesi' : 'Derin Odaklanma (Deep Work) Zamanlayıcısı'}
+            {isStudent ? 'Çalışma & Odak Zamanlayıcısı' : 'Derin Odaklanma (Deep Work) Zamanlayıcısı'}
           </h2>
           <p className="text-xs text-slate-600 dark:text-slate-400">
             Odaklanma sürenizi takip edin, oturum sonunda zorluk ve verimlilik verilerini kaydederek AI modelini eğitin.
@@ -504,7 +504,7 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Odak (25dk)
+              Odak
             </button>
             <button
               onClick={() => switchMode('SHORT_BREAK')}
@@ -512,7 +512,7 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
                 timerMode === 'SHORT_BREAK' ? 'bg-brand-gold-dark text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Kısa Mola (5dk)
+              Kısa Mola
             </button>
             <button
               onClick={() => switchMode('LONG_BREAK')}
@@ -520,7 +520,7 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
                 timerMode === 'LONG_BREAK' ? 'bg-brand-violet text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              Uzun Mola (15dk)
+              Uzun Mola
             </button>
           </div>
 
