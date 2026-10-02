@@ -22,10 +22,10 @@ Projemizde veri tabanı olarak **PostgreSQL** ve ORM olarak **Prisma ORM** kulla
 #### B. Akademik Modül
 - **Subject (Dersler):** LGS, YKS veya üniversiteye göre önceden tanımlanmış veya kullanıcının kendi eklediği dersleri tutar.
   - `userId` (String, Opsiyonel): Null ise genel derstir. Doluysa ilgili kullanıcıya özel derstir.
-- **Topic (Konular):** Derslere bağlı alt konuları içerir.
-  - `status` (Enum: NOT_STARTED, IN_PROGRESS, COMPLETED)
+- **Topic (Konular):** Derslere bağlı alt konuları içerir. Katalog konuları tüm kullanıcılarca paylaşıldığı için ilerleme konuda değil, `UserTopicProgress`'te tutulur.
+- **UserTopicProgress (Konu İlerlemesi):** Kullanıcının bir konudaki ilerlemesi; `(userId, topicId)` başına tek kayıt.
   - `lastStudied` (DateTime, Son çalışma tarihi)
-  - `nextReview` (DateTime, Spaced Repetition algoritmasının belirlediği bir sonraki tekrar tarihi)
+  - `nextReview` (DateTime, Opsiyonel: Spaced Repetition algoritmasının belirlediği bir sonraki tekrar tarihi)
 - **StudySession (Çalışma Oturumları):** Kullanıcının yaptığı her çalışmanın log kaydıdır.
   - `durationMinutes` (Int, Çalışma süresi)
   - `difficulty` (Int, 1-5 arası zorluk algısı)
