@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { Activity, useCallback, useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { useFocusTimer } from '../context/FocusTimerContext';
+import { formatTime, secondsUntil } from '../lib/focusTimer';
 import type { UserMode } from '../types';
 import { apiClient, type SubjectWithTopics, type RecommendationResult, type DailyTaskRow, type MySubject } from '../lib/apiClient';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
@@ -30,7 +32,7 @@ const SIDEBAR_PAGE_SIZE = 5;
 
 // Her mod (Ogrenci/Gelisim) kendi sayacini, secili ders/ugrasini ve aktif gorevini ayri
 // tutsun diye ziyaret edilen her mod icin ayri bir ModePlanner monteli kaliyor, sadece aktif
-// mod gorunuyor. Tek ornek olsaydi Gelisim'de baslatilan sayac, mod degisince Ogrenci'nin
+// mod gorunuyor (Activity: gizliyken state korunur, effect'ler durur, gorununce veri tazelenir). Tek ornek olsaydi Gelisim'de baslatilan sayac, mod degisince Ogrenci'nin
 // secili dersinin sayaci gibi gorunurdu; boylece o sayac arka planda kendi modunda sayiyor.
 export const StudyPlanner: React.FC = () => {
   const { user } = useApp();
@@ -40,9 +42,9 @@ export const StudyPlanner: React.FC = () => {
   return (
     <>
       {visitedModes.map(mode => (
-        <div key={mode} hidden={mode !== user.mode}>
+        <Activity key={mode} mode={mode === user.mode ? 'visible' : 'hidden'}>
           <ModePlanner mode={mode} />
-        </div>
+        </Activity>
       ))}
     </>
   );
@@ -59,7 +61,8 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
     LONG_BREAK: 15,
   });
   const [secondsLeft, setSecondsLeft] = useState<number>(25 * 60);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const { endsAt, setEndsAt } = useFocusTimer(mode);
+  const isRunning = endsAt !== null;
   const [timerMode, setTimerMode] = useState<'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK' | 'CUSTOM'>('POMODORO');
 
   // Real ders/konu data
@@ -103,9 +106,13 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
       .getTopics(mode)
       .then(data => {
         setSubjects(data);
+        // Bu effect ekran her gorundugunde yeniden calisiyor (Activity) - calisan bir oturumun
+        // ders/konusu degismesin diye mevcut secim hala listedeyse korunuyor.
         if (isStudent && data.length > 0) {
-          setSelectedSubjectId(data[0].subjectId);
-          if (data[0].topics.length > 0) setSelectedTopicId(data[0].topics[0].id);
+          setSelectedSubjectId(prev => (data.some(s => s.subjectId === prev) ? prev : data[0].subjectId));
+          setSelectedTopicId(prev =>
+            data.some(s => s.topics.some(t => t.id === prev)) ? prev : data[0].topics[0]?.id ?? '',
+          );
         }
       })
       .catch(err => setLoadError(err instanceof Error ? err.message : 'Dersler yüklenemedi'))
@@ -114,7 +121,6 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
 
   useEffect(() => {
     if (isStudent) return;
-    setLoadingPursuits(true);
     apiClient
       .getMySubjects(mode)
       .then(setMyPursuits)
@@ -122,35 +128,44 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
       .finally(() => setLoadingPursuits(false));
   }, [isStudent, mode]);
 
-  const loadTasks = () => {
+  const loadTasks = useCallback(() => {
     apiClient
       .getDailyTasks(mode, todayKey())
       .then(setDailyTasks)
       .catch(err => setTaskError(err instanceof Error ? err.message : 'Görevler yüklenemedi'))
       .finally(() => setLoadingTasks(false));
-  };
+  }, [mode]);
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [loadTasks]);
 
   useEffect(() => {
-    let interval: any = null;
-    if (isRunning && secondsLeft > 0) {
-      interval = setInterval(() => {
-        setSecondsLeft(prev => prev - 1);
-      }, 1000);
-    } else if (secondsLeft === 0 && isRunning) {
-      setIsRunning(false);
-      setShowCompleteModal(true);
-    }
+    if (endsAt === null) return;
+    const tick = () => {
+      const left = secondsUntil(endsAt);
+      setSecondsLeft(left);
+      if (left === 0) {
+        setEndsAt(null);
+        setShowCompleteModal(true);
+      }
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [isRunning, secondsLeft]);
+  }, [endsAt, setEndsAt]);
 
-  const switchMode = (mode: 'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK') => {
-    setIsRunning(false);
-    setTimerMode(mode);
-    setSecondsLeft(durations[mode] * 60);
+  const startTimer = () => setEndsAt(Date.now() + secondsLeft * 1000);
+
+  const pauseTimer = () => {
+    if (endsAt !== null) setSecondsLeft(secondsUntil(endsAt));
+    setEndsAt(null);
+  };
+
+  const switchMode = (nextMode: 'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK') => {
+    setEndsAt(null);
+    setTimerMode(nextMode);
+    setSecondsLeft(durations[nextMode] * 60);
   };
 
   const handleDurationChange = (minutes: number) => {
@@ -158,12 +173,6 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
     const clamped = Math.max(1, Math.min(180, Math.round(minutes) || 1));
     setDurations(prev => ({ ...prev, [timerMode]: clamped }));
     if (!isRunning) setSecondsLeft(clamped * 60);
-  };
-
-  const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   // Ogrenci modunda hic ders yoksa: ders/konu select'leri bos kutu goruntusu
@@ -303,8 +312,9 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
     setActiveTaskId(task.id);
     setSelectedSubjectId(task.subjectId);
     setSelectedTopicId(task.topicId);
-    setSecondsLeft(durations[timerMode === 'CUSTOM' ? 'POMODORO' : timerMode] * 60);
-    setIsRunning(true);
+    const seconds = durations[timerMode === 'CUSTOM' ? 'POMODORO' : timerMode] * 60;
+    setSecondsLeft(seconds);
+    setEndsAt(Date.now() + seconds * 1000);
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -555,7 +565,7 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
           {/* Timer Action Buttons */}
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setIsRunning(!isRunning)}
+              onClick={isRunning ? pauseTimer : startTimer}
               className={`w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-xl transition-all transform active:scale-95 ${
                 isRunning
                   ? 'bg-brand-gold-dark hover:opacity-90'
@@ -569,7 +579,7 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
 
             <button
               onClick={() => {
-                setIsRunning(false);
+                setEndsAt(null);
                 setSecondsLeft(durations[timerMode === 'CUSTOM' ? 'POMODORO' : timerMode] * 60);
               }}
               className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all"

@@ -1,9 +1,10 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { Activity, lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AppProvider, useApp } from './context/AppContext';
 import { IntroProvider, useIntros } from './context/IntroContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { FocusTimerProvider } from './context/FocusTimerContext';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { BottomTabBar } from './components/BottomTabBar';
@@ -31,6 +32,11 @@ const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> 
   const { activeTab } = useApp();
   const { welcomePending } = useIntros();
 
+  // Odak sayaci baska sekmeye gecince sifirlanmasin diye planner ilk ziyaretten sonra hep monteli
+  // kaliyor, sadece gizleniyor (Activity). Ziyaret kosulu, lazy chunk'i ilk yukte indirmemek icin.
+  const [plannerVisited, setPlannerVisited] = useState(activeTab === 'planner');
+  if (activeTab === 'planner' && !plannerVisited) setPlannerVisited(true);
+
   return (
     <div className="flex min-h-screen bg-[#faf8f5] dark:bg-[#121417] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-brand-pink-dark selection:text-white transition-colors duration-300">
       {/* Sidebar */}
@@ -49,7 +55,11 @@ const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> 
           <Suspense fallback={<RouteFallback />}>
             {activeTab === 'dashboard' && <Dashboard />}
             {activeTab === 'courses' && <MyCourses />}
-            {activeTab === 'planner' && <StudyPlanner />}
+            {plannerVisited && (
+              <Activity mode={activeTab === 'planner' ? 'visible' : 'hidden'}>
+                <StudyPlanner />
+              </Activity>
+            )}
             {activeTab === 'calendar' && <RealCalendar />}
             {activeTab === 'growth' && <GrowthHub />}
             {activeTab === 'insights' && <AIInsights />}
@@ -114,7 +124,12 @@ export function AppContent() {
     );
   }
 
-  return <MainLayout onGoToLanding={() => setShowLanding(true)} onLogout={handleLogout} />;
+  // Sayac durumu MainLayout ile birlikte yasiyor - cikis yapinca / landing'e donunce sifirlanir.
+  return (
+    <FocusTimerProvider>
+      <MainLayout onGoToLanding={() => setShowLanding(true)} onLogout={handleLogout} />
+    </FocusTimerProvider>
+  );
 }
 
 export function App() {

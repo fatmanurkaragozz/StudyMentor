@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { getEducationLabel } from '../lib/labels';
 import { Search, UserCheck, Sun, Moon } from 'lucide-react';
 import { NotificationBell } from './NotificationBell';
+import { FocusTimerBadge } from './FocusTimerBadge';
 
 export const Header: React.FC = () => {
   const { user, setActiveTab } = useApp();
@@ -57,6 +58,9 @@ export const Header: React.FC = () => {
         >
           {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
+
+        {/* Calisan odak sayaci (baska sekmedeyken) */}
+        <FocusTimerBadge />
 
         {/* Notifications */}
         <NotificationBell />

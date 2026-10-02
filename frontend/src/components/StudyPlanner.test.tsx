@@ -1,7 +1,9 @@
+import { Activity } from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent, act } from '@testing-library/react';
 import { StudyPlanner } from './StudyPlanner';
 import { IntroProvider } from '../context/IntroContext';
+import { FocusTimerProvider } from '../context/FocusTimerContext';
 import { useApp } from '../context/AppContext';
 import { apiClient, type SubjectWithTopics } from '../lib/apiClient';
 import type { UserMode } from '../types';
@@ -22,17 +24,26 @@ const setMode = (mode: UserMode) => {
   } as unknown as ReturnType<typeof useApp>);
 };
 
-const tree = () => (
-  <IntroProvider>
-    <StudyPlanner />
-  </IntroProvider>
+// plannerVisible=false: kullanici baska bir sekmeye gecmis (App.tsx'teki Activity ile ayni).
+const tree = (plannerVisible = true) => (
+  <FocusTimerProvider>
+    <IntroProvider>
+      <Activity mode={plannerVisible ? 'visible' : 'hidden'}>
+        <StudyPlanner />
+      </Activity>
+    </IntroProvider>
+  </FocusTimerProvider>
 );
 
 beforeEach(() => {
+  vi.clearAllMocks();
   localStorage.clear();
   vi.mocked(apiClient.getTopics).mockImplementation(async mode =>
     (mode === 'STUDENT'
-      ? [{ subjectId: 's1', subjectName: 'Matematik', topics: [{ id: 't1', name: 'Türev' }] }]
+      ? [
+          { subjectId: 's1', subjectName: 'Matematik', topics: [{ id: 't1', name: 'Türev' }] },
+          { subjectId: 's2', subjectName: 'Fizik', topics: [{ id: 't2', name: 'Kuvvet' }] },
+        ]
       : [{ subjectId: 'p1', subjectName: PURSUIT, topics: [{ id: 'tp1', name: 'Genel' }] }]) as SubjectWithTopics[],
   );
   vi.mocked(apiClient.getMySubjects).mockResolvedValue([{ subjectId: 'p1', subjectName: PURSUIT, topics: [] }]);
@@ -78,6 +89,31 @@ describe('StudyPlanner mod ayrimi', () => {
 
     expect(screen.getByText(`Şu an çalışıyorsun: ${PURSUIT}`)).toBeVisible();
     expect(screen.getByText('24:57')).toBeVisible();
+  });
+
+  it('baska sekmeye gecip donunce sayac sifirlanmaz, gecen sure dusulur ve secili ders korunur', async () => {
+    vi.mocked(apiClient.getDailyTasks).mockResolvedValue([
+      { id: 'd2', subjectId: 's2', subjectName: 'Fizik', topicId: 't2', topicName: 'Kuvvet', date: '2026-10-01', status: 'PLANNED', studySessionId: null },
+    ]);
+    setMode('STUDENT');
+    const { rerender } = render(tree());
+
+    // Listedeki ilk ders (Matematik) degil, gorevin dersi (Fizik) uzerinde calisiliyor.
+    const startButton = await screen.findByRole('button', { name: 'Oturum Başlat' });
+    vi.useFakeTimers();
+    fireEvent.click(startButton);
+
+    rerender(tree(false));
+    act(() => {
+      vi.advanceTimersByTime(60_000);
+    });
+    rerender(tree(true));
+    await act(async () => {});
+
+    expect(screen.getByText('24:00')).toBeVisible();
+    expect(screen.getByText('Şu an çalışıyorsun: Fizik — Kuvvet')).toBeVisible();
+    // Ekran tekrar gorununce ders listesi tazelendi (Derslerim'de degisiklik olduysa gelsin).
+    expect(apiClient.getTopics).toHaveBeenCalledTimes(2);
   });
 
   it('gorev listesini aktif modla ister', async () => {
