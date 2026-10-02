@@ -159,10 +159,10 @@ export function toUserProfile(backendUser: BackendUser): UserProfile {
   };
 }
 
+// lastStudied/nextReview istekte bulunan kullanicinin kendi ilerlemesi (UserTopicProgress).
 export interface TopicSummary {
   id: string;
   name: string;
-  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
   lastStudied: string | null;
   nextReview: string | null;
 }

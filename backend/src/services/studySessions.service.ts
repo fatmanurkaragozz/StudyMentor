@@ -83,7 +83,7 @@ export async function createStudySession(userId: string, input: CreateStudySessi
     overlapTimeMs: DEFAULT_OVERLAP_TIME_MS,
   });
 
-  await markTopicReviewed(input.topicId, result.priority);
+  await markTopicReviewed(userId, input.topicId, result.priority);
   // Bu konuyu gercekten calisti, aktif bir hatirlatma varsa donguyu ilerlet;
   // yoksa (ya da zaten aktifse) yeni bir oneri sunulabilir mi diye bak.
   await advanceReminderIfActive(userId, input.topicId);
