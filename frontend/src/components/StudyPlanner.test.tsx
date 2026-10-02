@@ -1,0 +1,89 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { render, screen, cleanup, fireEvent, act } from '@testing-library/react';
+import { StudyPlanner } from './StudyPlanner';
+import { IntroProvider } from '../context/IntroContext';
+import { useApp } from '../context/AppContext';
+import { apiClient, type SubjectWithTopics } from '../lib/apiClient';
+import type { UserMode } from '../types';
+
+// Sidebar'daki "Platform Modu" degistiricisini taklit edebilmek icin useApp'i mock'luyoruz;
+// apiClient de her mod icin farkli veri dondursun diye mock.
+vi.mock('../context/AppContext', () => ({ useApp: vi.fn() }));
+vi.mock('../lib/apiClient', () => ({
+  apiClient: { getTopics: vi.fn(), getMySubjects: vi.fn(), getDailyTasks: vi.fn() },
+}));
+
+const PURSUIT = 'StudyMentor projesi geliştirme';
+
+const setMode = (mode: UserMode) => {
+  vi.mocked(useApp).mockReturnValue({
+    user: { mode, name: 'Test Kullanıcı' },
+    setActiveTab: vi.fn(),
+  } as unknown as ReturnType<typeof useApp>);
+};
+
+const tree = () => (
+  <IntroProvider>
+    <StudyPlanner />
+  </IntroProvider>
+);
+
+beforeEach(() => {
+  localStorage.clear();
+  vi.mocked(apiClient.getTopics).mockImplementation(async mode =>
+    (mode === 'STUDENT'
+      ? [{ subjectId: 's1', subjectName: 'Matematik', topics: [{ id: 't1', name: 'Türev' }] }]
+      : [{ subjectId: 'p1', subjectName: PURSUIT, topics: [{ id: 'tp1', name: 'Genel' }] }]) as SubjectWithTopics[],
+  );
+  vi.mocked(apiClient.getMySubjects).mockResolvedValue([{ subjectId: 'p1', subjectName: PURSUIT, topics: [] }]);
+  vi.mocked(apiClient.getDailyTasks).mockImplementation(async mode =>
+    mode === 'LIFELONG_LEARNER'
+      ? [{ id: 'd1', subjectId: 'p1', subjectName: PURSUIT, topicId: 'tp1', topicName: 'Genel', date: '2026-10-01', status: 'PLANNED', studySessionId: null }]
+      : [],
+  );
+});
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
+
+describe('StudyPlanner mod ayrimi', () => {
+  it("Gelisim'de baslatilan sayac Ogrenci modunda gorunmez, arka planda saymaya devam eder", async () => {
+    setMode('LIFELONG_LEARNER');
+    const { rerender } = render(tree());
+
+    const startButton = await screen.findByRole('button', { name: 'Oturum Başlat' });
+    vi.useFakeTimers();
+    fireEvent.click(startButton);
+    expect(screen.getByText(/Derin Odaklanma Süreci Devam Ediyor/)).toBeVisible();
+
+    setMode('STUDENT');
+    rerender(tree());
+    await act(async () => {});
+
+    // Ogrenci modu kendi (duraklatilmis) sayaciyla acilir, Gelisim'in gorevi/sayaci gorunmez.
+    expect(screen.getByText('Zamanlayıcı Duraklatıldı')).toBeVisible();
+    expect(screen.getByText(/Derin Odaklanma Süreci Devam Ediyor/)).not.toBeVisible();
+    expect(screen.getByText(/Şu an çalışıyorsun/)).not.toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Oturum Başlat' })).not.toBeInTheDocument();
+
+    for (let i = 0; i < 3; i++) {
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+    }
+
+    setMode('LIFELONG_LEARNER');
+    rerender(tree());
+
+    expect(screen.getByText(`Şu an çalışıyorsun: ${PURSUIT}`)).toBeVisible();
+    expect(screen.getByText('24:57')).toBeVisible();
+  });
+
+  it('gorev listesini aktif modla ister', async () => {
+    setMode('STUDENT');
+    render(tree());
+    await screen.findByText('Bugün için henüz bir çalışma maddesi eklemedin.');
+    expect(apiClient.getDailyTasks).toHaveBeenCalledWith('STUDENT', expect.any(String));
+  });
+});

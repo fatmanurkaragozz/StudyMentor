@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { createDailyTaskSchema, completeDailyTaskSchema } from "../validation/schemas.js";
+import { createDailyTaskSchema, completeDailyTaskSchema, modeQuerySchema } from "../validation/schemas.js";
 import { createTask, listTasks, completeTask, deleteTask } from "../services/dailyTasks.service.js";
 
 export async function postDailyTask(req: Request, res: Response) {
@@ -10,7 +10,8 @@ export async function postDailyTask(req: Request, res: Response) {
 
 export async function getDailyTasks(req: Request, res: Response) {
   const date = typeof req.query.date === "string" ? req.query.date : undefined;
-  const result = await listTasks(req.userId as string, date);
+  const { mode } = modeQuerySchema.parse(req.query);
+  const result = await listTasks(req.userId as string, mode, date);
   res.json(result);
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import type { UserMode } from '../types';
 import { apiClient, type SubjectWithTopics, type RecommendationResult, type DailyTaskRow, type MySubject } from '../lib/apiClient';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
 import { getKaptanSessionMessage } from '../lib/kaptan';
@@ -27,9 +28,29 @@ import {
 const todayKey = () => new Date().toISOString().split('T')[0];
 const SIDEBAR_PAGE_SIZE = 5;
 
+// Her mod (Ogrenci/Gelisim) kendi sayacini, secili ders/ugrasini ve aktif gorevini ayri
+// tutsun diye ziyaret edilen her mod icin ayri bir ModePlanner monteli kaliyor, sadece aktif
+// mod gorunuyor. Tek ornek olsaydi Gelisim'de baslatilan sayac, mod degisince Ogrenci'nin
+// secili dersinin sayaci gibi gorunurdu; boylece o sayac arka planda kendi modunda sayiyor.
 export const StudyPlanner: React.FC = () => {
   const { user } = useApp();
-  const isStudent = user.mode === 'STUDENT';
+  const [visitedModes, setVisitedModes] = useState<UserMode[]>([user.mode]);
+  if (!visitedModes.includes(user.mode)) setVisitedModes([...visitedModes, user.mode]);
+
+  return (
+    <>
+      {visitedModes.map(mode => (
+        <div key={mode} hidden={mode !== user.mode}>
+          <ModePlanner mode={mode} />
+        </div>
+      ))}
+    </>
+  );
+};
+
+const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
+  const { user } = useApp();
+  const isStudent = mode === 'STUDENT';
 
   // Timer states
   const [durations, setDurations] = useState<Record<'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK', number>>({
@@ -79,7 +100,7 @@ export const StudyPlanner: React.FC = () => {
 
   useEffect(() => {
     apiClient
-      .getTopics(user.mode)
+      .getTopics(mode)
       .then(data => {
         setSubjects(data);
         if (isStudent && data.length > 0) {
@@ -89,21 +110,21 @@ export const StudyPlanner: React.FC = () => {
       })
       .catch(err => setLoadError(err instanceof Error ? err.message : 'Dersler yüklenemedi'))
       .finally(() => setLoadingSubjects(false));
-  }, [isStudent, user.mode]);
+  }, [isStudent, mode]);
 
   useEffect(() => {
     if (isStudent) return;
     setLoadingPursuits(true);
     apiClient
-      .getMySubjects(user.mode)
+      .getMySubjects(mode)
       .then(setMyPursuits)
       .catch(err => setLoadError(err instanceof Error ? err.message : 'Uğraşlar yüklenemedi'))
       .finally(() => setLoadingPursuits(false));
-  }, [isStudent, user.mode]);
+  }, [isStudent, mode]);
 
   const loadTasks = () => {
     apiClient
-      .getDailyTasks(todayKey())
+      .getDailyTasks(mode, todayKey())
       .then(setDailyTasks)
       .catch(err => setTaskError(err instanceof Error ? err.message : 'Görevler yüklenemedi'))
       .finally(() => setLoadingTasks(false));
@@ -215,7 +236,7 @@ export const StudyPlanner: React.FC = () => {
       let topicId = selectedTopicId;
 
       if (!isStudent) {
-        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode: user.mode });
+        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode });
         subjectId = created.subjectId;
         topicId = created.topicId;
       }
@@ -263,7 +284,7 @@ export const StudyPlanner: React.FC = () => {
 
       if (!isStudent) {
         if (!pursuitName.trim()) return;
-        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode: user.mode });
+        const created = await apiClient.createCustomSubject({ name: pursuitName.trim(), mode });
         subjectId = created.subjectId;
         topicId = created.topicId;
       }
@@ -304,14 +325,14 @@ export const StudyPlanner: React.FC = () => {
     setLoadError(null);
     try {
       await apiClient.deleteSubject(subjectId);
-      const data = await apiClient.getTopics(user.mode);
+      const data = await apiClient.getTopics(mode);
       setSubjects(data);
       if (selectedSubjectId === subjectId) {
         setSelectedSubjectId(data[0]?.subjectId ?? '');
         setSelectedTopicId(data[0]?.topics[0]?.id ?? '');
       }
       if (!isStudent) {
-        const mine = await apiClient.getMySubjects(user.mode);
+        const mine = await apiClient.getMySubjects(mode);
         setMyPursuits(mine);
         if (pursuitName === subjectName) setPursuitName('');
       }

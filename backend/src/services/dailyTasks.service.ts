@@ -1,3 +1,4 @@
+import type { UserMode } from "@prisma/client";
 import { prisma } from "../config/prisma.js";
 import { HttpError } from "../utils/httpError.js";
 import { requireTopicInSubject } from "./topics.service.js";
@@ -29,10 +30,23 @@ export async function createTask(userId: string, input: { subjectId: string; top
   };
 }
 
-export async function listTasks(userId: string, dateStr?: string) {
+export async function listTasks(userId: string, mode: UserMode, dateStr?: string) {
   const date = toDateOnly(dateStr ?? toDateKey(new Date()));
   const tasks = await prisma.dailyTask.findMany({
-    where: { userId, date },
+    where: {
+      userId,
+      date,
+      // Gorevin dersi bu modda gorunuyorsa listele - topics.service'teki listTopicsForUser ile
+      // ayni kural: global katalog dersleri sadece STUDENT'ta, kullaniciya ozel dersler kendi
+      // modunda, sinav katalogundan secilen dersler de o sinavin modunda.
+      subject: {
+        OR: [
+          ...(mode === "STUDENT" ? [{ userId: null }] : []),
+          { userId, mode },
+          { exams: { some: { exam: { userId, mode } } } },
+        ],
+      },
+    },
     include: { subject: true, topic: true },
     orderBy: { createdAt: "asc" },
   });

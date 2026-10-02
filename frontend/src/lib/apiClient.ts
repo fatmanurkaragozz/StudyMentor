@@ -472,7 +472,8 @@ export const apiClient = {
   createJournal: (body: { content: string; mood: string; mode: UserMode }) =>
     request<JournalRow>("/journals", { method: "POST", body: JSON.stringify(body) }),
 
-  getDailyTasks: (date?: string) => request<DailyTaskRow[]>(`/daily-tasks${date ? `?date=${date}` : ""}`),
+  getDailyTasks: (mode: UserMode, date?: string) =>
+    request<DailyTaskRow[]>(`/daily-tasks?mode=${mode}${date ? `&date=${date}` : ""}`),
 
   createDailyTask: (body: { subjectId: string; topicId: string; date: string }) =>
     request<DailyTaskRow>("/daily-tasks", { method: "POST", body: JSON.stringify(body) }),
