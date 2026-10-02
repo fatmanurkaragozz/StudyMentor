@@ -6,6 +6,7 @@ import {
   getDailyTasks,
   postCompleteDailyTask,
   deleteDailyTaskHandler,
+  patchDailyTask,
 } from "../controllers/dailyTasks.controller.js";
 
 export const dailyTasksRouter = Router();
@@ -13,4 +14,5 @@ export const dailyTasksRouter = Router();
 dailyTasksRouter.post("/daily-tasks", requireAuth, asyncHandler(postDailyTask));
 dailyTasksRouter.get("/daily-tasks", requireAuth, asyncHandler(getDailyTasks));
 dailyTasksRouter.post("/daily-tasks/:id/complete", requireAuth, asyncHandler(postCompleteDailyTask));
+dailyTasksRouter.patch("/daily-tasks/:id", requireAuth, asyncHandler(patchDailyTask));
 dailyTasksRouter.delete("/daily-tasks/:id", requireAuth, asyncHandler(deleteDailyTaskHandler));

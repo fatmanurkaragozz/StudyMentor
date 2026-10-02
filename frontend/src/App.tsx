@@ -17,6 +17,7 @@ const LandingPage = lazy(() => import('./components/LandingPage').then(m => ({ d
 const Dashboard = lazy(() => import('./components/Dashboard').then(m => ({ default: m.Dashboard })));
 const MyCourses = lazy(() => import('./components/MyCourses').then(m => ({ default: m.MyCourses })));
 const StudyPlanner = lazy(() => import('./components/StudyPlanner').then(m => ({ default: m.StudyPlanner })));
+const Notebook = lazy(() => import('./components/Notebook').then(m => ({ default: m.Notebook })));
 const RealCalendar = lazy(() => import('./components/RealCalendar').then(m => ({ default: m.RealCalendar })));
 const GrowthHub = lazy(() => import('./components/GrowthHub').then(m => ({ default: m.GrowthHub })));
 const AIInsights = lazy(() => import('./components/AIInsights').then(m => ({ default: m.AIInsights })));
@@ -60,6 +61,7 @@ const MainLayout: React.FC<{ onGoToLanding: () => void; onLogout: () => void }> 
                 <StudyPlanner />
               </Activity>
             )}
+            {activeTab === 'notebook' && <Notebook />}
             {activeTab === 'calendar' && <RealCalendar />}
             {activeTab === 'growth' && <GrowthHub />}
             {activeTab === 'insights' && <AIInsights />}

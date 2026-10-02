@@ -12,7 +12,14 @@ import type { UserMode } from '../types';
 // apiClient de her mod icin farkli veri dondursun diye mock.
 vi.mock('../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../lib/apiClient', () => ({
-  apiClient: { getTopics: vi.fn(), getMySubjects: vi.fn(), getDailyTasks: vi.fn() },
+  apiClient: {
+    getTopics: vi.fn(),
+    getMySubjects: vi.fn(),
+    getDailyTasks: vi.fn(),
+    updateDailyTask: vi.fn(),
+    createStudySession: vi.fn(),
+    completeDailyTask: vi.fn(),
+  },
 }));
 
 const PURSUIT = 'StudyMentor projesi geliştirme';
@@ -49,7 +56,7 @@ beforeEach(() => {
   vi.mocked(apiClient.getMySubjects).mockResolvedValue([{ subjectId: 'p1', subjectName: PURSUIT, topics: [] }]);
   vi.mocked(apiClient.getDailyTasks).mockImplementation(async mode =>
     mode === 'LIFELONG_LEARNER'
-      ? [{ id: 'd1', subjectId: 'p1', subjectName: PURSUIT, topicId: 'tp1', topicName: 'Genel', date: '2026-10-01', status: 'PLANNED', studySessionId: null }]
+      ? [{ id: 'd1', subjectId: 'p1', subjectName: PURSUIT, topicId: 'tp1', topicName: 'Genel', date: '2026-10-01', status: 'PLANNED', title: null, startTime: null, endTime: null, studySessionId: null }]
       : [],
   );
 });
@@ -93,7 +100,7 @@ describe('StudyPlanner mod ayrimi', () => {
 
   it('baska sekmeye gecip donunce sayac sifirlanmaz, gecen sure dusulur ve secili ders korunur', async () => {
     vi.mocked(apiClient.getDailyTasks).mockResolvedValue([
-      { id: 'd2', subjectId: 's2', subjectName: 'Fizik', topicId: 't2', topicName: 'Kuvvet', date: '2026-10-01', status: 'PLANNED', studySessionId: null },
+      { id: 'd2', subjectId: 's2', subjectName: 'Fizik', topicId: 't2', topicName: 'Kuvvet', date: '2026-10-01', status: 'PLANNED', title: null, startTime: null, endTime: null, studySessionId: null },
     ]);
     setMode('STUDENT');
     const { rerender } = render(tree());
@@ -114,6 +121,55 @@ describe('StudyPlanner mod ayrimi', () => {
     expect(screen.getByText('Şu an çalışıyorsun: Fizik — Kuvvet')).toBeVisible();
     // Ekran tekrar gorununce ders listesi tazelendi (Derslerim'de degisiklik olduysa gelsin).
     expect(apiClient.getTopics).toHaveBeenCalledTimes(2);
+  });
+
+  it('Defterim\'den gelen serbest metinli plan saatiyle gorunur, oturum yerine "Tamamla" ile isaretlenir', async () => {
+    vi.mocked(apiClient.getDailyTasks).mockResolvedValue([
+      { id: 'p1', subjectId: null, subjectName: null, topicId: null, topicName: null, title: 'Fizik deneme çöz', startTime: '15:00', endTime: '16:00', date: '2026-10-01', status: 'PLANNED', studySessionId: null },
+    ]);
+    vi.mocked(apiClient.updateDailyTask).mockResolvedValue({} as never);
+    setMode('STUDENT');
+    render(tree());
+
+    expect(await screen.findByText('Fizik deneme çöz')).toBeInTheDocument();
+    expect(screen.getByText('15:00–16:00')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Oturum Başlat' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tamamla' }));
+    await act(async () => {});
+    expect(apiClient.updateDailyTask).toHaveBeenCalledWith('p1', { status: 'DONE' });
+  });
+
+  it('kayitta oturumun baslangic anini (startedAt) gonderir', async () => {
+    vi.mocked(apiClient.getDailyTasks).mockResolvedValue([
+      { id: 'd2', subjectId: 's2', subjectName: 'Fizik', topicId: 't2', topicName: 'Kuvvet', date: '2026-10-01', status: 'PLANNED', title: null, startTime: null, endTime: null, studySessionId: null },
+    ]);
+    vi.mocked(apiClient.createStudySession).mockResolvedValue({
+      studySession: { id: 'ss1' },
+      mlAvailable: false,
+      correctProbability: null,
+      priority: null,
+      recommendation: null,
+      proposedReminder: null,
+    });
+    vi.mocked(apiClient.completeDailyTask).mockResolvedValue({} as never);
+    setMode('STUDENT');
+    render(tree());
+
+    const startButton = await screen.findByRole('button', { name: 'Oturum Başlat' });
+    vi.useFakeTimers();
+    const startedAt = new Date().toISOString();
+    fireEvent.click(startButton);
+    act(() => {
+      vi.advanceTimersByTime(25 * 60 * 1000);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Veritabanına Kaydet' }));
+    await act(async () => {});
+
+    expect(apiClient.createStudySession).toHaveBeenCalledWith(
+      expect.objectContaining({ subjectId: 's2', topicId: 't2', durationMinutes: 25, startedAt }),
+    );
   });
 
   it('gorev listesini aktif modla ister', async () => {

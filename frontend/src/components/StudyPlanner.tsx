@@ -2,6 +2,7 @@ import React, { Activity, useCallback, useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { useFocusTimer } from '../context/FocusTimerContext';
 import { formatTime, secondsUntil } from '../lib/focusTimer';
+import { formatPlanTime, localDateKey } from '../lib/dateKey';
 import type { UserMode } from '../types';
 import { apiClient, type SubjectWithTopics, type RecommendationResult, type DailyTaskRow, type MySubject } from '../lib/apiClient';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from './onboarding/priorityLabels';
@@ -27,7 +28,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-const todayKey = () => new Date().toISOString().split('T')[0];
+const todayKey = () => localDateKey();
 const SIDEBAR_PAGE_SIZE = 5;
 
 // Her mod (Ogrenci/Gelisim) kendi sayacini, secili ders/ugrasini ve aktif gorevini ayri
@@ -63,6 +64,8 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
   const [secondsLeft, setSecondsLeft] = useState<number>(25 * 60);
   const { endsAt, setEndsAt } = useFocusTimer(mode);
   const isRunning = endsAt !== null;
+  // Oturumun ilk baslatildigi an - kayitta startedAt olarak gider, Defterim saat araligini bundan gosterir.
+  const [sessionStartedAt, setSessionStartedAt] = useState<number | null>(null);
   const [timerMode, setTimerMode] = useState<'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK' | 'CUSTOM'>('POMODORO');
 
   // Real ders/konu data
@@ -155,7 +158,10 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
     return () => clearInterval(interval);
   }, [endsAt, setEndsAt]);
 
-  const startTimer = () => setEndsAt(Date.now() + secondsLeft * 1000);
+  const startTimer = () => {
+    setSessionStartedAt(prev => prev ?? Date.now());
+    setEndsAt(Date.now() + secondsLeft * 1000);
+  };
 
   const pauseTimer = () => {
     if (endsAt !== null) setSecondsLeft(secondsUntil(endsAt));
@@ -164,6 +170,7 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
 
   const switchMode = (nextMode: 'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK') => {
     setEndsAt(null);
+    setSessionStartedAt(null);
     setTimerMode(nextMode);
     setSecondsLeft(durations[nextMode] * 60);
   };
@@ -261,8 +268,10 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
         difficulty,
         productivity,
         notes: notes.trim() || undefined,
+        startedAt: sessionStartedAt !== null ? new Date(sessionStartedAt).toISOString() : undefined,
       });
       setSubmitResult(res);
+      setSessionStartedAt(null);
       if (activeTaskId) {
         await apiClient.completeDailyTask(activeTaskId, res.studySession.id);
         loadTasks();
@@ -299,7 +308,7 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
       }
 
       if (!subjectId || !topicId) return;
-      await apiClient.createDailyTask({ subjectId, topicId, date: todayKey() });
+      await apiClient.createDailyTask({ subjectId, topicId, date: todayKey(), mode });
       loadTasks();
     } catch (err) {
       setTaskError(err instanceof Error ? err.message : 'Eklenemedi');
@@ -309,12 +318,24 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
   };
 
   const handleStartTaskSession = (task: DailyTaskRow) => {
+    if (!task.subjectId || !task.topicId) return;
     setActiveTaskId(task.id);
     setSelectedSubjectId(task.subjectId);
     setSelectedTopicId(task.topicId);
     const seconds = durations[timerMode === 'CUSTOM' ? 'POMODORO' : timerMode] * 60;
     setSecondsLeft(seconds);
+    setSessionStartedAt(Date.now());
     setEndsAt(Date.now() + seconds * 1000);
+  };
+
+  // Defterim'den eklenen serbest metinli planlar oturum baslatamaz (ders/konu yok), sadece isaretlenir.
+  const handleMarkTaskDone = async (taskId: string) => {
+    try {
+      await apiClient.updateDailyTask(taskId, { status: 'DONE' });
+      loadTasks();
+    } catch (err) {
+      setTaskError(err instanceof Error ? err.message : 'Güncellenemedi');
+    }
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -457,8 +478,10 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
                 }`}
               >
                 <div>
-                  <div className="font-semibold text-slate-800 dark:text-slate-200">{task.subjectName}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400">{task.topicName}</div>
+                  <div className="font-semibold text-slate-800 dark:text-slate-200">{task.title ?? task.subjectName}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                    {[formatPlanTime(task.startTime, task.endTime), task.title ? null : task.topicName].filter(Boolean).join(' · ')}
+                  </div>
                 </div>
                 {task.status === 'DONE' ? (
                   <span className="flex items-center gap-1 text-brand-mint-dark dark:text-brand-mint font-semibold text-[10px]">
@@ -467,14 +490,23 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
                   </span>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleStartTaskSession(task)}
-                      className={`px-2.5 py-1.5 rounded-lg text-white font-semibold text-[10px] ${
-                        isStudent ? 'bg-brand-pink-dark hover:opacity-90' : 'bg-brand-mint-dark hover:opacity-90'
-                      }`}
-                    >
-                      Oturum Başlat
-                    </button>
+                    {task.topicId ? (
+                      <button
+                        onClick={() => handleStartTaskSession(task)}
+                        className={`px-2.5 py-1.5 rounded-lg text-white font-semibold text-[10px] ${
+                          isStudent ? 'bg-brand-pink-dark hover:opacity-90' : 'bg-brand-mint-dark hover:opacity-90'
+                        }`}
+                      >
+                        Oturum Başlat
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleMarkTaskDone(task.id)}
+                        className="px-2.5 py-1.5 rounded-lg font-semibold text-[10px] text-brand-mint-dark dark:text-brand-mint bg-brand-mint-dark/10 border border-brand-mint-dark/30 hover:bg-brand-mint-dark/20"
+                      >
+                        Tamamla
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDeleteTask(task.id)}
                       className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 transition-all"
@@ -580,6 +612,7 @@ const ModePlanner: React.FC<{ mode: UserMode }> = ({ mode }) => {
             <button
               onClick={() => {
                 setEndsAt(null);
+                setSessionStartedAt(null);
                 setSecondsLeft(durations[timerMode === 'CUSTOM' ? 'POMODORO' : timerMode] * 60);
               }}
               className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center transition-all"

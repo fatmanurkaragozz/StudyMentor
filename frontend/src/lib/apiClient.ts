@@ -273,6 +273,8 @@ export interface StudySessionRow {
   difficulty: number;
   productivity: number;
   notes: string | null;
+  /** Calismanin basladigi an; eski kayitlarda null (Defterim araligi createdAt'ten tahmin eder) */
+  startedAt: string | null;
   createdAt: string;
 }
 
@@ -316,12 +318,16 @@ export interface ExamCatalogSubject {
 
 export type DailyTaskStatus = 'PLANNED' | 'DONE' | 'SKIPPED';
 
+// Ders/konu bagli madde ya da Defterim'deki serbest metinli plan (title) - ikisi ayni liste.
 export interface DailyTaskRow {
   id: string;
-  subjectId: string;
-  subjectName: string;
-  topicId: string;
-  topicName: string;
+  subjectId: string | null;
+  subjectName: string | null;
+  topicId: string | null;
+  topicName: string | null;
+  title: string | null;
+  startTime: string | null;
+  endTime: string | null;
   date: string;
   status: DailyTaskStatus;
   studySessionId: string | null;
@@ -443,9 +449,13 @@ export const apiClient = {
     difficulty: number;
     productivity: number;
     notes?: string;
+    startedAt?: string;
   }) => request<{ studySession: { id: string } } & RecommendationResult>("/study-sessions", { method: "POST", body: JSON.stringify(body) }),
 
-  getStudySessions: (mode: UserMode) => request<StudySessionRow[]>(`/study-sessions?mode=${mode}`),
+  getStudySessions: (mode: UserMode, range?: { from: string; to: string }) =>
+    request<StudySessionRow[]>(
+      `/study-sessions?mode=${mode}${range ? `&from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}` : ""}`,
+    ),
 
   getRecommendations: (mode: UserMode) =>
     request<RecommendationRow[]>(`/recommendations?mode=${mode}`),
@@ -475,8 +485,18 @@ export const apiClient = {
   getDailyTasks: (mode: UserMode, date?: string) =>
     request<DailyTaskRow[]>(`/daily-tasks?mode=${mode}${date ? `&date=${date}` : ""}`),
 
-  createDailyTask: (body: { subjectId: string; topicId: string; date: string }) =>
-    request<DailyTaskRow>("/daily-tasks", { method: "POST", body: JSON.stringify(body) }),
+  createDailyTask: (body: {
+    subjectId?: string;
+    topicId?: string;
+    title?: string;
+    startTime?: string;
+    endTime?: string;
+    date: string;
+    mode: UserMode;
+  }) => request<DailyTaskRow>("/daily-tasks", { method: "POST", body: JSON.stringify(body) }),
+
+  updateDailyTask: (taskId: string, body: { status?: 'PLANNED' | 'DONE'; date?: string }) =>
+    request<DailyTaskRow>(`/daily-tasks/${taskId}`, { method: "PATCH", body: JSON.stringify(body) }),
 
   completeDailyTask: (taskId: string, studySessionId: string) =>
     request<{ message: string }>(`/daily-tasks/${taskId}/complete`, {

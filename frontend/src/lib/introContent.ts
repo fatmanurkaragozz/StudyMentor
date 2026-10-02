@@ -20,6 +20,7 @@ export const SECTION_MAX_WIDTH: Record<string, string> = {
   dashboard: 'max-w-7xl',
   courses: 'max-w-5xl',
   planner: 'max-w-5xl',
+  notebook: 'max-w-6xl',
   calendar: 'max-w-6xl',
   growth: 'max-w-6xl',
   insights: 'max-w-6xl',
@@ -80,6 +81,27 @@ const SECTION_INTROS: Record<string, IntroFn> = {
             'Hangi uğraşın üzerine çalışacağını yaz, sağdaki listeye günün görevlerini ekle.',
             'Odak / Kısa Mola / Uzun Mola sekmesini seç, süreyi kendin ayarla ve "Başlat"a bas.',
             'Oturum bitince açılan formda zorluk ve verimliliği işaretle; Kaptan sana bir öncelik verir.',
+          ],
+        },
+
+  notebook: (isStudent) =>
+    isStudent
+      ? {
+          title: 'Defterim',
+          body: 'Hangi gün hangi saatlerde hangi derse çalıştığını gösteren defterin. Günlerine plan ve not da yazabilirsin.',
+          steps: [
+            'Sayaçla kaydettiğin oturumlar burada saat aralığıyla kendiliğinden görünür.',
+            'Sayaçsız çalıştıysan "Geçmişe ekle" ile dersi, konuyu ve saatleri gir.',
+            'Bir güne plan yaz; bugünün planları Çalışma & Odak ekranındaki listede de görünür.',
+          ],
+        }
+      : {
+          title: 'Defterim',
+          body: 'Hangi gün hangi saatlerde hangi uğraşına zaman ayırdığını gösteren defterin. Günlerine plan ve not da yazabilirsin.',
+          steps: [
+            'Zamanlayıcıyla kaydettiğin oturumlar burada saat aralığıyla kendiliğinden görünür.',
+            'Zamanlayıcısız çalıştıysan "Geçmişe ekle" ile uğraşı ve saatleri gir.',
+            'Bir güne plan yaz; bugünün planları Odak & Zamanlayıcı ekranındaki listede de görünür.',
           ],
         },
 

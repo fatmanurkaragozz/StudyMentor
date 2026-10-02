@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { apiClient, type StudySessionRow, type HabitRow, type ExamDto } from '../lib/apiClient';
 import { useRecommendations } from '../hooks/useRecommendations';
 import { getWelcomeMessage } from '../lib/labels';
+import { localDateKey } from '../lib/dateKey';
 import { IntroHint } from './IntroHint';
 import {
   Clock,
@@ -147,8 +148,12 @@ export const Dashboard: React.FC = () => {
   const handleAddDueToToday = async (topic: DueTopic) => {
     setDueError(null);
     try {
-      const today = new Date().toISOString().split('T')[0];
-      await apiClient.createDailyTask({ subjectId: topic.subjectId, topicId: topic.topicId, date: today });
+      await apiClient.createDailyTask({
+        subjectId: topic.subjectId,
+        topicId: topic.topicId,
+        date: localDateKey(),
+        mode: user.mode,
+      });
       setAddedTaskTopicIds(prev => new Set(prev).add(topic.topicId));
     } catch (err) {
       setDueError(err instanceof Error ? err.message : 'Eklenemedi');
