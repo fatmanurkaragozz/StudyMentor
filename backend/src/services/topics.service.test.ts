@@ -55,15 +55,15 @@ describe("markTopicReviewed", () => {
 });
 
 describe("listTopicsForUser", () => {
-  it("ilerlemeyi sadece o kullanicinin kaydindan alir, kaydi olmayan konuda null doner, status dondurmez", async () => {
+  it("ilerlemeyi sadece o kullanicinin kaydindan alir, kaydi olmayan konuda null doner", async () => {
     const lastStudied = new Date("2026-10-01T10:00:00.000Z");
     prismaMock.subject.findMany.mockResolvedValue([
       {
         id: "s1",
         name: "Sayısal Muhakeme",
         topics: [
-          { id: "t1", name: "Sayılar", status: "NOT_STARTED", lastStudied: new Date("2026-01-01"), progress: [{ lastStudied, nextReview: null }] },
-          { id: "t2", name: "Problemler", status: "NOT_STARTED", lastStudied: new Date("2026-01-01"), progress: [] },
+          { id: "t1", name: "Sayılar", progress: [{ lastStudied, nextReview: null }] },
+          { id: "t2", name: "Problemler", progress: [] },
         ],
       },
     ] as never);
@@ -73,7 +73,6 @@ describe("listTopicsForUser", () => {
     expect(prismaMock.subject.findMany.mock.calls[0][0]?.include).toEqual({
       topics: { include: { progress: { where: { userId: "u1" } } } },
     });
-    // Ortak satirdaki eski lastStudied (2026-01-01) artik okunmuyor.
     expect(subject.topics).toEqual([
       { id: "t1", name: "Sayılar", lastStudied, nextReview: null },
       { id: "t2", name: "Problemler", lastStudied: null, nextReview: null },

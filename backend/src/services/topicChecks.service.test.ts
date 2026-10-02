@@ -16,8 +16,6 @@ beforeEach(() => {
   prismaMock.topic.findUnique.mockResolvedValue({
     id: "t1",
     name: "Sayılar",
-    // Baska bir kullanicinin calismasindan kalmis ortak deger - ipucunda gorunmemeli.
-    lastStudied: new Date("2026-09-15T10:00:00.000Z"),
     subject: { name: "Sayısal Muhakeme" },
   } as never);
   prismaMock.user.findUnique.mockResolvedValue({ educationLevel: "UNIVERSITY" } as never);
@@ -35,7 +33,6 @@ describe("startCheck ipucu", () => {
       where: { userId_topicId: { userId: "u1", topicId: "t1" } },
     });
     expect(hint).toContain("30.09.2026");
-    expect(hint).not.toContain("15.09.2026");
   });
 
   it("kullanici bu konuyu hic calismadiysa genel ipucunu gosterir", async () => {

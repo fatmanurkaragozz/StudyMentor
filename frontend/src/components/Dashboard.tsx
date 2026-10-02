@@ -32,7 +32,7 @@ interface DueTopic {
   topicName: string;
   nextReview: string;
   // 'reminder' = kullanicinin kendi kabul ettigi kisisel hatirlatma (TopicReminder),
-  // 'ml' = modelin oncelik hesabina gore onerdigi genel tekrar tarihi (Topic.nextReview).
+  // 'ml' = modelin oncelik hesabina gore onerdigi genel tekrar tarihi (kullanicinin kendi UserTopicProgress.nextReview'i).
   source: 'ml' | 'reminder';
 }
 
